@@ -34,6 +34,7 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.hotware.hotsound.audio.player.StreamPlayerRunnable.IPlayerRunnableListener.PlaybackEndEvent;
+import de.hotware.util.GBaseEvent;
 
 /**
  * all playback functions are thread-safe. Player inspired by Matthias
