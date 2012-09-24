@@ -18,7 +18,7 @@
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
  *   if it breaks something.
  */
-package de.hotware.hotmisc.audio.player;
+package de.hotware.hotsound.audio.player;
 
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
@@ -33,7 +33,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.hotware.hotmisc.audio.player.StreamPlayerThread.IPlayerThreadListener.PlaybackEndEvent;
+import de.hotware.hotsound.audio.player.StreamPlayerThread.IPlayerThreadListener.PlaybackEndEvent;
 
 /**
  * all playback functions are thread-safe. Player inspired by Matthias

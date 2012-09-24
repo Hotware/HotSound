@@ -18,7 +18,7 @@
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
  *   if it breaks something.
  */
-package de.hotware.hotmisc.audio.player;
+package de.hotware.hotsound.audio.player;
 
 /**
  *  @author Martin Braun
@@ -38,13 +38,21 @@ import javax.sound.sampled.Control;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import de.hotware.hotsound.audio.player.StreamPlayerThread.IPlayerThreadListener;
+
 public class StreamMusicPlayer implements IMusicPlayer {
 
 	protected StreamPlayerThread mPlayerThread;
+	protected IPlayerThreadListener mPlayerThreadListener;
 	protected Lock mLock;
 
 	public StreamMusicPlayer() {
+		this(null);
+	}
+	
+	public StreamMusicPlayer(IPlayerThreadListener pPlayerThreadListener) {
 		this.mLock = new ReentrantLock();
+		this.mPlayerThreadListener = pPlayerThreadListener;
 	}
 
 	/**
@@ -62,7 +70,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
 			}
 			try {
-				this.mPlayerThread = new StreamPlayerThread(pSong);
+				this.mPlayerThread = new StreamPlayerThread(pSong, this.mPlayerThreadListener);
 			} catch(UnsupportedAudioFileException
 					| IOException
 					| LineUnavailableException e) {

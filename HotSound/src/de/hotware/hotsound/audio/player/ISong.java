@@ -1,5 +1,5 @@
 /**
- * File IMusicPlayer.java
+ * File ISong.java
  * ---------------------------------------------------------
  *
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
@@ -18,69 +18,19 @@
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
  *   if it breaks something.
  */
-package de.hotware.hotmisc.audio.player;
+package de.hotware.hotsound.audio.player;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.Control;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * Music Player interface. provides basic player methods and getters for a
- * player.
+ * Song interface for future potato-based implementations
  * 
  * @author Martin Braun
+ * 
  */
-public interface IMusicPlayer {
+public interface ISong {
 
-	/**
-	 * inserts a Song to the the Player possible difference between
-	 * implementations: some could allow multiple songs to be added, but some
-	 * could only hold one song at a time
-	 */
-	public void insert(ISong pSong) throws SongInsertionException;
-
-	public void startPlayback();
-
-	public void pausePlayback();
-
-	public void unpausePlayback();
-
-	public void stopPlayback();
-
-	public boolean isStopped();
-
-	public boolean isPaused();
-
-	public AudioFormat getAudioFormat();
-	
-	public Control[] getControls();
-	
-	public Control getControl(Control.Type pType);
-
-	/**
-	 * Exception that occurs if an error during song insertion occurs
-	 * 
-	 * @author Martin Braun
-	 */
-	public static class SongInsertionException extends Exception {
-
-		private static final long serialVersionUID = 8381906976505908003L;
-
-		public SongInsertionException() {
-			super();
-		}
-
-		public SongInsertionException(String pMessage) {
-			super(pMessage);
-		}
-
-		public SongInsertionException(String pMessage, Throwable pCause) {
-			super(pMessage, pCause);
-		}
-
-		public SongInsertionException(Throwable pCause) {
-			super(pCause);
-		}
-
-	}
+	public InputStream getInputStream() throws IOException;
 
 }

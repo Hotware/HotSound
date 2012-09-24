@@ -1,5 +1,5 @@
 /**
- * File ISong.java
+ * File BaseSong.java
  * ---------------------------------------------------------
  *
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
@@ -18,19 +18,31 @@
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
  *   if it breaks something.
  */
-package de.hotware.hotmisc.audio.player;
+package de.hotware.hotsound.audio.player;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
 /**
- * Song interface for future potato-based implementations
+ * Base implementation of a song. instantiable because it already knows enough
+ * stuff to retrieve a inputstream
  * 
  * @author Martin Braun
- * 
  */
-public interface ISong {
+public class BaseSong implements ISong {
 
-	public InputStream getInputStream() throws IOException;
+	protected URL mURL;
+
+	public BaseSong(URL pURL) {
+		this.mURL = pURL;
+	}
+
+	@Override
+	public InputStream getInputStream() throws IOException {
+		URLConnection uc = this.mURL.openConnection();
+		return uc.getInputStream();
+	}
 
 }

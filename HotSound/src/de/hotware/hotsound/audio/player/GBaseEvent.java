@@ -1,4 +1,4 @@
-package de.hotware.hotmisc.audio.player;
+package de.hotware.hotsound.audio.player;
 
 public abstract class GBaseEvent<T> {
 	protected T mSource;
