@@ -89,22 +89,24 @@ public class StreamPlayerThread extends Thread {
 		int nBytesRead = 0;
 		int bufferSize = (int)this.mAudioFormat.getSampleRate() * this.mAudioFormat.getFrameSize();
 		byte[] abData = new byte[bufferSize];
+		this.mLock.lock();
 		while(nBytesRead != -1 && !this.mStop && this.mLine != null) {
-			this.mLock.lock();          	
-			if(!this.mStop) {
-				try	{	
-					nBytesRead = this.mAudioInputStream.read(abData, 0, bufferSize);
-				} catch (IOException e)	{
-					nBytesRead = -1;
-				}
-				System.out.println(nBytesRead);
-				if(nBytesRead != -1) {
-					this.mLine.write(abData, 0, nBytesRead);
-				}
+			this.mLock.unlock();      	
+			try	{	
+				nBytesRead = this.mAudioInputStream.read(abData, 0, bufferSize);
+			} catch (IOException e)	{
+				nBytesRead = -1;
 			}
-			this.mLock.unlock();
+			if(nBytesRead != -1) {
+				this.mLine.write(abData, 0, nBytesRead);
+			}
+			this.mLock.lock();
 		}
-		this.cleanUp();
+		try {
+			this.cleanUp();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void pausePlayback() {
@@ -137,21 +139,23 @@ public class StreamPlayerThread extends Thread {
 	}
 	
 	public boolean isPaused() {
-		boolean locked = this.mLock.tryLock();
-		if(locked) {
+		boolean newLocked = this.mLock.tryLock();
+		if(newLocked) {
 			this.mLock.unlock();
 		}
-		return locked;
+		return newLocked;
 	}
 		
 	public AudioFormat getAudioFormat() {
 		return this.mAudioFormat;
 	}
 	
-	private void cleanUp() {
+	private void cleanUp() throws IOException {
 		if(this.mLine != null) {
 			this.mLine.drain();
+			this.mLine.stop();
 			this.mLine.close();
+			this.mAudioInputStream.close();
 		}
 	}
 	
