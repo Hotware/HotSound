@@ -58,7 +58,7 @@ public class StreamPlayerRunnable implements Runnable {
 
 	/**
 	 * initializes the StreamPlayerRunnable without a
-	 * {@link #PlayerThreadListener}
+	 * {@link #PlayerThreadListener} and the default Mixer
 	 */
 	public StreamPlayerRunnable(ISong pSong) throws UnsupportedAudioFileException,
 			IOException,
@@ -68,7 +68,7 @@ public class StreamPlayerRunnable implements Runnable {
 
 	/**
 	 * initializes the StreamPlayerRunnable with the given
-	 * {@link #PlayerThreadListener}
+	 * {@link #PlayerThreadListener} and the default Mixer
 	 */
 	public StreamPlayerRunnable(ISong pSong,
 			IPlayerRunnableListener pPlayerThreadListener) throws UnsupportedAudioFileException,
@@ -77,6 +77,10 @@ public class StreamPlayerRunnable implements Runnable {
 		this(pSong, pPlayerThreadListener, null);
 	}
 
+	/**
+	 * initializes the StreamPlayerRunnable with the given
+	 * {@link #PlayerThreadListener} and the given Mixer
+	 */
 	public StreamPlayerRunnable(ISong pSong,
 			IPlayerRunnableListener pPlayerThreadListener,
 			Mixer pMixer) throws UnsupportedAudioFileException,
