@@ -29,7 +29,7 @@ public enum StockParser implements IPlaylistParser {
 							if(file.exists()) {
 								//file path was absolute
 								ret.add(new BaseSong(file.toURI().toURL()));
-							} else if(pURL.getProtocol().startsWith("http")) {
+							} else if(!pURL.getProtocol().startsWith("http")) {
 								//file path was relative
 								File parentFile = new File(pURL.getFile())
 										.getParentFile();
