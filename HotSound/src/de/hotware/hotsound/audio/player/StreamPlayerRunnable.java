@@ -33,7 +33,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.hotware.hotsound.audio.player.StreamPlayerThread.IPlayerThreadListener.PlaybackEndEvent;
+import de.hotware.hotsound.audio.player.StreamPlayerRunnable.IPlayerRunnableListener.PlaybackEndEvent;
 
 /**
  * all playback functions are thread-safe. Player inspired by Matthias
@@ -45,7 +45,7 @@ import de.hotware.hotsound.audio.player.StreamPlayerThread.IPlayerThreadListener
  * 
  * @author Martin Braun
  */
-public class StreamPlayerThread extends Thread {
+public class StreamPlayerRunnable implements Runnable {
 
 	protected Lock mLock;
 	protected AudioInputStream mAudioInputStream;
@@ -54,10 +54,10 @@ public class StreamPlayerThread extends Thread {
 	protected DataLine.Info mDataLineInfo;
 	protected boolean mPause;
 	protected boolean mStop;
-	protected IPlayerThreadListener mPlayerThreadListener;
+	protected IPlayerRunnableListener mPlayerThreadListener;
 
-	public StreamPlayerThread(ISong pSong,
-			IPlayerThreadListener pPlayerThreadListener) throws UnsupportedAudioFileException,
+	public StreamPlayerRunnable(ISong pSong,
+			IPlayerRunnableListener pPlayerThreadListener) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException {
 		this.insert(pSong);
@@ -67,7 +67,7 @@ public class StreamPlayerThread extends Thread {
 		this.mPlayerThreadListener = pPlayerThreadListener;
 	}
 
-	public StreamPlayerThread(ISong pSong) throws UnsupportedAudioFileException,
+	public StreamPlayerRunnable(ISong pSong) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException {
 		this(pSong, null);
@@ -203,19 +203,20 @@ public class StreamPlayerThread extends Thread {
 			this.mAudioInputStream.close();
 		}
 	}
-	
-	public static interface IPlayerThreadListener {
+
+	public static interface IPlayerRunnableListener {
 
 		public void onEnd(PlaybackEndEvent pEvent);
-		
-		public static class PlaybackEndEvent extends GBaseEvent<StreamPlayerThread> {
 
-			public PlaybackEndEvent(StreamPlayerThread pSource) {
+		public static class PlaybackEndEvent extends
+				GBaseEvent<StreamPlayerRunnable> {
+
+			public PlaybackEndEvent(StreamPlayerRunnable pSource) {
 				super(pSource);
 			}
-			
+
 		}
-		
+
 	}
 
 }

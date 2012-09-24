@@ -12,16 +12,13 @@ import java.util.List;
 import de.hotware.hotsound.audio.player.BaseSong;
 import de.hotware.hotsound.audio.player.ISong;
 
-
 public enum StockParser implements IPlaylistParser {
-	M3U() {
+	M3U("m3u") {
 
 		@Override
 		public List<ISong> parse(URL pURL) throws IOException {
-			BufferedReader buf = null;
-			try {
-				InputStream is = pURL.openStream();
-				buf = new BufferedReader(new InputStreamReader(is));
+			try(BufferedReader buf = new BufferedReader(new InputStreamReader(pURL
+					.openStream()))) {
 				List<ISong> ret = new ArrayList<ISong>();
 				String line;
 				while((line = buf.readLine()) != null) {
@@ -35,7 +32,8 @@ public enum StockParser implements IPlaylistParser {
 								ret.add(new BaseSong(file.toURI().toURL()));
 							} else if(pURL.getProtocol().startsWith("http")) {
 								//file path was relative
-								File parentFile = new File(pURL.getFile()).getParentFile();
+								File parentFile = new File(pURL.getFile())
+										.getParentFile();
 								if(!parentFile.isDirectory()) {
 									throw new AssertionError("parent file of url is no directory!");
 								}
@@ -51,12 +49,23 @@ public enum StockParser implements IPlaylistParser {
 					}
 				}
 				return ret;
-			} finally {
-				if(buf != null) {
-					buf.close();
-				}
 			}
 		}
-		
+
 	};
+
+	protected String[] mKeys;
+
+	private StockParser(String... pKeys) {
+		if(pKeys == null) {
+			throw new IllegalArgumentException("pKeys may not be null");
+		}
+		this.mKeys = pKeys;
+	}
+
+	@Override
+	public String[] getKeys() {
+		return this.mKeys;
+	}
+
 }

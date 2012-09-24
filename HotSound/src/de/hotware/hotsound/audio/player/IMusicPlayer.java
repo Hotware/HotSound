@@ -51,9 +51,9 @@ public interface IMusicPlayer {
 	public boolean isPaused();
 
 	public AudioFormat getAudioFormat();
-	
+
 	public Control[] getControls();
-	
+
 	public Control getControl(Control.Type pType);
 
 	/**
