@@ -159,12 +159,30 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	
 	@Override
 	public Control[] getControls() {
-		return this.mPlayerThread.getControls();
+		this.mLock.lock();
+		try {
+			if(this.mPlayerThread == null) {
+				throw new IllegalStateException(this +
+						" has not been initialized yet!");
+			}
+			return this.mPlayerThread.getControls();
+		} finally {
+			this.mLock.unlock();
+		}
 	}
 	
 	@Override
 	public Control getControl(Control.Type pType) {
-		return this.mPlayerThread.getControl(pType);
+		this.mLock.lock();
+		try {
+			if(this.mPlayerThread == null) {
+				throw new IllegalStateException(this +
+						" has not been initialized yet!");
+			}
+			return this.mPlayerThread.getControl(pType);
+		} finally {
+			this.mLock.unlock();
+		}
 	}
 
 }
