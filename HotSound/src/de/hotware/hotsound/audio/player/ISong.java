@@ -31,6 +31,9 @@ import java.io.InputStream;
  */
 public interface ISong {
 
+	/**
+	 * @return the InputStream to the Song
+	 */
 	public InputStream getInputStream() throws IOException;
 
 }

@@ -21,7 +21,7 @@
 package de.hotware.hotsound.audio.player;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.Control;
+import javax.sound.sampled.DataLine;
 
 /**
  * Music Player interface. provides basic player methods and getters for a
@@ -38,23 +38,61 @@ public interface IMusicPlayer {
 	 */
 	public void insert(ISong pSong) throws SongInsertionException;
 
+	/**
+	 * starts the playback
+	 * 
+	 * @throws IllegalStateException
+	 *             if the player hasn't been initialized, yet (insert not
+	 *             called)
+	 */
 	public void startPlayback();
 
+	/**
+	 * pauses the playback
+	 * 
+	 * @throws IllegalStateException
+	 *             if the player hasn't been initialized, yet (insert not
+	 *             called)
+	 */
 	public void pausePlayback();
 
+	/**
+	 * unpauses the playback
+	 * 
+	 * @throws IllegalStateException
+	 *             if the player hasn't been initialized, yet (insert not
+	 *             called)
+	 */
 	public void unpausePlayback();
 
+	/**
+	 * stops the playback
+	 * 
+	 * @throws IllegalStateException
+	 *             if the player hasn't been initialized, yet (insert not
+	 *             called)
+	 */
 	public void stopPlayback();
 
+	/**
+	 * @return true if stopped (not started or ended), false otherwise
+	 */
 	public boolean isStopped();
 
+	/**
+	 * @return true if started and paused (not ended), false otherwise
+	 */
 	public boolean isPaused();
 
+	/**
+	 * @return the AudioFormat of the current song
+	 */
 	public AudioFormat getAudioFormat();
 
-	public Control[] getControls();
-
-	public Control getControl(Control.Type pType);
+	/**
+	 * @return the DataLine of the current song
+	 */
+	public DataLine getDataLine();
 
 	/**
 	 * Exception that occurs if an error during song insertion occurs

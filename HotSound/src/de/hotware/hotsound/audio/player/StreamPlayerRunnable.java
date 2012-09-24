@@ -1,5 +1,5 @@
 /**
- * File StreamPlayerThread.java
+ * File StreamPlayerRunnable.java
  * ---------------------------------------------------------
  *
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
@@ -27,7 +27,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Control;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
@@ -57,44 +56,24 @@ public class StreamPlayerRunnable implements Runnable {
 	protected boolean mStop;
 	protected IPlayerRunnableListener mPlayerThreadListener;
 
-	public StreamPlayerRunnable(ISong pSong,
-			IPlayerRunnableListener pPlayerThreadListener) throws UnsupportedAudioFileException,
-			IOException,
-			LineUnavailableException {
-		this.insert(pSong);
-		this.mPause = false;
-		this.mStop = true;
-		this.mLock = new ReentrantLock();
-		this.mPlayerThreadListener = pPlayerThreadListener;
-	}
-
+	/**
+	 * initializes the StreamPlayerRunnable without a {@link #PlayerThreadListener}
+	 */
 	public StreamPlayerRunnable(ISong pSong) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException {
 		this(pSong, null);
 	}
 
-	private void insert(ISong pSong) throws UnsupportedAudioFileException,
+	/**
+	 * initializes the StreamPlayerRunnable with the given {@link #PlayerThreadListener}
+	 */
+	public StreamPlayerRunnable(ISong pSong,
+			IPlayerRunnableListener pPlayerThreadListener) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException {
-		this.mAudioInputStream = AudioSystem.getAudioInputStream(pSong
-				.getInputStream());
-		AudioFormat format = this.mAudioInputStream.getFormat();
-		if(format.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
-			float sampleRate = format.getSampleRate();
-			int channels = format.getChannels();
-			AudioFormat newFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-					sampleRate,
-					16,
-					channels,
-					channels * 2,
-					sampleRate,
-					false);
-			AudioInputStream newStream = AudioSystem
-					.getAudioInputStream(newFormat, this.mAudioInputStream);
-			format = newFormat;
-			this.mAudioInputStream = newStream;
-		}
+		this.mAudioInputStream = AudioConverter
+				.getAudioInputStreamFromSong(pSong);
 		this.mAudioFormat = this.mAudioInputStream.getFormat();
 		this.mDataLineInfo = new DataLine.Info(SourceDataLine.class,
 				this.mAudioFormat);
@@ -102,6 +81,10 @@ public class StreamPlayerRunnable implements Runnable {
 				.getLine(this.mDataLineInfo);
 		this.mSourceDataLine.open(this.mAudioFormat);
 		this.mSourceDataLine.start();
+		this.mPause = false;
+		this.mStop = true;
+		this.mLock = new ReentrantLock();
+		this.mPlayerThreadListener = pPlayerThreadListener;
 	}
 
 	@Override
@@ -177,23 +160,32 @@ public class StreamPlayerRunnable implements Runnable {
 	}
 
 	public boolean isPaused() {
-		boolean newLocked = this.mLock.tryLock();
-		if(newLocked) {
-			this.mLock.unlock();
+		boolean newLocked = false;
+		try {
+			return newLocked = this.mLock.tryLock();
+		} finally {
+			if(newLocked) {
+				this.mLock.unlock();
+			}
 		}
-		return newLocked;
 	}
 
 	public AudioFormat getAudioFormat() {
-		return this.mAudioFormat;
+		this.mLock.lock();
+		try {
+			return this.mAudioFormat;
+		} finally {
+			this.mLock.unlock();
+		}
 	}
 
-	public Control[] getControls() {
-		return this.mSourceDataLine.getControls();
-	}
-
-	public Control getControl(Control.Type pType) {
-		return this.mSourceDataLine.getControl(pType);
+	public DataLine getDataLine() {
+		this.mLock.lock();
+		try {
+			return this.mSourceDataLine;
+		} finally {
+			this.mLock.unlock();
+		}
 	}
 
 	private void cleanUp() throws IOException {

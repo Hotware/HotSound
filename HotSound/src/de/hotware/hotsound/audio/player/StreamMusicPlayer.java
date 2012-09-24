@@ -36,7 +36,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.Control;
+import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -49,10 +49,17 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	protected IPlayerRunnableListener mPlayerThreadListener;
 	private Lock mLock;
 
+	/**
+	 * Default Constructor. initializes without a {@link #PlayerThreadListener}
+	 */
 	public StreamMusicPlayer() {
 		this(null);
 	}
 
+	/**
+	 * Default Constructor. initializes with the given
+	 * {@link #PlayerThreadListener}
+	 */
 	public StreamMusicPlayer(IPlayerRunnableListener pPlayerThreadListener) {
 		this.mLock = new ReentrantLock();
 		this.mPlayerThreadListener = pPlayerThreadListener;
@@ -163,37 +170,29 @@ public class StreamMusicPlayer implements IMusicPlayer {
 
 	@Override
 	public boolean isPaused() {
-		return this.mPlayerRunnable.isPaused();
-	}
-
-	@Override
-	public AudioFormat getAudioFormat() {
-		return this.mPlayerRunnable.getAudioFormat();
-	}
-
-	@Override
-	public Control[] getControls() {
 		this.mLock.lock();
 		try {
-			if(this.mPlayerRunnable == null) {
-				throw new IllegalStateException(this +
-						" has not been initialized yet!");
-			}
-			return this.mPlayerRunnable.getControls();
+			return this.mPlayerRunnable.isPaused();
 		} finally {
 			this.mLock.unlock();
 		}
 	}
 
 	@Override
-	public Control getControl(Control.Type pType) {
+	public AudioFormat getAudioFormat() {
 		this.mLock.lock();
 		try {
-			if(this.mPlayerRunnable == null) {
-				throw new IllegalStateException(this +
-						" has not been initialized yet!");
-			}
-			return this.mPlayerRunnable.getControl(pType);
+			return this.mPlayerRunnable.getAudioFormat();
+		} finally {
+			this.mLock.unlock();
+		}
+	}
+
+	@Override
+	public DataLine getDataLine() {
+		this.mLock.lock();
+		try {
+			return this.mPlayerRunnable.getDataLine();
 		} finally {
 			this.mLock.unlock();
 		}
