@@ -127,10 +127,10 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				throw new IllegalStateException(this +
 						" has not been initialized yet!");
 			}
+			return this.mPlayerThread.isStopped();
 		} finally {
 			this.mLock.unlock();
 		}
-		return this.mPlayerThread.isStopped();
 	}
 
 	@Override
@@ -141,10 +141,10 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				throw new IllegalStateException(this +
 						" has not been initialized yet!");
 			}
+			this.mPlayerThread.unpausePlayback();
 		} finally {
 			this.mLock.unlock();
 		}
-		this.mPlayerThread.unpausePlayback();
 	}
 
 	@Override

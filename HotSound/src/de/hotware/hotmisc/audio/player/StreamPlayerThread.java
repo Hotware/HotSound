@@ -168,13 +168,11 @@ public class StreamPlayerThread extends Thread {
 
 	public boolean isStopped() {
 		this.mLock.lock();
-		boolean ret;
 		try {
-			ret = this.mStop;
+			return this.mStop;
 		} finally {
 			this.mLock.unlock();
 		}
-		return ret;
 	}
 
 	public boolean isPaused() {
