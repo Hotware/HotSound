@@ -38,6 +38,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.hotware.hotsound.audio.player.StreamPlayerRunnable.IPlayerRunnableListener;
@@ -75,6 +76,18 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 */
 	@Override
 	public void insert(ISong pSong) throws SongInsertionException {
+		this.insert(pSong, null);
+	}
+
+	/**
+	 * @inheritDoc
+	 * @throws SongInsertionException
+	 *             if audio file is either not supported, its line is not
+	 *             available or an IOException has been thrown in the underlying
+	 *             methods
+	 */
+	@Override
+	public void insert(ISong pSong, Mixer pMixer) throws SongInsertionException {
 		this.mLock.lock();
 		try {
 			if(this.mPlayerRunnable != null &&
@@ -83,7 +96,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			}
 			try {
 				this.mPlayerRunnable = new StreamPlayerRunnable(pSong,
-						this.mPlayerThreadListener);
+						this.mPlayerThreadListener,
+						pMixer);
 			} catch(UnsupportedAudioFileException
 					| IOException
 					| LineUnavailableException e) {

@@ -29,6 +29,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -51,13 +52,13 @@ public class StreamPlayerRunnable implements Runnable {
 	protected AudioInputStream mAudioInputStream;
 	protected SourceDataLine mSourceDataLine;
 	protected AudioFormat mAudioFormat;
-	protected DataLine.Info mDataLineInfo;
 	protected boolean mPause;
 	protected boolean mStop;
 	protected IPlayerRunnableListener mPlayerThreadListener;
 
 	/**
-	 * initializes the StreamPlayerRunnable without a {@link #PlayerThreadListener}
+	 * initializes the StreamPlayerRunnable without a
+	 * {@link #PlayerThreadListener}
 	 */
 	public StreamPlayerRunnable(ISong pSong) throws UnsupportedAudioFileException,
 			IOException,
@@ -66,19 +67,32 @@ public class StreamPlayerRunnable implements Runnable {
 	}
 
 	/**
-	 * initializes the StreamPlayerRunnable with the given {@link #PlayerThreadListener}
+	 * initializes the StreamPlayerRunnable with the given
+	 * {@link #PlayerThreadListener}
 	 */
 	public StreamPlayerRunnable(ISong pSong,
 			IPlayerRunnableListener pPlayerThreadListener) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException {
-		this.mAudioInputStream = AudioConverter
-				.getAudioInputStreamFromSong(pSong);
+		this(pSong, pPlayerThreadListener, null);
+	}
+
+	public StreamPlayerRunnable(ISong pSong,
+			IPlayerRunnableListener pPlayerThreadListener,
+			Mixer pMixer) throws UnsupportedAudioFileException,
+			IOException,
+			LineUnavailableException {
+		this.mAudioInputStream = AudioUtil.getAudioInputStreamFromSong(pSong);
 		this.mAudioFormat = this.mAudioInputStream.getFormat();
-		this.mDataLineInfo = new DataLine.Info(SourceDataLine.class,
+		DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class,
 				this.mAudioFormat);
-		this.mSourceDataLine = (SourceDataLine) AudioSystem
-				.getLine(this.mDataLineInfo);
+		if(pMixer == null) {
+			this.mSourceDataLine = (SourceDataLine) AudioSystem
+					.getLine(dataLineInfo);
+		} else {
+			this.mSourceDataLine = (SourceDataLine) pMixer
+					.getLine(dataLineInfo);
+		}
 		this.mSourceDataLine.open(this.mAudioFormat);
 		this.mSourceDataLine.start();
 		this.mPause = false;

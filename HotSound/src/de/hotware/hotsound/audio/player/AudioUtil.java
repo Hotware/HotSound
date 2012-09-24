@@ -2,7 +2,7 @@
  * File AudioConverter.java
  * ---------------------------------------------------------
  *
- * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
+ * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com), (c) 1999 - 2001 by Matthias Pfisterer
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -26,10 +26,11 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class AudioConverter {
+public class AudioUtil {
 
 	/**
 	 * retrieves a AudioInputStream from a given Song. converts the
@@ -69,6 +70,20 @@ public class AudioConverter {
 			ret = newStream;
 		}
 		return ret;
+	}
+
+	/**
+	 * @return a mixer info object belonging to the Mixer named as pMixerName or
+	 *         null if not found
+	 */
+	public static Mixer.Info getMixerInfo(String pMixerName) {
+		Mixer.Info[] ret = AudioSystem.getMixerInfo();
+		for(int i = 0; i < ret.length; i++) {
+			if(ret[i].getName().equals(pMixerName)) {
+				return ret[i];
+			}
+		}
+		return null;
 	}
 
 }
