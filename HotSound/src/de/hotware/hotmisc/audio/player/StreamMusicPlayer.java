@@ -30,6 +30,8 @@ package de.hotware.hotmisc.audio.player;
  */
 
 import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.LineUnavailableException;
@@ -38,6 +40,11 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 public class StreamMusicPlayer implements IMusicPlayer {
 
 	private StreamPlayerThread mPlayerThread;
+	private Lock mLock;
+
+	public StreamMusicPlayer() {
+		this.mLock = new ReentrantLock();
+	}
 
 	/**
 	 * @inheritDoc
@@ -47,60 +54,90 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 *             methods
 	 */
 	@Override
-	public synchronized void insert(ISong pSong) throws SongInsertionException {
-		if(this.mPlayerThread != null && !this.mPlayerThread.isStopped()) {
-			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
-		}
+	public void insert(ISong pSong) throws SongInsertionException {
+		this.mLock.lock();
 		try {
-			this.mPlayerThread = new StreamPlayerThread(pSong);
-		} catch(UnsupportedAudioFileException
-				| IOException
-				| LineUnavailableException e) {
-			throw new SongInsertionException("Couldn't insert " + pSong, e);
+			if(this.mPlayerThread != null && !this.mPlayerThread.isStopped()) {
+				throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
+			}
+			try {
+				this.mPlayerThread = new StreamPlayerThread(pSong);
+			} catch(UnsupportedAudioFileException
+					| IOException
+					| LineUnavailableException e) {
+				throw new SongInsertionException("Couldn't insert " + pSong, e);
+			}
+		} finally {
+			this.mLock.unlock();
 		}
 	}
 
 	@Override
-	public synchronized void startPlayback() {
-		if(this.mPlayerThread == null) {
-			throw new IllegalStateException(this +
-					" has not been initialized yet!");
+	public void startPlayback() {
+		this.mLock.lock();
+		try {
+			if(this.mPlayerThread == null) {
+				throw new IllegalStateException(this +
+						" has not been initialized yet!");
+			}
+			if(!this.mPlayerThread.isStopped() || this.mPlayerThread.isAlive()) {
+				throw new IllegalStateException("Player is still playing");
+			}
+			this.mPlayerThread.start();
+		} finally {
+			this.mLock.unlock();
 		}
-		if(!this.mPlayerThread.isStopped() || this.mPlayerThread.isAlive()) {
-			throw new IllegalStateException("Player is still playing");
-		}
-		this.mPlayerThread.start();
 	}
 
 	@Override
 	public void pausePlayback() {
-		if(this.mPlayerThread == null) {
-			throw new IllegalStateException("not initialized yet");
+		this.mLock.lock();
+		try {
+			if(this.mPlayerThread == null) {
+				throw new IllegalStateException("not initialized yet");
+			}
+			this.mPlayerThread.pausePlayback();
+		} finally {
+			this.mLock.unlock();
 		}
-		this.mPlayerThread.pausePlayback();
 	}
 
 	@Override
 	public void stopPlayback() {
-		if(this.mPlayerThread == null) {
-			throw new IllegalStateException("not initialized yet");
+		this.mLock.lock();
+		try {
+			if(this.mPlayerThread == null) {
+				throw new IllegalStateException("not initialized yet");
+			}
+			this.mPlayerThread.stopPlayback();
+			this.mPlayerThread = null;
+		} finally {
+			this.mLock.unlock();
 		}
-		this.mPlayerThread.stopPlayback();
-		this.mPlayerThread = null;
 	}
 
 	@Override
 	public boolean isStopped() {
-		if(this.mPlayerThread == null) {
-			throw new IllegalStateException("not initialized yet");
+		this.mLock.lock();
+		try {
+			if(this.mPlayerThread == null) {
+				throw new IllegalStateException("not initialized yet");
+			}
+		} finally {
+			this.mLock.unlock();
 		}
 		return this.mPlayerThread.isStopped();
 	}
 
 	@Override
 	public void unpausePlayback() {
-		if(this.mPlayerThread == null) {
-			throw new IllegalStateException("not initialized yet");
+		this.mLock.lock();
+		try {
+			if(this.mPlayerThread == null) {
+				throw new IllegalStateException("not initialized yet");
+			}
+		} finally {
+			this.mLock.unlock();
 		}
 		this.mPlayerThread.unpausePlayback();
 	}

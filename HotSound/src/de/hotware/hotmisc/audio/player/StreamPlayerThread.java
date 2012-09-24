@@ -91,16 +91,19 @@ public class StreamPlayerThread extends Thread {
 		byte[] abData = new byte[bufferSize];
 		this.mLock.lock();
 		while(nBytesRead != -1 && !this.mStop && this.mLine != null) {
-			this.mLock.unlock();      	
-			try	{	
-				nBytesRead = this.mAudioInputStream.read(abData, 0, bufferSize);
-			} catch (IOException e)	{
-				nBytesRead = -1;
+			this.mLock.unlock();
+			try {
+				try	{	
+					nBytesRead = this.mAudioInputStream.read(abData, 0, bufferSize);
+				} catch (IOException e)	{
+					nBytesRead = -1;
+				}
+				if(nBytesRead != -1) {
+					this.mLine.write(abData, 0, nBytesRead);
+				}
+			} finally {
+				this.mLock.unlock();
 			}
-			if(nBytesRead != -1) {
-				this.mLine.write(abData, 0, nBytesRead);
-			}
-			this.mLock.lock();
 		}
 		try {
 			this.cleanUp();
@@ -127,14 +130,21 @@ public class StreamPlayerThread extends Thread {
 	
 	public void stopPlayback() {
 		this.mLock.lock();
-		this.mStop = true;
-		this.mLock.unlock();
+		try {
+			this.mStop = true;
+		} finally {
+			this.mLock.unlock();
+		}
 	}
 	
 	public boolean isStopped() {
 		this.mLock.lock();
-		boolean ret = this.mStop;
-		this.mLock.unlock();
+		boolean ret;
+		try {
+			ret = this.mStop;
+		} finally {
+			this.mLock.unlock();
+		}
 		return ret;
 	}
 	
