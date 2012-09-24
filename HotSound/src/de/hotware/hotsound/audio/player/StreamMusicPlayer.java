@@ -80,6 +80,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	/**
+	 * @param pMixer if null is passed the AudioSystem uses the default Mixer
 	 * @inheritDoc
 	 * @throws SongInsertionException
 	 *             if audio file is either not supported, its line is not

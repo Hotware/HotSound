@@ -36,4 +36,11 @@ public interface ISong {
 	 */
 	public InputStream getInputStream() throws IOException;
 
+	/**
+	 * this is just a hint
+	 * 
+	 * @return AudioSystem.NOT_SPECIFIED if default value should be used
+	 */
+	public int getInternalBufferSize();
+
 }

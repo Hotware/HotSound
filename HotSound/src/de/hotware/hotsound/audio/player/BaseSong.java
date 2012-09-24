@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
+import javax.sound.sampled.AudioSystem;
+
 /**
  * Base implementation of a song. instantiable because it already knows enough
  * stuff to retrieve a inputstream
@@ -43,6 +45,11 @@ public class BaseSong implements ISong {
 	public InputStream getInputStream() throws IOException {
 		URLConnection uc = this.mURL.openConnection();
 		return uc.getInputStream();
+	}
+
+	@Override
+	public int getInternalBufferSize() {
+		return AudioSystem.NOT_SPECIFIED;
 	}
 
 }

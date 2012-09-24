@@ -85,7 +85,8 @@ public class StreamPlayerRunnable implements Runnable {
 		this.mAudioInputStream = AudioUtil.getAudioInputStreamFromSong(pSong);
 		this.mAudioFormat = this.mAudioInputStream.getFormat();
 		DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class,
-				this.mAudioFormat);
+				this.mAudioFormat,
+				pSong.getInternalBufferSize());
 		if(pMixer == null) {
 			this.mSourceDataLine = (SourceDataLine) AudioSystem
 					.getLine(dataLineInfo);
