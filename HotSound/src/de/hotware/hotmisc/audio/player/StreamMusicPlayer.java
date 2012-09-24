@@ -40,8 +40,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class StreamMusicPlayer implements IMusicPlayer {
 
-	private StreamPlayerThread mPlayerThread;
-	private Lock mLock;
+	protected StreamPlayerThread mPlayerThread;
+	protected Lock mLock;
 
 	public StreamMusicPlayer() {
 		this.mLock = new ReentrantLock();
@@ -82,7 +82,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 						" has not been initialized yet!");
 			}
 			if(!this.mPlayerThread.isStopped() || this.mPlayerThread.isAlive()) {
-				throw new IllegalStateException("Player is still playing");
+				throw new IllegalStateException("Player is already playing");
 			}
 			this.mPlayerThread.start();
 		} finally {
@@ -95,7 +95,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this.mLock.lock();
 		try {
 			if(this.mPlayerThread == null) {
-				throw new IllegalStateException("not initialized yet");
+				throw new IllegalStateException(this +
+						" has not been initialized yet!");
 			}
 			this.mPlayerThread.pausePlayback();
 		} finally {
@@ -108,7 +109,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this.mLock.lock();
 		try {
 			if(this.mPlayerThread == null) {
-				throw new IllegalStateException("not initialized yet");
+				throw new IllegalStateException(this +
+						" has not been initialized yet!");
 			}
 			this.mPlayerThread.stopPlayback();
 			this.mPlayerThread = null;
@@ -122,7 +124,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this.mLock.lock();
 		try {
 			if(this.mPlayerThread == null) {
-				throw new IllegalStateException("not initialized yet");
+				throw new IllegalStateException(this +
+						" has not been initialized yet!");
 			}
 		} finally {
 			this.mLock.unlock();
@@ -135,7 +138,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this.mLock.lock();
 		try {
 			if(this.mPlayerThread == null) {
-				throw new IllegalStateException("not initialized yet");
+				throw new IllegalStateException(this +
+						" has not been initialized yet!");
 			}
 		} finally {
 			this.mLock.unlock();
