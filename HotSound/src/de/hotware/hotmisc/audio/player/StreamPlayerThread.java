@@ -27,6 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Control;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
@@ -45,9 +46,9 @@ public class StreamPlayerThread extends Thread {
 
 	protected Lock mLock;
 	protected AudioInputStream mAudioInputStream;
-	protected SourceDataLine mLine;
+	protected SourceDataLine mSourceDataLine;
 	protected AudioFormat mAudioFormat;
-	protected DataLine.Info mInfo;
+	protected DataLine.Info mDataLineInfo;
 	protected boolean mPause;
 	protected boolean mStop;
 	
@@ -77,10 +78,10 @@ public class StreamPlayerThread extends Thread {
 	        this.mAudioInputStream = newStream;
 		}
 		this.mAudioFormat = this.mAudioInputStream.getFormat();
-		this.mInfo = new DataLine.Info(SourceDataLine.class, this.mAudioFormat);
-		this.mLine = (SourceDataLine) AudioSystem.getLine(this.mInfo);
-		this.mLine.open(this.mAudioFormat);
-		this.mLine.start();
+		this.mDataLineInfo = new DataLine.Info(SourceDataLine.class, this.mAudioFormat);
+		this.mSourceDataLine = (SourceDataLine) AudioSystem.getLine(this.mDataLineInfo);
+		this.mSourceDataLine.open(this.mAudioFormat);
+		this.mSourceDataLine.start();
 	}
     
     @Override
@@ -90,20 +91,21 @@ public class StreamPlayerThread extends Thread {
 		int bufferSize = (int)this.mAudioFormat.getSampleRate() * this.mAudioFormat.getFrameSize();
 		byte[] abData = new byte[bufferSize];
 		this.mLock.lock();
-		while(nBytesRead != -1 && !this.mStop && this.mLine != null) {
-			this.mLock.unlock();
-			try {
+		try {
+			while(nBytesRead != -1 && !this.mStop && this.mSourceDataLine != null) {
+				this.mLock.unlock();
 				try	{	
 					nBytesRead = this.mAudioInputStream.read(abData, 0, bufferSize);
 				} catch (IOException e)	{
 					nBytesRead = -1;
 				}
 				if(nBytesRead != -1) {
-					this.mLine.write(abData, 0, nBytesRead);
+					this.mSourceDataLine.write(abData, 0, nBytesRead);
 				}
-			} finally {
-				this.mLock.unlock();
+				this.mLock.lock();
 			}
+		} finally {
+			this.mLock.unlock();
 		}
 		try {
 			this.cleanUp();
@@ -155,16 +157,24 @@ public class StreamPlayerThread extends Thread {
 		}
 		return newLocked;
 	}
-		
+	
 	public AudioFormat getAudioFormat() {
 		return this.mAudioFormat;
 	}
 	
+	public Control[] getControls() {
+		return this.mSourceDataLine.getControls();
+	}
+
+	public Control getControl(Control.Type pType) {
+		return this.mSourceDataLine.getControl(pType);
+	}
+	
 	private void cleanUp() throws IOException {
-		if(this.mLine != null) {
-			this.mLine.drain();
-			this.mLine.stop();
-			this.mLine.close();
+		if(this.mSourceDataLine != null) {
+			this.mSourceDataLine.drain();
+			this.mSourceDataLine.stop();
+			this.mSourceDataLine.close();
 			this.mAudioInputStream.close();
 		}
 	}

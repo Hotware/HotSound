@@ -21,6 +21,7 @@
 package de.hotware.hotmisc.audio.player;
 
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.Control;
 
 /**
  * Music Player interface. provides basic player methods and getters for a
@@ -50,6 +51,10 @@ public interface IMusicPlayer {
 	public boolean isPaused();
 
 	public AudioFormat getAudioFormat();
+	
+	public Control[] getControls();
+	
+	public Control getControl(Control.Type pType);
 
 	/**
 	 * Exception that occurs if an error during song insertion occurs

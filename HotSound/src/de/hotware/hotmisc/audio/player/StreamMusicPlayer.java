@@ -34,6 +34,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.Control;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -150,6 +151,16 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	@Override
 	public AudioFormat getAudioFormat() {
 		return this.mPlayerThread.getAudioFormat();
+	}
+	
+	@Override
+	public Control[] getControls() {
+		return this.mPlayerThread.getControls();
+	}
+	
+	@Override
+	public Control getControl(Control.Type pType) {
+		return this.mPlayerThread.getControl(pType);
 	}
 
 }
