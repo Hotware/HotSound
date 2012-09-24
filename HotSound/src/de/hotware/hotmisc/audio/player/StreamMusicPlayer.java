@@ -74,22 +74,34 @@ public class StreamMusicPlayer implements IMusicPlayer {
 
 	@Override
 	public void pausePlayback() {
+		if(this.mPlayerThread == null) {
+			throw new IllegalStateException("not initialized yet");
+		}
 		this.mPlayerThread.pausePlayback();
 	}
 
 	@Override
 	public void stopPlayback() {
+		if(this.mPlayerThread == null) {
+			throw new IllegalStateException("not initialized yet");
+		}
 		this.mPlayerThread.stopPlayback();
 		this.mPlayerThread = null;
 	}
 
 	@Override
 	public boolean isStopped() {
+		if(this.mPlayerThread == null) {
+			throw new IllegalStateException("not initialized yet");
+		}
 		return this.mPlayerThread.isStopped();
 	}
 
 	@Override
 	public void unpausePlayback() {
+		if(this.mPlayerThread == null) {
+			throw new IllegalStateException("not initialized yet");
+		}
 		this.mPlayerThread.unpausePlayback();
 	}
 

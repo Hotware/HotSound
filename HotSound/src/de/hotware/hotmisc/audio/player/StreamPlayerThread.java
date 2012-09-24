@@ -97,6 +97,7 @@ public class StreamPlayerThread extends Thread {
 				} catch (IOException e)	{
 					nBytesRead = -1;
 				}
+				System.out.println(nBytesRead);
 				if(nBytesRead != -1) {
 					this.mLine.write(abData, 0, nBytesRead);
 				}
@@ -136,7 +137,11 @@ public class StreamPlayerThread extends Thread {
 	}
 	
 	public boolean isPaused() {
-		return this.mLock.tryLock();
+		boolean locked = this.mLock.tryLock();
+		if(locked) {
+			this.mLock.unlock();
+		}
+		return locked;
 	}
 		
 	public AudioFormat getAudioFormat() {
