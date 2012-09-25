@@ -21,6 +21,7 @@
 package de.hotware.hotsound.audio.player;
 
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Mixer;
 
@@ -101,6 +102,12 @@ public interface IMusicPlayer {
 	 * @return the DataLine of the current song
 	 */
 	public DataLine getDataLine();
+	
+	/**
+	 * seeks to the given position
+	 * @param pPosition position in microseconds
+	 */
+	public void seek(int pPosition);
 	
 	public void setPlaybackListener(IPlaybackListener pPlaybackListener);
 

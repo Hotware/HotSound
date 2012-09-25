@@ -45,6 +45,14 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	protected ExecutorService mExecutorService;
 	protected StreamPlayerRunnable mPlayerRunnable;
 	protected IPlaybackListener mPlaybackListener;
+	/**
+	 * the current song after insertion
+	 */
+	protected ISong mCurrentSong;
+	/**
+	 * the current mixer after insertion
+	 */
+	protected Mixer mCurrentMixer;
 	private Lock mLock;
 
 	/**
@@ -73,6 +81,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this.mLock = new ReentrantLock();
 		this.mPlaybackListener = pPlaybackListener;
 		this.mExecutorService = pExecutorService;
+		this.mCurrentSong = null;
+		this.mCurrentMixer = null;
 	}
 
 	@Override
@@ -105,19 +115,9 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public void insert(ISong pSong, Mixer pMixer) throws SongInsertionException {
 		this.mLock.lock();
 		try {
-			if(this.mPlayerRunnable != null &&
-					!this.mPlayerRunnable.isStopped()) {
-				throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
-			}
-			try {
-				this.mPlayerRunnable = new StreamPlayerRunnable(pSong,
-						this.mPlaybackListener,
-						pMixer);
-			} catch(UnsupportedAudioFileException
-					| IOException
-					| LineUnavailableException e) {
-				throw new SongInsertionException("Couldn't insert " + pSong, e);
-			}
+			this.mCurrentSong = pSong;
+			this.mCurrentMixer = pMixer;
+			this.insertInternal(pSong, pMixer);
 		} finally {
 			this.mLock.unlock();
 		}
@@ -233,4 +233,65 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		}
 	}
 
+	@Override
+	public void seek(int pPosition) {
+		this.mLock.lock();
+		try {
+			throw new UnsupportedOperationException("not implemented yet");
+//			// just pause the playback
+//			this.stopPlayback();
+//			try {
+//				this.insertInternal(this.mCurrentSong, this.mCurrentMixer);
+//				if(file != null && this.mPlayerRunnable.mAudioFormat.getFrameLength() != -1)
+//				{	
+//				double skippedPercentage = (double)percentage/100;
+//				System.out.println("Percentage to skip " + skippedPercentage);
+//				long framesToSkip = (long) (getFrameLength() * skippedPercentage);
+//				System.out.println("Skipping " + framesToSkip + " frames with " + getFrameLength() + " available");
+//				long bytesSkipped = 0;
+//				byte[] garbage = new byte[4096];
+//				long bytesDropped = 0;
+//				while(bytesSkipped <= framesToSkip*audioFormat.getFrameSize() && bytesDropped != -1)
+//				{
+//				// System.out.println(bytesSkipped/audioFormat.getFrameSize());
+//				bytesDropped = audioInputStream.read(garbage, 0, garbage.length);
+//				// bytesDropped = audioInputStream.skip(4096);
+//				// System.out.println("Dropped " + bytesDropped + " bytes");
+//				bytesSkipped += bytesDropped;
+//				}
+//				skippedFrames += bytesSkipped/audioFormat.getFrameSize();
+//				System.out.println("Skipped Frames: " + bytesSkipped/audioFormat.getFrameSize());
+//				}
+//				}
+//				catch (IOException e)
+//				{
+//				e.printStackTrace();
+//				}	
+//				catch(Exception e)
+//				{
+//				e.printStackTrace();
+//			}
+//			// start playing again
+//			this.startPlayback();
+		} finally {
+			this.mLock.unlock();
+		}
+	}
+
+	private void insertInternal(ISong pSong, Mixer pMixer) throws SongInsertionException {
+		if(this.mPlayerRunnable != null &&
+				!this.mPlayerRunnable.isStopped()) {
+			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
+		}
+		try {
+			this.mPlayerRunnable = new StreamPlayerRunnable(pSong,
+					this.mPlaybackListener,
+					pMixer);
+		} catch(UnsupportedAudioFileException
+				| IOException
+				| LineUnavailableException e) {
+			throw new SongInsertionException("Couldn't insert " + pSong, e);
+		}
+	}
+	
 }
