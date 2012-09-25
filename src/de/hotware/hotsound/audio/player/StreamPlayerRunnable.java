@@ -164,6 +164,7 @@ public class StreamPlayerRunnable implements Runnable {
 		this.mLock.lock();
 		try {
 			this.mStop = true;
+			this.mSourceDataLine.flush();
 		} finally {
 			this.mLock.unlock();
 		}
