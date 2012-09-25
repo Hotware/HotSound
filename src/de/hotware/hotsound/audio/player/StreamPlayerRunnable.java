@@ -149,6 +149,7 @@ public class StreamPlayerRunnable implements Runnable {
 			throw new IllegalStateException("Player is already paused!");
 		}
 		this.mLock.lock();
+		this.mSourceDataLine.stop();
 		this.mPause = true;
 	}
 
@@ -157,6 +158,7 @@ public class StreamPlayerRunnable implements Runnable {
 			throw new IllegalStateException("Player is not paused!");
 		}
 		this.mPause = false;
+		this.mSourceDataLine.start();
 		this.mLock.unlock();
 	}
 

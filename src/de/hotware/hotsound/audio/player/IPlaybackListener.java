@@ -1,5 +1,6 @@
 package de.hotware.hotsound.audio.player;
 
+
 import de.hotware.util.GBaseEvent;
 
 public interface IPlaybackListener {
