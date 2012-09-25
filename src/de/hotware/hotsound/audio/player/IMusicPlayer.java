@@ -50,7 +50,7 @@ public interface IMusicPlayer {
 	 * starts the playback
 	 * 
 	 * @throws IllegalStateException
-	 *             if the player hasn't been initialized, yet (insert not
+	 *             if the player hasn't been initialized yet (insert not
 	 *             called)
 	 */
 	public void startPlayback();
@@ -59,7 +59,7 @@ public interface IMusicPlayer {
 	 * pauses the playback
 	 * 
 	 * @throws IllegalStateException
-	 *             if the player hasn't been initialized, yet (insert not
+	 *             if the player hasn't been initialized yet (insert not
 	 *             called)
 	 */
 	public void pausePlayback();
@@ -68,7 +68,7 @@ public interface IMusicPlayer {
 	 * unpauses the playback
 	 * 
 	 * @throws IllegalStateException
-	 *             if the player hasn't been initialized, yet (insert not
+	 *             if the player hasn't been initialized yet (insert not
 	 *             called)
 	 */
 	public void unpausePlayback();
@@ -77,7 +77,7 @@ public interface IMusicPlayer {
 	 * stops the playback
 	 * 
 	 * @throws IllegalStateException
-	 *             if the player hasn't been initialized, yet (insert not
+	 *             if the player hasn't been initialized yet (insert not
 	 *             called)
 	 */
 	public void stopPlayback();
