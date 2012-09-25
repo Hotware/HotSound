@@ -20,8 +20,10 @@
  */
 package de.hotware.hotsound.audio.player;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -39,6 +41,13 @@ public class BasicSong implements ISong {
 
 	public BasicSong(URL pURL) {
 		this.mURL = pURL;
+	}
+	
+	public BasicSong(File pFile) throws MalformedURLException {
+		if(!pFile.exists()) {
+			throw new IllegalArgumentException("File does not exist");
+		}
+		this.mURL = pFile.toURI().toURL();
 	}
 
 	@Override
