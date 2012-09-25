@@ -21,7 +21,6 @@
 package de.hotware.hotsound.audio.player;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Mixer;
 
