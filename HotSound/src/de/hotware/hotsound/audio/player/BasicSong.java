@@ -33,11 +33,11 @@ import javax.sound.sampled.AudioSystem;
  * 
  * @author Martin Braun
  */
-public class BaseSong implements ISong {
+public class BasicSong implements ISong {
 
 	protected URL mURL;
 
-	public BaseSong(URL pURL) {
+	public BasicSong(URL pURL) {
 		this.mURL = pURL;
 	}
 

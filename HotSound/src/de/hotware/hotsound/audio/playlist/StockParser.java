@@ -28,7 +28,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.hotware.hotsound.audio.player.BaseSong;
+import de.hotware.hotsound.audio.player.BasicSong;
 import de.hotware.hotsound.audio.player.ISong;
 
 /**
@@ -53,7 +53,7 @@ public enum StockParser implements IPlaylistParser {
 							File file = new File(line);
 							if(file.exists()) {
 								//file path was absolute
-								ret.add(new BaseSong(file.toURI().toURL()));
+								ret.add(new BasicSong(file.toURI().toURL()));
 							} else if(!pURL.getProtocol().startsWith("http")) {
 								//file path was relative
 								File parentFile = new File(pURL.getFile())
@@ -64,11 +64,11 @@ public enum StockParser implements IPlaylistParser {
 								file = new File(parentFile, line);
 								if(file.exists()) {
 									//file path was relative and file exists
-									ret.add(new BaseSong(file.toURI().toURL()));
+									ret.add(new BasicSong(file.toURI().toURL()));
 								}
 							}
 						} else {
-							ret.add(new BaseSong(new URL(line)));
+							ret.add(new BasicSong(new URL(line)));
 						}
 					}
 				}
