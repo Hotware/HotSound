@@ -41,10 +41,9 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-
 public class StreamMusicPlayer implements IMusicPlayer {
 
-	protected ExecutorService mExecService;
+	protected ExecutorService mExecutorService;
 	protected StreamPlayerRunnable mPlayerRunnable;
 	protected IPlaybackListener mPlaybackListener;
 	private Lock mLock;
@@ -61,11 +60,22 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 * {@link #PlayerThreadListener}
 	 */
 	public StreamMusicPlayer(IPlaybackListener pPlaybackListener) {
+		this(pPlaybackListener, null);
+	}
+
+	/**
+	 * uses the given ExecutorService to run its tasks.
+	 * if null is specified it uses the current thread
+	 * @param pPlaybackListener
+	 * @param pExecutorService
+	 */
+	public StreamMusicPlayer(IPlaybackListener pPlaybackListener,
+			ExecutorService pExecutorService) {
 		this.mLock = new ReentrantLock();
 		this.mPlaybackListener = pPlaybackListener;
-		this.mExecService = Executors.newSingleThreadExecutor();
+		this.mExecutorService = pExecutorService;
 	}
-	
+
 	@Override
 	public void setPlaybackListener(IPlaybackListener pPlaybackListener) {
 		this.mPlaybackListener = pPlaybackListener;
@@ -84,7 +94,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	/**
-	 * @param pMixer if null is passed the AudioSystem uses the default Mixer
+	 * @param pMixer
+	 *            if null is passed the AudioSystem uses the default Mixer
 	 * @inheritDoc
 	 * @throws SongInsertionException
 	 *             if audio file is either not supported, its line is not
@@ -124,7 +135,13 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			if(!this.mPlayerRunnable.isStopped()) {
 				throw new IllegalStateException("Player is already playing");
 			}
-			this.mExecService.execute(this.mPlayerRunnable);
+			if(this.mExecutorService != null) {
+				//run on the thread specified
+				this.mExecutorService.execute(this.mPlayerRunnable);
+			} else {
+				//run on our own thread
+				this.mPlayerRunnable.run();
+			}
 		} finally {
 			this.mLock.unlock();
 		}
