@@ -33,8 +33,8 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.hotware.hotsound.audio.player.StreamPlayerRunnable.IPlayerRunnableListener.PlaybackEndEvent;
-import de.hotware.util.GBaseEvent;
+import de.hotware.hotsound.audio.player.IPlaybackListener.PlaybackEndEvent;
+
 
 /**
  * all playback functions are thread-safe. Player inspired by Matthias
@@ -54,7 +54,7 @@ public class StreamPlayerRunnable implements Runnable {
 	protected AudioFormat mAudioFormat;
 	protected boolean mPause;
 	protected boolean mStop;
-	protected IPlayerRunnableListener mPlayerThreadListener;
+	protected IPlaybackListener mPlayerThreadListener;
 
 	/**
 	 * initializes the StreamPlayerRunnable without a
@@ -71,7 +71,7 @@ public class StreamPlayerRunnable implements Runnable {
 	 * {@link #PlayerThreadListener} and the default Mixer
 	 */
 	public StreamPlayerRunnable(ISong pSong,
-			IPlayerRunnableListener pPlayerThreadListener) throws UnsupportedAudioFileException,
+			IPlaybackListener pPlayerThreadListener) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException {
 		this(pSong, pPlayerThreadListener, null);
@@ -82,7 +82,7 @@ public class StreamPlayerRunnable implements Runnable {
 	 * {@link #PlayerThreadListener} and the given Mixer
 	 */
 	public StreamPlayerRunnable(ISong pSong,
-			IPlayerRunnableListener pPlayerThreadListener,
+			IPlaybackListener pPlayerThreadListener,
 			Mixer pMixer) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException {
@@ -214,21 +214,6 @@ public class StreamPlayerRunnable implements Runnable {
 			this.mSourceDataLine.close();
 			this.mAudioInputStream.close();
 		}
-	}
-
-	public static interface IPlayerRunnableListener {
-
-		public void onEnd(PlaybackEndEvent pEvent);
-
-		public static class PlaybackEndEvent extends
-				GBaseEvent<StreamPlayerRunnable> {
-
-			public PlaybackEndEvent(StreamPlayerRunnable pSource) {
-				super(pSource);
-			}
-
-		}
-
 	}
 
 }

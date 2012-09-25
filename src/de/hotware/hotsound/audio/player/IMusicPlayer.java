@@ -101,6 +101,8 @@ public interface IMusicPlayer {
 	 * @return the DataLine of the current song
 	 */
 	public DataLine getDataLine();
+	
+	public void setPlaybackListener(IPlaybackListener pPlaybackListener);
 
 	/**
 	 * Exception that occurs if an error during song insertion occurs

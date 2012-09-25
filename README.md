@@ -1,1 +1,1 @@
-This is the README for HotSound. Examples will follow
+This is the README for HotSound. Examples will follow.

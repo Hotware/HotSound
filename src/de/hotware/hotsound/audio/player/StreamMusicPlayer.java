@@ -41,13 +41,12 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.hotware.hotsound.audio.player.StreamPlayerRunnable.IPlayerRunnableListener;
 
 public class StreamMusicPlayer implements IMusicPlayer {
 
 	protected ExecutorService mExecService;
 	protected StreamPlayerRunnable mPlayerRunnable;
-	protected IPlayerRunnableListener mPlayerThreadListener;
+	protected IPlaybackListener mPlaybackListener;
 	private Lock mLock;
 
 	/**
@@ -61,10 +60,15 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 * Default Constructor. initializes with the given
 	 * {@link #PlayerThreadListener}
 	 */
-	public StreamMusicPlayer(IPlayerRunnableListener pPlayerThreadListener) {
+	public StreamMusicPlayer(IPlaybackListener pPlaybackListener) {
 		this.mLock = new ReentrantLock();
-		this.mPlayerThreadListener = pPlayerThreadListener;
+		this.mPlaybackListener = pPlaybackListener;
 		this.mExecService = Executors.newSingleThreadExecutor();
+	}
+	
+	@Override
+	public void setPlaybackListener(IPlaybackListener pPlaybackListener) {
+		this.mPlaybackListener = pPlaybackListener;
 	}
 
 	/**
@@ -97,7 +101,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			}
 			try {
 				this.mPlayerRunnable = new StreamPlayerRunnable(pSong,
-						this.mPlayerThreadListener,
+						this.mPlaybackListener,
 						pMixer);
 			} catch(UnsupportedAudioFileException
 					| IOException
