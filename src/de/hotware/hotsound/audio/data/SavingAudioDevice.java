@@ -58,34 +58,38 @@ public class SavingAudioDevice extends BasicAudioDevice {
 		super.stop();
 		try {
 			this.saveData();
-			this.mByteArrayOutputStream.close();
 		} catch(IOException | UnsupportedAudioFileException e) {
 			throw new AudioDeviceException("an IOException occured during writing to the file",
 					e);
+		} finally {
+			try {
+				this.mByteArrayOutputStream.close();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
-	private void saveData() throws IOException,
-			UnsupportedAudioFileException {
+	private void saveData() throws IOException, UnsupportedAudioFileException {
 		if(this.mFile.exists()) {
 			throw new IllegalStateException("File " + this.mFile +
 					" already exists");
 		}
-		byte[] data = this.mByteArrayOutputStream.toByteArray();
-		ByteArrayInputStream input = new ByteArrayInputStream(data);
-		BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(this.mFile));
-		AudioFormat audioFormat = this.mSourceDataLine.getFormat();
-		
-		AudioInputStream audioInputStream = new AudioInputStream(input,
-				audioFormat,
-				data.length / audioFormat.getFrameSize());
 
-		AudioSystem.write(audioInputStream,
-				AudioFileFormat.Type.WAVE,
-				outputStream);
-		input.close();
-		audioInputStream.close();
-		outputStream.close();
+		AudioFormat audioFormat = this.mSourceDataLine.getFormat();
+		byte[] data = this.mByteArrayOutputStream.toByteArray();
+		try(ByteArrayInputStream input = new ByteArrayInputStream(data);
+				BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(this.mFile));
+				AudioInputStream audioInputStream = new AudioInputStream(input,
+						audioFormat,
+						data.length / audioFormat.getFrameSize());) {
+			AudioSystem.write(audioInputStream,
+					AudioFileFormat.Type.AIFF,
+					outputStream);
+			input.close();
+			audioInputStream.close();
+			outputStream.close();
+		}
 	}
 
 }

@@ -90,6 +90,9 @@ public class StreamPlayerCallable implements Callable<Void> {
 			IAudioDevice pAudioDevice) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException, AudioDeviceException {
+		if(pAudioDevice == null || pAudioFile == null) {
+			throw new IllegalArgumentException("the audiodevice and the audiofile may not be null");
+		}
 		this.mAudioFile = pAudioFile;
 		this.mAudioDevice = pAudioDevice;
 		this.mAudioDevice.start(pAudioFile.getAudioFormat());
@@ -182,8 +185,10 @@ public class StreamPlayerCallable implements Callable<Void> {
 	public void stopPlayback() throws MusicPlayerException {
 		this.mLock.lock();
 		try {
+			if(!this.mStop) {
+				this.mAudioDevice.stop();
+			}
 			this.mStop = true;
-			this.mAudioDevice.stop();
 		} finally {
 			this.mLock.unlock();
 		}
@@ -227,8 +232,9 @@ public class StreamPlayerCallable implements Callable<Void> {
 		}
 	}
 
-	private void cleanUp() throws IOException {
+	private void cleanUp() throws IOException, AudioDeviceException {
 		this.mAudioFile.close();
+		this.mAudioDevice.stop();
 	}
 
 }
