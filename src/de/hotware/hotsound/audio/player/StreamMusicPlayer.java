@@ -38,6 +38,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import de.hotware.hotsound.audio.data.BasicAudioDevice;
 import de.hotware.hotsound.audio.data.BasicAudioFile;
 import de.hotware.hotsound.audio.data.IAudioDevice;
 
@@ -94,6 +95,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 
 	/**
 	 * @inheritDoc
+	 * uses a BasicAudioDevice as AudioDevice
 	 * @throws SongInsertionException
 	 *             if audio file is either not supported, its line is not
 	 *             available or an IOException has been thrown in the underlying
@@ -101,7 +103,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 */
 	@Override
 	public void insert(ISong pSong) throws SongInsertionException {
-		this.insert(pSong, null);
+		this.insert(pSong, new BasicAudioDevice());
 	}
 
 	/**
