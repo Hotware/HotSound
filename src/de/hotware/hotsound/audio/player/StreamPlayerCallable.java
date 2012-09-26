@@ -26,13 +26,13 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import de.hotware.hotsound.audio.data.BasicAudioDevice;
+import de.hotware.hotsound.audio.data.IAudioDevice;
+import de.hotware.hotsound.audio.data.IAudioFile;
+import de.hotware.hotsound.audio.data.ISeekableAudioFile;
 import de.hotware.hotsound.audio.player.IPlaybackListener.PlaybackEndEvent;
 
 /**
@@ -50,11 +50,11 @@ import de.hotware.hotsound.audio.player.IPlaybackListener.PlaybackEndEvent;
 public class StreamPlayerCallable implements Callable<Void> {
 
 	protected Lock mLock;
-	protected SourceDataLine mSourceDataLine;
 	protected boolean mPause;
 	protected boolean mStop;
-	protected IPlaybackListener mPlayerbackListener;
+	protected IPlaybackListener mPlaybackListener;
 	protected IAudioFile mAudioFile;
+	protected IAudioDevice mAudioDevice;
 
 	/**
 	 * initializes the StreamPlayerRunnable without a
@@ -74,7 +74,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 			IPlaybackListener pPlayerThreadListener) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException {
-		this(pAudioFile, pPlayerThreadListener, null);
+		this(pAudioFile, pPlayerThreadListener, new BasicAudioDevice());
 	}
 
 	/**
@@ -82,27 +82,17 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 * {@link #PlayerThreadListener} and the given Mixer
 	 */
 	public StreamPlayerCallable(IAudioFile pAudioFile,
-			IPlaybackListener pPlayerbackListener,
-			Mixer pMixer) throws UnsupportedAudioFileException,
+			IPlaybackListener pPlaybackListener,
+			IAudioDevice pAudioDevice) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException {
 		this.mAudioFile = pAudioFile;
-		DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class,
-				pAudioFile.getAudioFormat(),
-				pAudioFile.getRecommendedBufferSize());
-		if(pMixer == null) {
-			this.mSourceDataLine = (SourceDataLine) AudioSystem
-					.getLine(dataLineInfo);
-		} else {
-			this.mSourceDataLine = (SourceDataLine) pMixer
-					.getLine(dataLineInfo);
-		}
-		this.mSourceDataLine.open(pAudioFile.getAudioFormat());
-		this.mSourceDataLine.start();
+		this.mAudioDevice = pAudioDevice;
+		this.mAudioDevice.start(pAudioFile.getAudioFormat());
 		this.mPause = false;
 		this.mStop = true;
 		this.mLock = new ReentrantLock();
-		this.mPlayerbackListener = pPlayerbackListener;
+		this.mPlaybackListener = pPlaybackListener;
 	}
 
 	/**
@@ -122,8 +112,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 		byte[] abData = new byte[bufferSize];
 		this.mLock.lock();
 		try {
-			while(nBytesRead != -1 && !this.mStop &&
-					this.mSourceDataLine != null) {
+			while(nBytesRead != -1 && !this.mStop) {
 				this.mLock.unlock();
 				try {
 					nBytesRead = this.mAudioFile.read(abData,
@@ -133,7 +122,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 					nBytesRead = -1;
 				}
 				if(nBytesRead != -1) {
-					this.mSourceDataLine.write(abData, 0, nBytesRead);
+					this.mAudioDevice.write(abData, 0, nBytesRead);
 				}
 				this.mLock.lock();
 			}
@@ -142,8 +131,8 @@ public class StreamPlayerCallable implements Callable<Void> {
 		}
 		this.cleanUp();
 		this.mStop = true;
-		if(this.mPlayerbackListener != null) {
-			this.mPlayerbackListener.onEnd(new PlaybackEndEvent(this));
+		if(this.mPlaybackListener != null) {
+			this.mPlaybackListener.onEnd(new PlaybackEndEvent(this));
 		}
 		return null;
 	}
@@ -169,7 +158,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 			throw new IllegalStateException("Player is already paused!");
 		}
 		this.mLock.lock();
-		this.mSourceDataLine.stop();
+		this.mAudioDevice.pause();
 		this.mPause = true;
 	}
 
@@ -178,7 +167,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 			throw new IllegalStateException("Player is not paused!");
 		}
 		this.mPause = false;
-		this.mSourceDataLine.start();
+		this.mAudioDevice.unpause();
 		this.mLock.unlock();
 	}
 
@@ -186,7 +175,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 		this.mLock.lock();
 		try {
 			this.mStop = true;
-			this.mSourceDataLine.flush();
+			this.mAudioDevice.stop();
 		} finally {
 			this.mLock.unlock();
 		}
@@ -221,22 +210,17 @@ public class StreamPlayerCallable implements Callable<Void> {
 		}
 	}
 
-	public DataLine getDataLine() {
+	public IAudioDevice getAudioDevice() {
 		this.mLock.lock();
 		try {
-			return this.mSourceDataLine;
+			return this.mAudioDevice;
 		} finally {
 			this.mLock.unlock();
 		}
 	}
 
 	private void cleanUp() throws IOException {
-		if(this.mSourceDataLine != null) {
-			this.mSourceDataLine.drain();
-			this.mSourceDataLine.stop();
-			this.mSourceDataLine.close();
-			this.mAudioFile.close();
-		}
+		this.mAudioFile.close();
 	}
 
 }

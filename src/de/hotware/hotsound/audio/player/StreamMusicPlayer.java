@@ -35,10 +35,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import de.hotware.hotsound.audio.data.BasicAudioFile;
+import de.hotware.hotsound.audio.data.IAudioDevice;
 
 public class StreamMusicPlayer implements IMusicPlayer {
 
@@ -52,7 +53,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	/**
 	 * the current mixer after insertion
 	 */
-	protected Mixer mCurrentMixer;
+	protected IAudioDevice mCurrrentAudioDevice;
 	private Lock mLock;
 
 	/**
@@ -83,7 +84,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this.mPlaybackListener = pPlaybackListener;
 		this.mExecutorService = pExecutorService;
 		this.mCurrentSong = null;
-		this.mCurrentMixer = null;
+		this.mCurrrentAudioDevice = null;
 	}
 
 	@Override
@@ -113,12 +114,12 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 *             methods
 	 */
 	@Override
-	public void insert(ISong pSong, Mixer pMixer) throws SongInsertionException {
+	public void insert(ISong pSong, IAudioDevice pAudioDevice) throws SongInsertionException {
 		this.mLock.lock();
 		try {
 			this.mCurrentSong = pSong;
-			this.mCurrentMixer = pMixer;
-			this.insertInternal(pSong, pMixer);
+			this.mCurrrentAudioDevice = pAudioDevice;
+			this.insertInternal(pSong, pAudioDevice);
 		} finally {
 			this.mLock.unlock();
 		}
@@ -229,10 +230,10 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	@Override
-	public DataLine getDataLine() {
+	public IAudioDevice getAudioDevice() {
 		this.mLock.lock();
 		try {
-			return this.mPlayerRunnable.getDataLine();
+			return this.mPlayerRunnable.getAudioDevice();
 		} finally {
 			this.mLock.unlock();
 		}
@@ -283,14 +284,14 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		}
 	}
 
-	private void insertInternal(ISong pSong, Mixer pMixer) throws SongInsertionException {
+	private void insertInternal(ISong pSong, IAudioDevice pAudioDevice) throws SongInsertionException {
 		if(this.mPlayerRunnable != null && !this.mPlayerRunnable.isStopped()) {
 			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
 		}
 		try {
-			this.mPlayerRunnable = new StreamPlayerCallable(BasicAudioFile.getBasicAudioFileFromSong(pSong),
+			this.mPlayerRunnable = new StreamPlayerCallable(new BasicAudioFile(pSong.getInputStream()),
 					this.mPlaybackListener,
-					pMixer);
+					pAudioDevice);
 		} catch(UnsupportedAudioFileException
 				| IOException
 				| LineUnavailableException e) {

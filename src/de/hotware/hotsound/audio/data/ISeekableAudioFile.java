@@ -1,5 +1,5 @@
 /**
- * File IPlaybackListener.java
+ * File ISeekableAudioFile.java
  * ---------------------------------------------------------
  *
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
@@ -18,21 +18,12 @@
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
  *   if it breaks something.
  */
-package de.hotware.hotsound.audio.player;
+package de.hotware.hotsound.audio.data;
 
-import de.hotware.util.GBaseEvent;
+public interface ISeekableAudioFile extends IAudioFile {
 
-public interface IPlaybackListener {
+	public void seek(int pFrame);
 
-	public void onEnd(IPlaybackListener.PlaybackEndEvent pEvent);
-
-	public static class PlaybackEndEvent extends
-			GBaseEvent<StreamPlayerCallable> {
-
-		public PlaybackEndEvent(StreamPlayerCallable pSource) {
-			super(pSource);
-		}
-
-	}
+	public void skip(int pFrames);
 
 }

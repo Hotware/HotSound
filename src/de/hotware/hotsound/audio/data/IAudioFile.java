@@ -1,5 +1,5 @@
 /**
- * File IPlaybackListener.java
+ * File IAudioFile.java
  * ---------------------------------------------------------
  *
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
@@ -18,21 +18,18 @@
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
  *   if it breaks something.
  */
-package de.hotware.hotsound.audio.player;
+package de.hotware.hotsound.audio.data;
 
-import de.hotware.util.GBaseEvent;
+import java.io.IOException;
 
-public interface IPlaybackListener {
+import javax.sound.sampled.AudioFormat;
 
-	public void onEnd(IPlaybackListener.PlaybackEndEvent pEvent);
+public interface IAudioFile {
+	
+	public AudioFormat getAudioFormat();
 
-	public static class PlaybackEndEvent extends
-			GBaseEvent<StreamPlayerCallable> {
+	public int read(byte[] pData, int pStart, int pBufferSize) throws IOException;
 
-		public PlaybackEndEvent(StreamPlayerCallable pSource) {
-			super(pSource);
-		}
-
-	}
+	public void close() throws IOException;
 
 }

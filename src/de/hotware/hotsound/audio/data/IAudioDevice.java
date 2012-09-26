@@ -1,5 +1,5 @@
 /**
- * File IPlaybackListener.java
+ * File IAudioDevice.java
  * ---------------------------------------------------------
  *
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
@@ -18,21 +18,27 @@
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
  *   if it breaks something.
  */
-package de.hotware.hotsound.audio.player;
+package de.hotware.hotsound.audio.data;
 
-import de.hotware.util.GBaseEvent;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 
-public interface IPlaybackListener {
+public interface IAudioDevice {
 
-	public void onEnd(IPlaybackListener.PlaybackEndEvent pEvent);
+	public int write(byte[] pData, int pStart, int pLength);
 
-	public static class PlaybackEndEvent extends
-			GBaseEvent<StreamPlayerCallable> {
+	public void setMixer(Mixer pMixer);
+	
+	public void start(AudioFormat pAudioFormat) throws LineUnavailableException;
 
-		public PlaybackEndEvent(StreamPlayerCallable pSource) {
-			super(pSource);
-		}
+	public void pause();
 
-	}
+	public void unpause();
+
+	public void stop();
+
+	public DataLine getDataLine();
 
 }

@@ -1,5 +1,5 @@
 /**
- * File AudioConverter.java
+ * File AudioUtil.java
  * ---------------------------------------------------------
  *
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com), (c) 1999 - 2001 by Matthias Pfisterer
@@ -18,9 +18,10 @@
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
  *   if it breaks something.
  */
-package de.hotware.hotsound.audio.player;
+package de.hotware.hotsound.audio.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -33,7 +34,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 public class AudioUtil {
 
 	/**
-	 * retrieves a AudioInputStream from a given Song. converts the
+	 * retrieves a AudioInputStream from a given Inputstream. converts the
 	 * AudioInputStream if needed (if the system doesn't support the type
 	 * natively)
 	 * 
@@ -45,18 +46,19 @@ public class AudioUtil {
 	 * @throws IOException
 	 *             if an underlying call throws it
 	 */
-	public static AudioInputStream getAudioInputStreamFromSong(ISong pSong) throws UnsupportedAudioFileException,
+	public static AudioInputStream getSupportedAudioInputStreamFromInputStream(InputStream pInputStream) throws UnsupportedAudioFileException,
 			IOException {
-		AudioInputStream ret = AudioSystem.getAudioInputStream(pSong
-				.getInputStream());
-		AudioFormat format = ret.getFormat();
+		AudioInputStream sourceAudioInputStream = AudioSystem
+				.getAudioInputStream(pInputStream);
+		AudioInputStream ret = sourceAudioInputStream;
+		AudioFormat sourceAudioFormat = sourceAudioInputStream.getFormat();
 		DataLine.Info supportInfo = new DataLine.Info(SourceDataLine.class,
-				format,
+				sourceAudioFormat,
 				AudioSystem.NOT_SPECIFIED);
 		boolean directSupport = AudioSystem.isLineSupported(supportInfo);
 		if(!directSupport) {
-			float sampleRate = format.getSampleRate();
-			int channels = format.getChannels();
+			float sampleRate = sourceAudioFormat.getSampleRate();
+			int channels = sourceAudioFormat.getChannels();
 			AudioFormat newFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
 					sampleRate,
 					16,
@@ -64,10 +66,10 @@ public class AudioUtil {
 					channels * 2,
 					sampleRate,
 					false);
-			AudioInputStream newStream = AudioSystem
-					.getAudioInputStream(newFormat, ret);
-			format = newFormat;
-			ret = newStream;
+			AudioInputStream convertedAudioInputStream = AudioSystem
+					.getAudioInputStream(newFormat, sourceAudioInputStream);
+			sourceAudioFormat = newFormat;
+			ret = convertedAudioInputStream;
 		}
 		return ret;
 	}

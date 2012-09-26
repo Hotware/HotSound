@@ -1,5 +1,5 @@
 /**
- * File IPlaybackListener.java
+ * File BasicAudioFile.java
  * ---------------------------------------------------------
  *
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
@@ -18,21 +18,50 @@
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
  *   if it breaks something.
  */
-package de.hotware.hotsound.audio.player;
+package de.hotware.hotsound.audio.data;
 
-import de.hotware.util.GBaseEvent;
+import java.io.IOException;
+import java.io.InputStream;
 
-public interface IPlaybackListener {
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
-	public void onEnd(IPlaybackListener.PlaybackEndEvent pEvent);
+import de.hotware.hotsound.audio.util.AudioUtil;
 
-	public static class PlaybackEndEvent extends
-			GBaseEvent<StreamPlayerCallable> {
+public class BasicAudioFile implements ISeekableAudioFile {
 
-		public PlaybackEndEvent(StreamPlayerCallable pSource) {
-			super(pSource);
-		}
+	protected AudioInputStream mAudioInputStream;
 
+	public BasicAudioFile(InputStream pInputStream) throws UnsupportedAudioFileException,
+			IOException {
+		this.mAudioInputStream = AudioUtil
+				.getSupportedAudioInputStreamFromInputStream(pInputStream);
+	}
+
+	@Override
+	public AudioFormat getAudioFormat() {
+		return this.mAudioInputStream.getFormat();
+	}
+
+	@Override
+	public int read(byte[] pData, int pStart, int pBufferSize) throws IOException {
+		return this.mAudioInputStream.read(pData, pStart, pBufferSize);
+	}
+
+	@Override
+	public void close() throws IOException {
+		this.mAudioInputStream.close();
+	}
+
+	@Override
+	public void seek(int pFrame) {
+		throw new UnsupportedOperationException("not implemented yet");
+	}
+
+	@Override
+	public void skip(int pFrames) {
+		throw new UnsupportedOperationException("not implemented yet");
 	}
 
 }

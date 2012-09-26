@@ -23,8 +23,8 @@ package de.hotware.hotsound.audio.player;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.Mixer;
+
+import de.hotware.hotsound.audio.data.IAudioDevice;
 
 /**
  * Music Player interface. provides basic player methods and getters for a
@@ -46,7 +46,7 @@ public interface IMusicPlayer {
 	 * implementations: some could allow multiple songs to be added, but some
 	 * could only hold one song at a time
 	 */
-	public void insert(ISong pSong, Mixer pMixer) throws SongInsertionException;
+	public void insert(ISong pSong, IAudioDevice pAudioDevice) throws SongInsertionException;
 
 	/**
 	 * starts the playback
@@ -99,9 +99,9 @@ public interface IMusicPlayer {
 	public AudioFormat getAudioFormat();
 
 	/**
-	 * @return the DataLine of the current song
+	 * @return the AudioDevice of the current song
 	 */
-	public DataLine getDataLine();
+	public IAudioDevice getAudioDevice();
 
 	/**
 	 * seeks to the given position
