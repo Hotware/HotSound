@@ -22,8 +22,20 @@ package de.hotware.hotsound.audio.data;
 
 public interface ISeekableAudioFile extends IAudioFile {
 
+	/**
+	 * seeks to the passed frame number
+	 * 
+	 * @param pFrame
+	 *            the number of the frame to skip to
+	 */
 	public void seek(int pFrame);
 
+	/**
+	 * skips the given amount of frames
+	 * 
+	 * @param pFrames
+	 *            the amount of frames to skip
+	 */
 	public void skip(int pFrames);
 
 }

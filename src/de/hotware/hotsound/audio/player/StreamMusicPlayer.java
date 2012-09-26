@@ -94,8 +94,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	/**
-	 * @inheritDoc
-	 * uses a BasicAudioDevice as AudioDevice
+	 * @inheritDoc uses a BasicAudioDevice as AudioDevice
 	 * @throws SongInsertionException
 	 *             if audio file is either not supported, its line is not
 	 *             available or an IOException has been thrown in the underlying
@@ -291,9 +290,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
 		}
 		try {
-			this.mPlayerRunnable = new StreamPlayerCallable(new BasicAudioFile(pSong.getInputStream()),
-					this.mPlaybackListener,
-					pAudioDevice);
+			this.mPlayerRunnable = new StreamPlayerCallable(new BasicAudioFile(pSong
+					.getInputStream()), this.mPlaybackListener, pAudioDevice);
 		} catch(UnsupportedAudioFileException
 				| IOException
 				| LineUnavailableException e) {

@@ -26,6 +26,9 @@ import javax.sound.sampled.AudioFormat;
 
 public interface IAudioFile {
 
+	/**
+	 * @return the AudioFormat of the IAudioFile
+	 */
 	public AudioFormat getAudioFormat();
 
 	/**
@@ -37,6 +40,9 @@ public interface IAudioFile {
 	 */
 	public int read(byte[] pData, int pStart, int pBufferSize) throws IOException;
 
+	/**
+	 * closes the IAudioFiles resources
+	 */
 	public void close() throws IOException;
 
 }

@@ -27,18 +27,40 @@ import javax.sound.sampled.Mixer;
 
 public interface IAudioDevice {
 
+	/**
+	 * writes to the IAudioDevice's output. Normally the way to write to its
+	 * DataLine
+	 * 
+	 * @return number of bytes written
+	 */
 	public int write(byte[] pData, int pStart, int pLength);
 
 	public void setMixer(Mixer pMixer);
-	
+
+	/**
+	 * starts and initializes the IAudioDevice for playback
+	 */
 	public void start(AudioFormat pAudioFormat) throws LineUnavailableException;
 
+	/**
+	 * pauses the IAudioDevice and the playback
+	 */
 	public void pause();
 
+	/**
+	 * unpauses the IAudioDevice and the playback
+	 */
 	public void unpause();
 
+	/**
+	 * stops the IAudioDevice and closes all the opened resources
+	 */
 	public void stop();
 
+	/**
+	 * @return the DataLine to which is being written (with that you can control
+	 *         the volume, etc.)
+	 */
 	public DataLine getDataLine();
 
 }
