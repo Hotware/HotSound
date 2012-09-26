@@ -124,7 +124,11 @@ public class StreamPlayerCallable implements Callable<Void> {
 			throw e;
 		} finally {
 			this.mLock.unlock();
-			this.cleanUp();
+			try {
+				this.cleanUp();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
 			this.mStop = true;
 			if(this.mPlaybackListener != null) {
 				this.mPlaybackListener.onEnd(new PlaybackEndEvent(this,
