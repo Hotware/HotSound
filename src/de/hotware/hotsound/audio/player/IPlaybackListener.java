@@ -28,9 +28,21 @@ public interface IPlaybackListener {
 
 	public static class PlaybackEndEvent extends
 			GBaseEvent<StreamPlayerCallable> {
+		
+		private Type mType;
 
-		public PlaybackEndEvent(StreamPlayerCallable pSource) {
+		public PlaybackEndEvent(StreamPlayerCallable pSource, Type pType) {
 			super(pSource);
+			this.mType = pType;
+		}
+		
+		public Type getType() {
+			return this.mType;
+		}
+		
+		public static enum Type {
+			SUCCESS,
+			FAILURE
 		}
 
 	}

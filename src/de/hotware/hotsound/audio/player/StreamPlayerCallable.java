@@ -96,7 +96,6 @@ public class StreamPlayerCallable implements Callable<Void> {
 	}
 
 	/**
-	 * @return 
 	 * @inheritDoc
 	 * 
 	 * @throws IOException
@@ -107,48 +106,47 @@ public class StreamPlayerCallable implements Callable<Void> {
 		this.mStop = false;
 		int nBytesRead = 0;
 		AudioFormat format = this.mAudioFile.getAudioFormat();
-		int bufferSize = (int) format.getSampleRate() *
-				format.getFrameSize();
+		int bufferSize = (int) format.getSampleRate() * format.getFrameSize();
 		byte[] abData = new byte[bufferSize];
+		boolean failure = false;
 		this.mLock.lock();
 		try {
 			while(nBytesRead != -1 && !this.mStop) {
 				this.mLock.unlock();
-				try {
-					nBytesRead = this.mAudioFile.read(abData,
-							0,
-							bufferSize);
-				} catch(IOException e) {
-					nBytesRead = -1;
-				}
+				nBytesRead = this.mAudioFile.read(abData, 0, bufferSize);
 				if(nBytesRead != -1) {
 					this.mAudioDevice.write(abData, 0, nBytesRead);
 				}
 				this.mLock.lock();
 			}
+		} catch(IOException e) {
+			failure = true;
+			throw e;
 		} finally {
 			this.mLock.unlock();
-		}
-		this.cleanUp();
-		this.mStop = true;
-		if(this.mPlaybackListener != null) {
-			this.mPlaybackListener.onEnd(new PlaybackEndEvent(this));
+			this.cleanUp();
+			this.mStop = true;
+			if(this.mPlaybackListener != null) {
+				this.mPlaybackListener.onEnd(new PlaybackEndEvent(this,
+						failure ? PlaybackEndEvent.Type.FAILURE
+								: PlaybackEndEvent.Type.SUCCESS));
+			}
 		}
 		return null;
 	}
-	
+
 	public void seek(int pFrame) {
 		if(this.mAudioFile instanceof ISeekableAudioFile) {
 			throw new UnsupportedOperationException("seeking is not possible on the current AudioFile");
 		}
 	}
-	
+
 	public void skip(int pFrames) {
 		if(this.mAudioFile instanceof ISeekableAudioFile) {
 			throw new UnsupportedOperationException("skipping is not possible on the current AudioFile");
 		}
 	}
-	
+
 	public boolean isSkippingPossible() {
 		return this.mAudioFile instanceof ISeekableAudioFile;
 	}

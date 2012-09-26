@@ -25,9 +25,16 @@ import java.io.IOException;
 import javax.sound.sampled.AudioFormat;
 
 public interface IAudioFile {
-	
+
 	public AudioFormat getAudioFormat();
 
+	/**
+	 * Reads up to a specified maximum number of bytes of data from the audio
+	 * stream, putting them into the given byte array. This method will always
+	 * read an integral number of frames. If len does not specify an integral
+	 * number of frames, a maximum of len - (len % frameSize) bytes will be
+	 * read.
+	 */
 	public int read(byte[] pData, int pStart, int pBufferSize) throws IOException;
 
 	public void close() throws IOException;
