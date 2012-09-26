@@ -136,13 +136,13 @@ public class StreamPlayerCallable implements Callable<Void> {
 	}
 
 	public void seek(int pFrame) {
-		if(this.mAudioFile instanceof ISeekableAudioFile) {
+		if(!(this.mAudioFile instanceof ISeekableAudioFile)) {
 			throw new UnsupportedOperationException("seeking is not possible on the current AudioFile");
 		}
 	}
 
 	public void skip(int pFrames) {
-		if(this.mAudioFile instanceof ISeekableAudioFile) {
+		if(!(this.mAudioFile instanceof ISeekableAudioFile)) {
 			throw new UnsupportedOperationException("skipping is not possible on the current AudioFile");
 		}
 	}
