@@ -93,7 +93,7 @@ public class BasicAudioDevice implements IAudioDevice {
 
 	@Override
 	public void unpause() {
-		if(this.mPaused) {
+		if(!this.mPaused) {
 			throw new IllegalStateException("The AudioDevice is not paused");
 		}
 		this.mSourceDataLine.start();
