@@ -109,6 +109,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 		int bufferSize = (int) format.getSampleRate() * format.getFrameSize();
 		byte[] abData = new byte[bufferSize];
 		boolean failure = false;
+		IOException exception = null;
 		this.mLock.lock();
 		try {
 			while(nBytesRead != -1 && !this.mStop) {
@@ -121,6 +122,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 			}
 		} catch(IOException e) {
 			failure = true;
+			exception = e;
 			throw e;
 		} finally {
 			this.mLock.unlock();
@@ -133,7 +135,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 			if(this.mPlaybackListener != null) {
 				this.mPlaybackListener.onEnd(new PlaybackEndEvent(this,
 						failure ? PlaybackEndEvent.Type.FAILURE
-								: PlaybackEndEvent.Type.SUCCESS));
+								: PlaybackEndEvent.Type.SUCCESS, exception));
 			}
 		}
 		return null;

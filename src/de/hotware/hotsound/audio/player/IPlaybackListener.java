@@ -28,18 +28,35 @@ public interface IPlaybackListener {
 
 	public static class PlaybackEndEvent extends
 			GBaseEvent<StreamPlayerCallable> {
-		
+
 		private Type mType;
+		private Throwable mThrowable;
 
 		public PlaybackEndEvent(StreamPlayerCallable pSource, Type pType) {
+			this(pSource, pType, null);
+		}
+
+		public PlaybackEndEvent(StreamPlayerCallable pSource,
+				Type pType,
+				Throwable pException) {
 			super(pSource);
 			this.mType = pType;
+			this.mThrowable = pException;
 		}
-		
+
 		public Type getType() {
 			return this.mType;
 		}
-		
+
+		/**
+		 * @return the throwable causing the failure if getType() ==
+		 *         Type.Failure <br>
+		 *         null otherwise
+		 */
+		public Throwable getThrowable() {
+			return this.mThrowable;
+		}
+
 		public static enum Type {
 			SUCCESS,
 			FAILURE
