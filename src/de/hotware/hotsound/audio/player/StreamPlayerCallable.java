@@ -31,6 +31,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.hotware.hotsound.audio.data.BasicAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice;
+import de.hotware.hotsound.audio.data.IAudioDevice.AudioDeviceException;
 import de.hotware.hotsound.audio.data.IAudioFile;
 import de.hotware.hotsound.audio.data.ISeekableAudioFile;
 import de.hotware.hotsound.audio.player.IPlaybackListener.PlaybackEndEvent;
@@ -59,33 +60,36 @@ public class StreamPlayerCallable implements Callable<Void> {
 	/**
 	 * initializes the StreamPlayerRunnable without a
 	 * {@link #PlayerThreadListener} and the default Mixer
+	 * @throws AudioDeviceException 
 	 */
 	public StreamPlayerCallable(IAudioFile pAudioFile) throws UnsupportedAudioFileException,
 			IOException,
-			LineUnavailableException {
+			LineUnavailableException, AudioDeviceException {
 		this(pAudioFile, null);
 	}
 
 	/**
 	 * initializes the StreamPlayerRunnable with the given
 	 * {@link #PlayerThreadListener} and the default Mixer
+	 * @throws AudioDeviceException 
 	 */
 	public StreamPlayerCallable(IAudioFile pAudioFile,
 			IPlaybackListener pPlayerThreadListener) throws UnsupportedAudioFileException,
 			IOException,
-			LineUnavailableException {
+			LineUnavailableException, AudioDeviceException {
 		this(pAudioFile, pPlayerThreadListener, new BasicAudioDevice());
 	}
 
 	/**
 	 * initializes the StreamPlayerRunnable with the given
 	 * {@link #PlayerThreadListener} and the given Mixer
+	 * @throws AudioDeviceException 
 	 */
 	public StreamPlayerCallable(IAudioFile pAudioFile,
 			IPlaybackListener pPlaybackListener,
 			IAudioDevice pAudioDevice) throws UnsupportedAudioFileException,
 			IOException,
-			LineUnavailableException {
+			LineUnavailableException, AudioDeviceException {
 		this.mAudioFile = pAudioFile;
 		this.mAudioDevice = pAudioDevice;
 		this.mAudioDevice.start(pAudioFile.getAudioFormat());
@@ -102,14 +106,14 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 *             if cleanup fails after finished with loading
 	 */
 	@Override
-	public Void call() throws IOException {
+	public Void call() throws MusicPlayerException {
 		this.mStop = false;
 		int nBytesRead = 0;
 		AudioFormat format = this.mAudioFile.getAudioFormat();
 		int bufferSize = (int) format.getSampleRate() * format.getFrameSize();
 		byte[] abData = new byte[bufferSize];
 		boolean failure = false;
-		IOException exception = null;
+		MusicPlayerException exception = null;
 		this.mLock.lock();
 		try {
 			while(nBytesRead != -1 && !this.mStop) {
@@ -120,10 +124,10 @@ public class StreamPlayerCallable implements Callable<Void> {
 				}
 				this.mLock.lock();
 			}
-		} catch(IOException e) {
+		} catch(MusicPlayerException e) {
 			failure = true;
 			exception = e;
-			throw e;
+			throw exception;
 		} finally {
 			this.mLock.unlock();
 			try {
@@ -175,7 +179,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 		this.mLock.unlock();
 	}
 
-	public void stopPlayback() {
+	public void stopPlayback() throws MusicPlayerException {
 		this.mLock.lock();
 		try {
 			this.mStop = true;

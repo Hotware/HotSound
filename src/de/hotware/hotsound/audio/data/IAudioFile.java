@@ -24,6 +24,8 @@ import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
 
+import de.hotware.hotsound.audio.player.MusicPlayerException;
+
 public interface IAudioFile {
 
 	/**
@@ -38,11 +40,29 @@ public interface IAudioFile {
 	 * number of frames, a maximum of len - (len % frameSize) bytes will be
 	 * read.
 	 */
-	public int read(byte[] pData, int pStart, int pBufferSize) throws IOException;
+	public int read(byte[] pData, int pStart, int pBufferSize) throws AudioFileException;
 
 	/**
 	 * closes the IAudioFiles resources
 	 */
 	public void close() throws IOException;
+	
+	public static class AudioFileException extends MusicPlayerException {
+
+		private static final long serialVersionUID = 2153542499704614401L;
+		
+		public AudioFileException() {
+			super();
+		}
+
+		public AudioFileException(String pMessage) {
+			super(pMessage);
+		}
+
+		public AudioFileException(String pMessage, Throwable pCause) {
+			super(pMessage, pCause);
+		}
+		
+	}
 
 }

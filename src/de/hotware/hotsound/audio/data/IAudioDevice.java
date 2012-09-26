@@ -20,10 +20,13 @@
  */
 package de.hotware.hotsound.audio.data;
 
+import java.io.IOException;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
+
+import de.hotware.hotsound.audio.player.MusicPlayerException;
 
 public interface IAudioDevice {
 
@@ -33,14 +36,15 @@ public interface IAudioDevice {
 	 * 
 	 * @return number of bytes written
 	 */
-	public int write(byte[] pData, int pStart, int pLength);
-
-	public void setMixer(Mixer pMixer);
+	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException;
 
 	/**
 	 * starts and initializes the IAudioDevice for playback
+	 * @throws IOException 
 	 */
-	public void start(AudioFormat pAudioFormat) throws LineUnavailableException;
+	public void start(AudioFormat pAudioFormat) throws AudioDeviceException;
+	
+	public void setMixer(Mixer pMixer);
 
 	/**
 	 * pauses the IAudioDevice and the playback
@@ -54,13 +58,32 @@ public interface IAudioDevice {
 
 	/**
 	 * stops the IAudioDevice and closes all the opened resources
+	 * @throws AudioDeviceException 
 	 */
-	public void stop();
+	public void stop() throws AudioDeviceException;
 
 	/**
 	 * @return the DataLine to which is being written (with that you can control
 	 *         the volume, etc.)
 	 */
 	public DataLine getDataLine();
+	
+	public static class AudioDeviceException extends MusicPlayerException {
+
+		private static final long serialVersionUID = 2153542499704614401L;
+		
+		public AudioDeviceException() {
+			super();
+		}
+
+		public AudioDeviceException(String pMessage) {
+			super(pMessage);
+		}
+
+		public AudioDeviceException(String pMessage, Throwable pCause) {
+			super(pMessage, pCause);
+		}
+		
+	}
 
 }

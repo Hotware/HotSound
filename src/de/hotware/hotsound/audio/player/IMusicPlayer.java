@@ -38,15 +38,17 @@ public interface IMusicPlayer {
 	 * inserts a Song to the the Player possible difference between
 	 * implementations: some could allow multiple songs to be added, but some
 	 * could only hold one song at a time
+	 * 
+	 * @throws MusicPlayerException
 	 */
-	public void insert(ISong pSong) throws SongInsertionException;
+	public void insert(ISong pSong) throws MusicPlayerException;
 
 	/**
 	 * inserts a Song to the the Player possible difference between
 	 * implementations: some could allow multiple songs to be added, but some
 	 * could only hold one song at a time
 	 */
-	public void insert(ISong pSong, IAudioDevice pAudioDevice) throws SongInsertionException;
+	public void insert(ISong pSong, IAudioDevice pAudioDevice) throws MusicPlayerException;
 
 	/**
 	 * starts the playback
@@ -56,7 +58,7 @@ public interface IMusicPlayer {
 	 * @throws IOException
 	 *             if there was an IO error during the start of the playback
 	 */
-	public void startPlayback() throws IOException;
+	public void startPlayback() throws MusicPlayerException;
 
 	/**
 	 * pauses the playback
@@ -78,10 +80,12 @@ public interface IMusicPlayer {
 	 * stops the playback but doesn't reset the Player. you can restart it via
 	 * restartPlayback afterwards
 	 * 
+	 * @throws MusicPlayerException
+	 * 
 	 * @throws IllegalStateException
 	 *             if the player hasn't been initialized yet (insert not called)
 	 */
-	public void stopPlayback();
+	public void stopPlayback() throws MusicPlayerException;
 
 	/**
 	 * @return true if stopped (not started or ended), false otherwise
@@ -120,7 +124,7 @@ public interface IMusicPlayer {
 	 * 
 	 * @author Martin Braun
 	 */
-	public static class SongInsertionException extends Exception {
+	public static class SongInsertionException extends MusicPlayerException {
 
 		private static final long serialVersionUID = 8381906976505908003L;
 

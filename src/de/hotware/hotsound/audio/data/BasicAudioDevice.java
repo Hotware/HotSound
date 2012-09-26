@@ -47,27 +47,31 @@ public class BasicAudioDevice implements IAudioDevice {
 	}
 	
 	@Override
-	public void start(AudioFormat pAudioFormat) throws LineUnavailableException {
+	public void start(AudioFormat pAudioFormat) throws AudioDeviceException {
 		if(!this.mStopped) {
 			throw new IllegalStateException("The AudioDevice is not stopped");
 		}
 		DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class,
 				pAudioFormat,
 				this.mRecommendedBufferSize);
-		if(this.mMixer == null) {
-			this.mSourceDataLine = (SourceDataLine) AudioSystem
-					.getLine(dataLineInfo);
-		} else {
-			this.mSourceDataLine = (SourceDataLine) this.mMixer
-					.getLine(dataLineInfo);
+		try {
+			if(this.mMixer == null) {
+				this.mSourceDataLine = (SourceDataLine) AudioSystem
+						.getLine(dataLineInfo);
+			} else {
+				this.mSourceDataLine = (SourceDataLine) this.mMixer
+						.getLine(dataLineInfo);
+			}
+			this.mSourceDataLine.open(pAudioFormat);
+		} catch(LineUnavailableException e) {
+			throw new AudioDeviceException("line is not available", e);
 		}
-		this.mSourceDataLine.open(pAudioFormat);
 		this.mSourceDataLine.start();
 		this.mStopped = false;
 	}
 
 	@Override
-	public int write(byte[] pData, int pStart, int pLength) {
+	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException {
 		if(this.mPaused || this.mStopped) {
 			throw new IllegalStateException("The Device is either paused, stopped or has never been started yet");
 		}
@@ -101,7 +105,7 @@ public class BasicAudioDevice implements IAudioDevice {
 	}
 
 	@Override
-	public void stop() {
+	public void stop() throws AudioDeviceException {
 		this.mSourceDataLine.stop();
 		this.mSourceDataLine.flush();
 		this.mStopped = true;

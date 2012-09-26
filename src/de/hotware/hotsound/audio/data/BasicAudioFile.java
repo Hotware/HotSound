@@ -45,8 +45,12 @@ public class BasicAudioFile implements ISeekableAudioFile {
 	}
 
 	@Override
-	public int read(byte[] pData, int pStart, int pBufferSize) throws IOException {
-		return this.mAudioInputStream.read(pData, pStart, pBufferSize);
+	public int read(byte[] pData, int pStart, int pBufferSize) throws AudioFileException {
+		try {
+			return this.mAudioInputStream.read(pData, pStart, pBufferSize);
+		} catch(IOException e) {
+			throw new AudioFileException("IOException while reading from the AudioInputStream");
+		}
 	}
 
 	@Override

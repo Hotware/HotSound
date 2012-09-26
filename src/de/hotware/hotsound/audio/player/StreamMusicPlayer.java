@@ -94,20 +94,18 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	/**
+	 * @throws MusicPlayerException 
 	 * @inheritDoc uses a BasicAudioDevice as AudioDevice
-	 * @throws SongInsertionException
-	 *             if audio file is either not supported, its line is not
-	 *             available or an IOException has been thrown in the underlying
-	 *             methods
 	 */
 	@Override
-	public void insert(ISong pSong) throws SongInsertionException {
+	public void insert(ISong pSong) throws MusicPlayerException {
 		this.insert(pSong, new BasicAudioDevice());
 	}
 
 	/**
 	 * @param pMixer
 	 *            if null is passed the AudioSystem uses the default Mixer
+	 * @throws MusicPlayerException 
 	 * @inheritDoc
 	 * @throws SongInsertionException
 	 *             if audio file is either not supported, its line is not
@@ -115,7 +113,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 *             methods
 	 */
 	@Override
-	public void insert(ISong pSong, IAudioDevice pAudioDevice) throws SongInsertionException {
+	public void insert(ISong pSong, IAudioDevice pAudioDevice) throws MusicPlayerException {
 		this.mLock.lock();
 		try {
 			this.mCurrentSong = pSong;
@@ -127,7 +125,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	@Override
-	public void startPlayback() throws IOException {
+	public void startPlayback() throws MusicPlayerException {
 		this.mLock.lock();
 		try {
 			if(this.mPlayerRunnable == null) {
@@ -141,7 +139,6 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				//run on the thread specified
 				this.mExecutorService.submit(this.mPlayerRunnable);
 			} else {
-				//run on our own thread
 				this.mPlayerRunnable.call();
 			}
 		} finally {
@@ -169,7 +166,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	@Override
-	public void stopPlayback() {
+	public void stopPlayback() throws MusicPlayerException {
 		this.mLock.lock();
 		try {
 			if(this.mPlayerRunnable == null) {
@@ -285,7 +282,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		}
 	}
 
-	private void insertInternal(ISong pSong, IAudioDevice pAudioDevice) throws SongInsertionException {
+	private void insertInternal(ISong pSong, IAudioDevice pAudioDevice) throws MusicPlayerException {
 		if(this.mPlayerRunnable != null && !this.mPlayerRunnable.isStopped()) {
 			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
 		}
