@@ -75,7 +75,8 @@ public interface IMusicPlayer {
 	public void unpausePlayback();
 
 	/**
-	 * stops the playback
+	 * stops the playback but doesn't reset the Player. you can restart it via
+	 * restartPlayback afterwards
 	 * 
 	 * @throws IllegalStateException
 	 *             if the player hasn't been initialized yet (insert not called)

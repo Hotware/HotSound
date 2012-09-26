@@ -174,7 +174,6 @@ public class StreamMusicPlayer implements IMusicPlayer {
 						" has not been initialized yet!");
 			}
 			this.mPlayerRunnable.stopPlayback();
-			this.mPlayerRunnable = null;
 		} finally {
 			this.mLock.unlock();
 		}
