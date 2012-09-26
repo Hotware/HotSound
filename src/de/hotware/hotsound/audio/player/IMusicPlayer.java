@@ -20,6 +20,8 @@
  */
 package de.hotware.hotsound.audio.player;
 
+import java.io.IOException;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Mixer;
@@ -50,17 +52,17 @@ public interface IMusicPlayer {
 	 * starts the playback
 	 * 
 	 * @throws IllegalStateException
-	 *             if the player hasn't been initialized yet (insert not
-	 *             called)
+	 *             if the player hasn't been initialized yet (insert not called)
+	 * @throws IOException
+	 *             if there was an IO error during the start of the playback
 	 */
-	public void startPlayback();
+	public void startPlayback() throws IOException;
 
 	/**
 	 * pauses the playback
 	 * 
 	 * @throws IllegalStateException
-	 *             if the player hasn't been initialized yet (insert not
-	 *             called)
+	 *             if the player hasn't been initialized yet (insert not called)
 	 */
 	public void pausePlayback();
 
@@ -68,8 +70,7 @@ public interface IMusicPlayer {
 	 * unpauses the playback
 	 * 
 	 * @throws IllegalStateException
-	 *             if the player hasn't been initialized yet (insert not
-	 *             called)
+	 *             if the player hasn't been initialized yet (insert not called)
 	 */
 	public void unpausePlayback();
 
@@ -77,8 +78,7 @@ public interface IMusicPlayer {
 	 * stops the playback
 	 * 
 	 * @throws IllegalStateException
-	 *             if the player hasn't been initialized yet (insert not
-	 *             called)
+	 *             if the player hasn't been initialized yet (insert not called)
 	 */
 	public void stopPlayback();
 
@@ -101,13 +101,17 @@ public interface IMusicPlayer {
 	 * @return the DataLine of the current song
 	 */
 	public DataLine getDataLine();
-	
+
 	/**
 	 * seeks to the given position
-	 * @param pPosition position in microseconds
+	 * 
+	 * @param pPosition
+	 *            position in microseconds
 	 */
 	public void seek(int pPosition);
-	
+
+	public void restartPlayback();
+
 	public void setPlaybackListener(IPlaybackListener pPlaybackListener);
 
 	/**

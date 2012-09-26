@@ -43,7 +43,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 public class StreamMusicPlayer implements IMusicPlayer {
 
 	protected ExecutorService mExecutorService;
-	protected StreamPlayerRunnable mPlayerRunnable;
+	protected StreamPlayerCallable mPlayerRunnable;
 	protected IPlaybackListener mPlaybackListener;
 	/**
 	 * the current song after insertion
@@ -124,7 +124,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	@Override
-	public void startPlayback() {
+	public void startPlayback() throws IOException {
 		this.mLock.lock();
 		try {
 			if(this.mPlayerRunnable == null) {
@@ -136,14 +136,19 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			}
 			if(this.mExecutorService != null) {
 				//run on the thread specified
-				this.mExecutorService.execute(this.mPlayerRunnable);
+				this.mExecutorService.submit(this.mPlayerRunnable);
 			} else {
 				//run on our own thread
-				this.mPlayerRunnable.run();
+				this.mPlayerRunnable.call();
 			}
 		} finally {
 			this.mLock.unlock();
 		}
+	}
+	
+	@Override
+	public void restartPlayback() {
+		throw new UnsupportedOperationException("not implemented yet");
 	}
 
 	@Override
@@ -284,7 +289,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
 		}
 		try {
-			this.mPlayerRunnable = new StreamPlayerRunnable(pSong,
+			this.mPlayerRunnable = new StreamPlayerCallable(pSong,
 					this.mPlaybackListener,
 					pMixer);
 		} catch(UnsupportedAudioFileException

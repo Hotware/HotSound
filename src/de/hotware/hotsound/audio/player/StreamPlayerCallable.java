@@ -21,6 +21,7 @@
 package de.hotware.hotsound.audio.player;
 
 import java.io.IOException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -35,8 +36,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.hotware.hotsound.audio.player.IPlaybackListener.PlaybackEndEvent;
 
-
 /**
+ * To be used with ExecutionServices.
+ * 
  * all playback functions are thread-safe. Player inspired by Matthias
  * Pfisterer's examples on JavaSound (jsresources.org). Because of the fact,
  * that this Software is meant to be Open-Source and I don't want to get anybody
@@ -46,7 +48,7 @@ import de.hotware.hotsound.audio.player.IPlaybackListener.PlaybackEndEvent;
  * 
  * @author Martin Braun
  */
-public class StreamPlayerRunnable implements Runnable {
+public class StreamPlayerCallable implements Callable<Void> {
 
 	protected Lock mLock;
 	protected AudioInputStream mAudioInputStream;
@@ -60,7 +62,7 @@ public class StreamPlayerRunnable implements Runnable {
 	 * initializes the StreamPlayerRunnable without a
 	 * {@link #PlayerThreadListener} and the default Mixer
 	 */
-	public StreamPlayerRunnable(ISong pSong) throws UnsupportedAudioFileException,
+	public StreamPlayerCallable(ISong pSong) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException {
 		this(pSong, null);
@@ -70,7 +72,7 @@ public class StreamPlayerRunnable implements Runnable {
 	 * initializes the StreamPlayerRunnable with the given
 	 * {@link #PlayerThreadListener} and the default Mixer
 	 */
-	public StreamPlayerRunnable(ISong pSong,
+	public StreamPlayerCallable(ISong pSong,
 			IPlaybackListener pPlayerThreadListener) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException {
@@ -81,7 +83,7 @@ public class StreamPlayerRunnable implements Runnable {
 	 * initializes the StreamPlayerRunnable with the given
 	 * {@link #PlayerThreadListener} and the given Mixer
 	 */
-	public StreamPlayerRunnable(ISong pSong,
+	public StreamPlayerCallable(ISong pSong,
 			IPlaybackListener pPlayerThreadListener,
 			Mixer pMixer) throws UnsupportedAudioFileException,
 			IOException,
@@ -106,8 +108,15 @@ public class StreamPlayerRunnable implements Runnable {
 		this.mPlayerThreadListener = pPlayerThreadListener;
 	}
 
+	/**
+	 * @return 
+	 * @inheritDoc
+	 * 
+	 * @throws IOException
+	 *             if cleanup fails after finished with loading
+	 */
 	@Override
-	public void run() {
+	public Void call() throws IOException {
 		this.mStop = false;
 		int nBytesRead = 0;
 		int bufferSize = (int) this.mAudioFormat.getSampleRate() *
@@ -133,15 +142,12 @@ public class StreamPlayerRunnable implements Runnable {
 		} finally {
 			this.mLock.unlock();
 		}
-		try {
-			this.cleanUp();
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
+		this.cleanUp();
 		this.mStop = true;
 		if(this.mPlayerThreadListener != null) {
 			this.mPlayerThreadListener.onEnd(new PlaybackEndEvent(this));
 		}
+		return null;
 	}
 
 	public void pausePlayback() {
