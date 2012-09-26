@@ -71,8 +71,9 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	/**
-	 * uses the given ExecutorService to run its tasks.
-	 * if null is specified it uses the current thread
+	 * uses the given ExecutorService to run its tasks. if null is specified it
+	 * uses the current thread
+	 * 
 	 * @param pPlaybackListener
 	 * @param pExecutorService
 	 */
@@ -145,7 +146,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			this.mLock.unlock();
 		}
 	}
-	
+
 	@Override
 	public void restartPlayback() {
 		throw new UnsupportedOperationException("not implemented yet");
@@ -242,53 +243,52 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this.mLock.lock();
 		try {
 			throw new UnsupportedOperationException("not implemented yet");
-//			// just pause the playback
-//			this.stopPlayback();
-//			try {
-//				this.insertInternal(this.mCurrentSong, this.mCurrentMixer);
-//				if(file != null && this.mPlayerRunnable.mAudioFormat.getFrameLength() != -1)
-//				{	
-//				double skippedPercentage = (double)percentage/100;
-//				System.out.println("Percentage to skip " + skippedPercentage);
-//				long framesToSkip = (long) (getFrameLength() * skippedPercentage);
-//				System.out.println("Skipping " + framesToSkip + " frames with " + getFrameLength() + " available");
-//				long bytesSkipped = 0;
-//				byte[] garbage = new byte[4096];
-//				long bytesDropped = 0;
-//				while(bytesSkipped <= framesToSkip*audioFormat.getFrameSize() && bytesDropped != -1)
-//				{
-//				// System.out.println(bytesSkipped/audioFormat.getFrameSize());
-//				bytesDropped = audioInputStream.read(garbage, 0, garbage.length);
-//				// bytesDropped = audioInputStream.skip(4096);
-//				// System.out.println("Dropped " + bytesDropped + " bytes");
-//				bytesSkipped += bytesDropped;
-//				}
-//				skippedFrames += bytesSkipped/audioFormat.getFrameSize();
-//				System.out.println("Skipped Frames: " + bytesSkipped/audioFormat.getFrameSize());
-//				}
-//				}
-//				catch (IOException e)
-//				{
-//				e.printStackTrace();
-//				}	
-//				catch(Exception e)
-//				{
-//				e.printStackTrace();
-//			}
-//			// start playing again
-//			this.startPlayback();
+			//			// just pause the playback
+			//			this.stopPlayback();
+			//			try {
+			//				this.insertInternal(this.mCurrentSong, this.mCurrentMixer);
+			//				if(file != null && this.mPlayerRunnable.mAudioFormat.getFrameLength() != -1)
+			//				{	
+			//				double skippedPercentage = (double)percentage/100;
+			//				System.out.println("Percentage to skip " + skippedPercentage);
+			//				long framesToSkip = (long) (getFrameLength() * skippedPercentage);
+			//				System.out.println("Skipping " + framesToSkip + " frames with " + getFrameLength() + " available");
+			//				long bytesSkipped = 0;
+			//				byte[] garbage = new byte[4096];
+			//				long bytesDropped = 0;
+			//				while(bytesSkipped <= framesToSkip*audioFormat.getFrameSize() && bytesDropped != -1)
+			//				{
+			//				// System.out.println(bytesSkipped/audioFormat.getFrameSize());
+			//				bytesDropped = audioInputStream.read(garbage, 0, garbage.length);
+			//				// bytesDropped = audioInputStream.skip(4096);
+			//				// System.out.println("Dropped " + bytesDropped + " bytes");
+			//				bytesSkipped += bytesDropped;
+			//				}
+			//				skippedFrames += bytesSkipped/audioFormat.getFrameSize();
+			//				System.out.println("Skipped Frames: " + bytesSkipped/audioFormat.getFrameSize());
+			//				}
+			//				}
+			//				catch (IOException e)
+			//				{
+			//				e.printStackTrace();
+			//				}	
+			//				catch(Exception e)
+			//				{
+			//				e.printStackTrace();
+			//			}
+			//			// start playing again
+			//			this.startPlayback();
 		} finally {
 			this.mLock.unlock();
 		}
 	}
 
 	private void insertInternal(ISong pSong, Mixer pMixer) throws SongInsertionException {
-		if(this.mPlayerRunnable != null &&
-				!this.mPlayerRunnable.isStopped()) {
+		if(this.mPlayerRunnable != null && !this.mPlayerRunnable.isStopped()) {
 			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
 		}
 		try {
-			this.mPlayerRunnable = new StreamPlayerCallable(pSong,
+			this.mPlayerRunnable = new StreamPlayerCallable(BasicAudioFile.getBasicAudioFileFromSong(pSong),
 					this.mPlaybackListener,
 					pMixer);
 		} catch(UnsupportedAudioFileException
@@ -297,5 +297,5 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			throw new SongInsertionException("Couldn't insert " + pSong, e);
 		}
 	}
-	
+
 }
