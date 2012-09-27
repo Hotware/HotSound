@@ -33,7 +33,7 @@ public class Recorder implements AutoCloseable {
 				(short) pAudioFormat.getChannels(),
 				(int) pAudioFormat.getSampleRate(),
 				(short) pAudioFormat.getSampleSizeInBits(),
-				-1);
+				Integer.MAX_VALUE);
 		this.mHeader.write(this.mBufferedOutputStream);
 	}
 
