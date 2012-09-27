@@ -20,16 +20,15 @@
  */
 package de.hotware.hotsound.audio.data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
+
+import de.hotware.hotsound.audio.util.AudioUtil;
 
 public class RecordAudio implements IAudio {
 
@@ -96,16 +95,7 @@ public class RecordAudio implements IAudio {
 	}
 
 	public static List<Mixer> getRecordMixers() {
-		Line.Info lineInfo = new Line.Info(TargetDataLine.class);
-		Mixer.Info[] mixerInfo = AudioSystem.getMixerInfo();
-		List<Mixer> ret = new ArrayList<>();
-		for(Mixer.Info info : mixerInfo) {
-			Mixer current = AudioSystem.getMixer(info);
-			if(current.isLineSupported(lineInfo)) {
-				ret.add(current);
-			}
-		}
-		return ret;
+		return AudioUtil.getCompatibleMixers(TargetDataLine.class);
 	}
 
 }

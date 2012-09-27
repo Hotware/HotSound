@@ -22,11 +22,15 @@ package de.hotware.hotsound.audio.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Line;
 import javax.sound.sampled.Mixer;
+import javax.sound.sampled.TargetDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class AudioUtil {
@@ -93,6 +97,19 @@ public class AudioUtil {
 			}
 		}
 		return null;
+	}
+	
+	public static List<Mixer> getCompatibleMixers(Class<? extends Line> pLineClass) {
+		Line.Info lineInfo = new Line.Info(pLineClass);
+		Mixer.Info[] mixerInfo = AudioSystem.getMixerInfo();
+		List<Mixer> ret = new ArrayList<>();
+		for(Mixer.Info info : mixerInfo) {
+			Mixer current = AudioSystem.getMixer(info);
+			if(current.isLineSupported(lineInfo)) {
+				ret.add(current);
+			}
+		}
+		return ret;
 	}
 
 }
