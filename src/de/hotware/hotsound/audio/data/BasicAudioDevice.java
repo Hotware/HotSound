@@ -61,6 +61,9 @@ public class BasicAudioDevice implements IPlaybackAudioDevice {
 				this.mSourceDataLine = (SourceDataLine) AudioSystem
 						.getLine(dataLineInfo);
 			} else {
+				if(!this.mMixer.isOpen()) {
+					this.mMixer.open();
+				}
 				this.mSourceDataLine = (SourceDataLine) this.mMixer
 						.getLine(dataLineInfo);
 			}

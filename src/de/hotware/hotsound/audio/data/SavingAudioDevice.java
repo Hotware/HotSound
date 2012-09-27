@@ -47,10 +47,6 @@ public class SavingAudioDevice extends BasicAudioDevice {
 
 	protected SavingAudioDevice(File pFile, Mixer pMixer) {
 		super(pMixer);
-		if(pFile.exists()) {
-			throw new IllegalArgumentException("File " + pFile +
-					" already exists!");
-		}
 		this.mFile = pFile;
 	}
 
