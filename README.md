@@ -18,38 +18,28 @@ A tutorial on what you need to get them to work will follow.
 ## SimplePlayer Examples (from HotSoundExamples)
 This is a simple showcase how easy the API can be used in real life applications. No need to write all the tricky stuff. It's nearly as easy as pressing play on a MP3 Player.
 
-  package de.hotware.hotsound.examples;
+	package de.hotware.hotsound.examples;
 	
 	import java.io.File;
 	import java.net.MalformedURLException;
 	
 	import de.hotware.hotsound.audio.player.BasicSong;
 	import de.hotware.hotsound.audio.player.IMusicPlayer;
-	import de.hotware.hotsound.audio.player.IMusicPlayer.SongInsertionException;
-	import de.hotware.hotsound.audio.player.IPlaybackListener;
+	import de.hotware.hotsound.audio.player.MusicPlayerException;
 	import de.hotware.hotsound.audio.player.StreamMusicPlayer;
 	
 	/**
-	 * Player that plays on the command line and it's 37 lines long
+	 * Player that plays on the command line and it's 27 lines long
 	 * 
 	 * @author Martin Braun
 	 */
 	public class SimplePlayer {
 	
-		public static void main(String[] args) throws MalformedURLException,
-				SongInsertionException {
+		public static void main(String[] args) throws MusicPlayerException, MalformedURLException {
 			if(args.length >= 1) {
-				IMusicPlayer player = new StreamMusicPlayer(new IPlaybackListener() {
-	
-					@Override
-					public void onEnd(PlaybackEndEvent pEvent) {
-						System.out.println("Playback ended");
-						System.exit(1);
-					}
-	
-				});
+				IMusicPlayer player = new StreamMusicPlayer();
 				player.insert(new BasicSong(new File(args[0])));
-				player.startPlayback();
+				player.start();
 			}
 		}
 	
@@ -76,11 +66,11 @@ And a player that also records all the data he is playing (in .wav format)
 			if(args.length >= 2) {
 				IMusicPlayer player = new StreamMusicPlayer();
 				player.insert(new BasicSong(new URL(args[0])), new SavingAudioDevice(new File(args[1])));
-				player.startPlayback();
+				player.start();
 				//wait 10 seconds (equals approx. 10 seconds of saved audio)
 				Thread.sleep(10000);
 				//always stop for bug avoidance in saving the audiofile
-				player.stopPlayback();
+				player.stop();
 			}
 		}
 	
