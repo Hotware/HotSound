@@ -26,17 +26,16 @@ import java.io.InputStream;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Mixer;
-import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class AudioUtil {
 
 	/**
+	 * always converts to PCM_SIGNED
+	 * 
 	 * retrieves a AudioInputStream from a given Inputstream. converts the
-	 * AudioInputStream if needed (if the system doesn't support the type
-	 * natively)
+	 * AudioInputStream if needed
 	 * 
 	 * @param pSong
 	 *            object from which the AudioInputStream should be retrieved
@@ -50,13 +49,20 @@ public class AudioUtil {
 			IOException {
 		AudioInputStream sourceAudioInputStream = AudioSystem
 				.getAudioInputStream(pInputStream);
-		AudioInputStream ret = sourceAudioInputStream;
-		AudioFormat sourceAudioFormat = sourceAudioInputStream.getFormat();
-		DataLine.Info supportInfo = new DataLine.Info(SourceDataLine.class,
-				sourceAudioFormat,
-				AudioSystem.NOT_SPECIFIED);
-		boolean directSupport = AudioSystem.isLineSupported(supportInfo);
-		if(!directSupport) {
+		return getSupportedAudioInputStreamFromAudioInputStream(sourceAudioInputStream);
+	}
+
+	/**
+	 * always converts to PCM_SIGNED
+	 */
+	public static AudioInputStream getSupportedAudioInputStreamFromAudioInputStream(AudioInputStream pAudioInputStream) {
+		AudioInputStream ret = pAudioInputStream;
+		AudioFormat sourceAudioFormat = pAudioInputStream.getFormat();
+		//		DataLine.Info supportInfo = new DataLine.Info(SourceDataLine.class,
+		//				sourceAudioFormat,
+		//				AudioSystem.NOT_SPECIFIED);
+		//		boolean directSupport = AudioSystem.isLineSupported(supportInfo);
+		if(sourceAudioFormat.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) {
 			float sampleRate = sourceAudioFormat.getSampleRate();
 			int channels = sourceAudioFormat.getChannels();
 			AudioFormat newFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
@@ -67,7 +73,7 @@ public class AudioUtil {
 					sampleRate,
 					false);
 			AudioInputStream convertedAudioInputStream = AudioSystem
-					.getAudioInputStream(newFormat, sourceAudioInputStream);
+					.getAudioInputStream(newFormat, pAudioInputStream);
 			sourceAudioFormat = newFormat;
 			ret = convertedAudioInputStream;
 		}

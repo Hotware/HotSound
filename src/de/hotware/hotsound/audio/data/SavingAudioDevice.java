@@ -21,22 +21,25 @@
 package de.hotware.hotsound.audio.data;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+/**
+ * saves the audio to a file. currently only supports up to 100MB of data
+ * (approx. 9:50min of .wav). All the old data will always get overwritten.
+ * 
+ * @author Martin Braun
+ * 
+ */
 public class SavingAudioDevice extends BasicAudioDevice {
 
-	protected ByteArrayOutputStream mByteArrayOutputStream;
+	protected BufferedOutputStream mBufferedOutputStream;
+	protected IHeader mHeader;
 	protected File mFile;
 
 	public SavingAudioDevice(File pFile) {
@@ -59,13 +62,30 @@ public class SavingAudioDevice extends BasicAudioDevice {
 			throw new IllegalStateException("File " + this.mFile +
 					" already exists!");
 		}
-		this.mByteArrayOutputStream = new ByteArrayOutputStream();
+		try {
+			this.mFile.createNewFile();
+			this.mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(this.mFile));
+			AudioFormat format = this.mSourceDataLine.getFormat();
+			this.mHeader = new WaveHeader(WaveHeader.FORMAT_PCM,
+					(short) format.getChannels(),
+					(int) format.getSampleRate(),
+					(short) format.getSampleSizeInBits(),
+					-1);
+			((WaveHeader) this.mHeader).write(this.mBufferedOutputStream);
+		} catch(IOException e) {
+			throw new AudioDeviceException("couldn't initialize the Streamwriting process",
+					e);
+		}
 	}
 
 	@Override
 	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException {
 		int ret = super.write(pData, pStart, pLength);
-		this.mByteArrayOutputStream.write(pData, pStart, pLength);
+		try {
+			this.mBufferedOutputStream.write(pData, pStart, pLength);
+		} catch(IOException e) {
+			throw new AudioDeviceException("couldn't write to the File", e);
+		}
 		return ret;
 	}
 
@@ -83,7 +103,7 @@ public class SavingAudioDevice extends BasicAudioDevice {
 					e);
 		} finally {
 			try {
-				this.mByteArrayOutputStream.close();
+				this.mBufferedOutputStream.close();
 			} catch(IOException e) {
 				e.printStackTrace();
 			}
@@ -91,23 +111,9 @@ public class SavingAudioDevice extends BasicAudioDevice {
 	}
 
 	private void saveData() throws IOException, UnsupportedAudioFileException {
-		if(this.mFile.exists()) {
-			throw new IllegalStateException("File " + this.mFile +
-					" already exists");
-		}
-		AudioFormat audioFormat = this.mSourceDataLine.getFormat();
-		byte[] data = this.mByteArrayOutputStream.toByteArray();
-		try(ByteArrayInputStream input = new ByteArrayInputStream(data);
-				BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(this.mFile));
-				AudioInputStream audioInputStream = new AudioInputStream(input,
-						audioFormat,
-						data.length / audioFormat.getFrameSize());) {
-			AudioSystem.write(audioInputStream,
-					AudioFileFormat.Type.AIFF,
-					outputStream);
-			input.close();
-			audioInputStream.close();
-			outputStream.close();
+		try {
+		} finally {
+			this.mBufferedOutputStream.close();
 		}
 	}
 
