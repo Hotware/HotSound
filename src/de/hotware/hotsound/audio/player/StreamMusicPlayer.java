@@ -29,14 +29,11 @@ package de.hotware.hotsound.audio.player;
  *  mention him as inspiration, because his code helped me to write this class.
  */
 
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.hotware.hotsound.audio.data.BasicAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice;
@@ -285,13 +282,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		if(this.mPlayerRunnable != null && !this.mPlayerRunnable.isStopped()) {
 			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
 		}
-		try {
-			this.mPlayerRunnable = new StreamPlayerCallable(pSong.getAudioFile(), this.mMusicListener, pAudioDevice);
-		} catch(UnsupportedAudioFileException
-				| IOException
-				| LineUnavailableException e) {
-			throw new SongInsertionException("Couldn't insert " + pSong, e);
-		}
+		this.mPlayerRunnable = new StreamPlayerCallable(pSong.getAudio(), pAudioDevice, this.mMusicListener);
 	}
 
 }

@@ -98,7 +98,7 @@ public class SavingAudioDevice extends BasicAudioDevice {
 		try {
 			this.saveData();
 		} catch(UnsupportedAudioFileException e) {
-			throw new IOException("an UnsupportedAudioFileException occured during writing to the file",
+			throw new IOException("an UnsupportedAudioFileException occured while writing to the file",
 					e);
 		} finally {
 			try {

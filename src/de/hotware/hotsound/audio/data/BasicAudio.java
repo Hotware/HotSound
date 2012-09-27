@@ -1,5 +1,5 @@
 /**
- * File RecordAudioFile.java
+ * File BasicAudio.java
  * ---------------------------------------------------------
  *
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
@@ -20,59 +20,74 @@
  */
 package de.hotware.hotsound.audio.data;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.TargetDataLine;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class RecordAudioFile implements IAudioFile {
+import de.hotware.hotsound.audio.util.AudioUtil;
 
-	protected Mixer mMixer;
-	protected AudioFormat mAudioFormat;
-	protected TargetDataLine mTargetDataLine;
+public class BasicAudio implements ISeekableAudio {
+
+	protected InputStream mInputStream;
+	protected AudioInputStream mAudioInputStream;
 	protected boolean mStopped;
 
-	public RecordAudioFile(Mixer pMixer, AudioFormat pAudioFormat) {
-		this.mMixer = pMixer;
-		this.mAudioFormat = pAudioFormat;
+	public BasicAudio(InputStream pInputStream) {
+		this.mInputStream = pInputStream;
 		this.mStopped = true;
 	}
 
 	@Override
-	public void open() throws AudioFileException {
+	public void open() throws AudioException {
 		if(!this.mStopped) {
-			throw new IllegalStateException("The AudioFile is already opened");
+			throw new IllegalStateException("The Audio is already opened");
 		}
-		DataLine.Info info = new DataLine.Info(TargetDataLine.class,
-				this.mAudioFormat);
 		try {
-			this.mTargetDataLine = (TargetDataLine) this.mMixer.getLine(info);
-			this.mTargetDataLine.open(this.mAudioFormat);
-			this.mTargetDataLine.start();
-		} catch(LineUnavailableException e) {
-			throw new AudioFileException("Error during opening the TargetDataLine");
+			this.mAudioInputStream = AudioUtil
+					.getSupportedAudioInputStreamFromInputStream(this.mInputStream);
+		} catch(UnsupportedAudioFileException | IOException e) {
+			throw new AudioException("Error while opening the audiostream", e);
 		}
 		this.mStopped = false;
 	}
 
 	@Override
 	public AudioFormat getAudioFormat() {
-		return this.mAudioFormat;
-	}
-
-	@Override
-	public int read(byte[] pData, int pStart, int pLength) throws AudioFileException {
-		if(this.mStopped) {
-			throw new IllegalStateException("The AudioFile is not opened");
+		if(this.mAudioInputStream == null) {
+			throw new IllegalStateException("not opened yet");
 		}
-		return this.mTargetDataLine.read(pData, pStart, pLength);
+		return this.mAudioInputStream.getFormat();
 	}
 
 	@Override
-	public void close() {
-		this.mTargetDataLine.close();
+	public int read(byte[] pData, int pStart, int pBufferSize) throws AudioException {
+		if(this.mStopped) {
+			throw new IllegalStateException("The Audio is not opened");
+		}
+		try {
+			return this.mAudioInputStream.read(pData, pStart, pBufferSize);
+		} catch(IOException e) {
+			throw new AudioException("IOException while reading from the AudioInputStream");
+		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		this.mAudioInputStream.close();
 		this.mStopped = true;
+	}
+
+	@Override
+	public void seek(int pFrame) {
+		throw new UnsupportedOperationException("not implemented yet");
+	}
+
+	@Override
+	public void skip(int pFrames) {
+		throw new UnsupportedOperationException("not implemented yet");
 	}
 
 }

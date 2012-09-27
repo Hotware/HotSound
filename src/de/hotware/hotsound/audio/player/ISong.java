@@ -16,23 +16,21 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
- *   if it breaks something.
+ * if it breaks something.
  */
 package de.hotware.hotsound.audio.player;
 
-import java.io.IOException;
-
-import de.hotware.hotsound.audio.data.IAudioFile;
-
+import de.hotware.hotsound.audio.data.IAudio;
 
 /**
- * Song interface for future potato-based implementations
- * TODO: wrapper Exception?
+ * Song interface for future potato-based implementations TODO: wrapper
+ * Exception?
+ * 
  * @author Martin Braun
  * 
  */
 public interface ISong {
 
-	public IAudioFile getAudioFile() throws IOException;
+	public IAudio getAudio() throws MusicPlayerException;
 
 }

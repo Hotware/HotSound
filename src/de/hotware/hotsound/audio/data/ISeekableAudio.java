@@ -1,5 +1,5 @@
 /**
- * File IAudioFile.java
+ * File ISeekableAudio.java
  * ---------------------------------------------------------
  *
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
@@ -20,51 +20,22 @@
  */
 package de.hotware.hotsound.audio.data;
 
-import java.io.IOException;
-
-import javax.sound.sampled.AudioFormat;
-
-import de.hotware.hotsound.audio.player.MusicPlayerException;
-
-public interface IAudioFile extends AutoCloseable {
+public interface ISeekableAudio extends IAudio {
 
 	/**
-	 * @return the AudioFormat of the IAudioFile
+	 * seeks to the passed frame number
+	 * 
+	 * @param pFrame
+	 *            the number of the frame to skip to
 	 */
-	public AudioFormat getAudioFormat();
+	public void seek(int pFrame);
 
 	/**
-	 * Reads up to a specified maximum number of bytes of data from the audio
-	 * stream, putting them into the given byte array. This method will always
-	 * read an integral number of frames. If pLength does not specify an integral
-	 * number of frames, a maximum of len - (pLength % frameSize) bytes will be
-	 * read.
+	 * skips the given amount of frames
+	 * 
+	 * @param pFrames
+	 *            the amount of frames to skip
 	 */
-	public int read(byte[] pData, int pStart, int pBufferSize) throws AudioFileException;
-	
-	public void open() throws AudioFileException;
-
-	/**
-	 * closes the IAudioFiles resources
-	 */
-	public void close() throws IOException;
-	
-	public static class AudioFileException extends MusicPlayerException {
-
-		private static final long serialVersionUID = 2153542499704614401L;
-		
-		public AudioFileException() {
-			super();
-		}
-
-		public AudioFileException(String pMessage) {
-			super(pMessage);
-		}
-
-		public AudioFileException(String pMessage, Throwable pCause) {
-			super(pMessage, pCause);
-		}
-		
-	}
+	public void skip(int pFrames);
 
 }

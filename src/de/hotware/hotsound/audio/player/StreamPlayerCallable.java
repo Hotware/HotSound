@@ -26,14 +26,11 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.hotware.hotsound.audio.data.BasicAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice.AudioDeviceException;
-import de.hotware.hotsound.audio.data.IAudioFile;
-import de.hotware.hotsound.audio.data.ISeekableAudioFile;
+import de.hotware.hotsound.audio.data.IAudio;
+import de.hotware.hotsound.audio.data.ISeekableAudio;
 import de.hotware.hotsound.audio.player.IMusicListener.MusicEvent;
 
 /**
@@ -54,7 +51,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 	protected boolean mPause;
 	protected boolean mStop;
 	protected IMusicListener mMusicListener;
-	protected IAudioFile mAudioFile;
+	protected IAudio mAudio;
 	protected IAudioDevice mAudioDevice;
 
 	/**
@@ -63,25 +60,8 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 * 
 	 * @throws AudioDeviceException
 	 */
-	public StreamPlayerCallable(IAudioFile pAudioFile) throws UnsupportedAudioFileException,
-			IOException,
-			LineUnavailableException,
-			AudioDeviceException {
-		this(pAudioFile, null);
-	}
-
-	/**
-	 * initializes the StreamPlayerRunnable with the given
-	 * {@link #PlayerThreadListener} and the default Mixer
-	 * 
-	 * @throws AudioDeviceException
-	 */
-	public StreamPlayerCallable(IAudioFile pAudioFile,
-			IMusicListener pPlayerThreadListener) throws UnsupportedAudioFileException,
-			IOException,
-			LineUnavailableException,
-			AudioDeviceException {
-		this(pAudioFile, pPlayerThreadListener, new BasicAudioDevice());
+	public StreamPlayerCallable(IAudio pAudio, IAudioDevice pAudioDevice) {
+		this(pAudio, pAudioDevice, null);
 	}
 
 	/**
@@ -90,16 +70,13 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 * 
 	 * @throws AudioDeviceException
 	 */
-	public StreamPlayerCallable(IAudioFile pAudioFile,
-			IMusicListener pMusicListener,
-			IAudioDevice pAudioDevice) throws UnsupportedAudioFileException,
-			IOException,
-			LineUnavailableException,
-			AudioDeviceException {
-		if(pAudioDevice == null || pAudioFile == null) {
-			throw new IllegalArgumentException("the audiodevice and the audiofile may not be null");
+	public StreamPlayerCallable(IAudio pAudio,
+			IAudioDevice pAudioDevice,
+			IMusicListener pMusicListener) {
+		if(pAudioDevice == null || pAudio == null) {
+			throw new IllegalArgumentException("the audiodevice and the audio may not be null");
 		}
-		this.mAudioFile = pAudioFile;
+		this.mAudio = pAudio;
 		this.mAudioDevice = pAudioDevice;
 		this.mPause = false;
 		this.mStop = true;
@@ -120,16 +97,16 @@ public class StreamPlayerCallable implements Callable<Void> {
 		MusicPlayerException exception = null;
 		boolean failure = false;
 		this.mLock.lock();
-		try(IAudioDevice dev = this.mAudioDevice;
-				IAudioFile file = this.mAudioFile;) {
-			file.open();
-			dev.open(file.getAudioFormat());
-			AudioFormat format = file.getAudioFormat();
-			int bufferSize = (int) format.getSampleRate() * format.getFrameSize();
+		try(IAudioDevice dev = this.mAudioDevice; IAudio audio = this.mAudio;) {
+			audio.open();
+			dev.open(audio.getAudioFormat());
+			AudioFormat format = audio.getAudioFormat();
+			int bufferSize = (int) format.getSampleRate() *
+					format.getFrameSize();
 			byte[] abData = new byte[bufferSize];
 			while(nBytesRead != -1 && !this.mStop) {
 				this.mLock.unlock();
-				nBytesRead = file.read(abData, 0, bufferSize);
+				nBytesRead = audio.read(abData, 0, bufferSize);
 				if(nBytesRead != -1) {
 					dev.write(abData, 0, nBytesRead);
 				}
@@ -157,19 +134,19 @@ public class StreamPlayerCallable implements Callable<Void> {
 	}
 
 	public void seek(int pFrame) {
-		if(!(this.mAudioFile instanceof ISeekableAudioFile)) {
+		if(!(this.mAudio instanceof ISeekableAudio)) {
 			throw new UnsupportedOperationException("seeking is not possible on the current AudioFile");
 		}
 	}
 
 	public void skip(int pFrames) {
-		if(!(this.mAudioFile instanceof ISeekableAudioFile)) {
+		if(!(this.mAudio instanceof ISeekableAudio)) {
 			throw new UnsupportedOperationException("skipping is not possible on the current AudioFile");
 		}
 	}
 
 	public boolean isSkippingPossible() {
-		return this.mAudioFile instanceof ISeekableAudioFile;
+		return this.mAudio instanceof ISeekableAudio;
 	}
 
 	public void pausePlayback() {
@@ -197,7 +174,8 @@ public class StreamPlayerCallable implements Callable<Void> {
 				try {
 					this.mAudioDevice.close();
 				} catch(IOException e) {
-					throw new MusicPlayerException("the AudioDevice couldn't be closed", e);
+					throw new MusicPlayerException("the AudioDevice couldn't be closed",
+							e);
 				}
 			}
 			this.mStop = true;
@@ -229,7 +207,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 	public AudioFormat getAudioFormat() {
 		this.mLock.lock();
 		try {
-			return this.mAudioFile.getAudioFormat();
+			return this.mAudio.getAudioFormat();
 		} finally {
 			this.mLock.unlock();
 		}
