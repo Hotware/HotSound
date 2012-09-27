@@ -31,6 +31,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  * TODO: implement IHeader and move to IHeader instead of WaveHeader
+ * TODO: audiolength
  * 
  * @author Martin Braun
  * 
