@@ -42,6 +42,8 @@ public interface IAudioDevice extends AutoCloseable {
 	 */
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException;
 	
+	public boolean isPaused();
+	
 	/**
 	 * pauses the IAudioDevice and the playback
 	 */
@@ -57,6 +59,8 @@ public interface IAudioDevice extends AutoCloseable {
 	 * @throws AudioDeviceException 
 	 */
 	public void close() throws IOException;
+	
+	public boolean isClosed();
 	
 	public static class AudioDeviceException extends MusicPlayerException {
 

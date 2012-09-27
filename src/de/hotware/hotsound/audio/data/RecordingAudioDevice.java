@@ -10,11 +10,23 @@ public class RecordingAudioDevice implements IAudioDevice {
 
 	protected Recorder mRecorder;
 	protected boolean mPaused;
+	protected boolean mClosed;
 
 	public RecordingAudioDevice(File pFile) {
 		this.mRecorder = new Recorder(pFile);
 	}
 
+	@Override
+	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
+		try {
+			this.mRecorder.open(pAudioFormat);
+			this.mClosed = false;
+		} catch(IOException e) {
+			throw new AudioDeviceException("couldn't initialize the Streamwriting process",
+					e);
+		}
+	}
+	
 	@Override
 	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException {
 		try {
@@ -26,37 +38,29 @@ public class RecordingAudioDevice implements IAudioDevice {
 	}
 
 	@Override
-	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
-		try {
-			this.mRecorder.open(pAudioFormat);
-		} catch(IOException e) {
-			throw new AudioDeviceException("couldn't initialize the Streamwriting process",
-					e);
-		}
-	}
-
-	@Override
 	public void pause() {
-		if(this.mPaused) {
-			throw new IllegalStateException("The AudioDevice is already paused");
-		}
 		this.mPaused = true;
 	}
 
 	@Override
 	public void unpause() {
-		if(!this.mPaused) {
-			throw new IllegalStateException("The AudioDevice is not paused");
-		}
 		this.mPaused = false;
 	}
 
 	@Override
 	public void close() throws IOException {
-		try {
-		} finally {
-			this.mRecorder.close();
-		}
+		this.mRecorder.close();
+		this.mClosed = true;
+	}
+
+	@Override
+	public boolean isPaused() {
+		return this.mPaused;
+	}
+
+	@Override
+	public boolean isClosed() {
+		return this.mClosed;
 	}
 
 }

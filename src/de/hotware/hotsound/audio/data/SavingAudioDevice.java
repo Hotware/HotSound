@@ -25,7 +25,6 @@ import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.Mixer;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
  * TODO: audiolength
@@ -41,7 +40,7 @@ public class SavingAudioDevice extends BasicAudioDevice {
 		this(pFile, null);
 	}
 
-	protected SavingAudioDevice(File pFile, Mixer pMixer) {
+	public SavingAudioDevice(File pFile, Mixer pMixer) {
 		super(pMixer);
 		this.mRecorder = new Recorder(pFile);
 	}
@@ -75,17 +74,6 @@ public class SavingAudioDevice extends BasicAudioDevice {
 	@Override
 	public void close() throws IOException {
 		super.close();
-		try {
-			this.saveData();
-		} catch(UnsupportedAudioFileException e) {
-			throw new IOException("an UnsupportedAudioFileException occured while writing to the file",
-					e);
-		} finally {
-			this.mRecorder.close();
-		}
-	}
-
-	private void saveData() throws IOException, UnsupportedAudioFileException {
 		this.mRecorder.close();
 	}
 

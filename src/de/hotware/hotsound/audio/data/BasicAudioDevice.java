@@ -35,7 +35,7 @@ public class BasicAudioDevice implements IPlaybackAudioDevice {
 	protected SourceDataLine mSourceDataLine;
 	protected int mRecommendedBufferSize;
 	protected boolean mPaused;
-	protected boolean mStopped;
+	protected boolean mClosed;
 
 	public BasicAudioDevice() {
 		this(null);
@@ -44,14 +44,14 @@ public class BasicAudioDevice implements IPlaybackAudioDevice {
 	protected BasicAudioDevice(Mixer pMixer) {
 		this.mMixer = pMixer;
 		this.mRecommendedBufferSize = AudioSystem.NOT_SPECIFIED;
-		this.mStopped = true;
+		this.mClosed = true;
 		this.mPaused = false;
 	}
 	
 	@Override
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
-		if(!this.mStopped) {
-			throw new IllegalStateException("The AudioDevice is not opened yet");
+		if(!this.mClosed) {
+			throw new IllegalStateException("The AudioDevice is already opened");
 		}
 		DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class,
 				pAudioFormat,
@@ -69,15 +69,15 @@ public class BasicAudioDevice implements IPlaybackAudioDevice {
 			}
 			this.mSourceDataLine.open(pAudioFormat);
 		} catch(LineUnavailableException e) {
-			throw new AudioDeviceException("line is not available", e);
+			throw new AudioDeviceException("The AudioDevices' line is not available", e);
 		}
 		this.mSourceDataLine.start();
-		this.mStopped = false;
+		this.mClosed = false;
 	}
 
 	@Override
 	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException {
-		if(this.mPaused || this.mStopped) {
+		if(this.mPaused || this.mClosed) {
 			throw new IllegalStateException("The Device is either paused, stopped or has never been started yet");
 		}
 		return this.mSourceDataLine.write(pData, pStart, pLength);
@@ -85,7 +85,7 @@ public class BasicAudioDevice implements IPlaybackAudioDevice {
 	
 	@Override
 	public void setMixer(Mixer pMixer) {
-		if(!this.mStopped) {
+		if(!this.mClosed) {
 			throw new IllegalStateException("can't set the mixer if the AudioDevice is not stopped");
 		}
 		this.mMixer = pMixer;
@@ -113,12 +113,22 @@ public class BasicAudioDevice implements IPlaybackAudioDevice {
 	public void close() throws IOException {
 		this.mSourceDataLine.stop();
 		this.mSourceDataLine.flush();
-		this.mStopped = true;
+		this.mClosed = true;
 	}
 
 	@Override
 	public DataLine getDataLine() {
 		return this.mSourceDataLine;
+	}
+
+	@Override
+	public boolean isPaused() {
+		return this.mPaused;
+	}
+
+	@Override
+	public boolean isClosed() {
+		return this.mClosed;
 	}
 
 }

@@ -35,7 +35,6 @@ public class Recorder implements AutoCloseable {
 				(short) pAudioFormat.getSampleSizeInBits(),
 				-1);
 		this.mHeader.write(this.mBufferedOutputStream);
-
 	}
 
 	public int write(byte[] pData, int pStart, int pLength) throws IOException {
@@ -44,7 +43,10 @@ public class Recorder implements AutoCloseable {
 	}
 
 	public void close() throws IOException {
-		this.mBufferedOutputStream.close();
+		if(this.mBufferedOutputStream != null) {
+			this.mBufferedOutputStream.flush();
+			this.mBufferedOutputStream.close();
+		}
 	}
 
 }
