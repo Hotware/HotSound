@@ -21,6 +21,7 @@
 package de.hotware.hotsound.audio.data;
 
 import java.io.Closeable;
+import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
 
@@ -36,8 +37,8 @@ public interface IAudioFile extends Closeable {
 	/**
 	 * Reads up to a specified maximum number of bytes of data from the audio
 	 * stream, putting them into the given byte array. This method will always
-	 * read an integral number of frames. If len does not specify an integral
-	 * number of frames, a maximum of len - (len % frameSize) bytes will be
+	 * read an integral number of frames. If pLength does not specify an integral
+	 * number of frames, a maximum of len - (pLength % frameSize) bytes will be
 	 * read.
 	 */
 	public int read(byte[] pData, int pStart, int pBufferSize) throws AudioFileException;
@@ -47,7 +48,7 @@ public interface IAudioFile extends Closeable {
 	/**
 	 * closes the IAudioFiles resources
 	 */
-	public void close();
+	public void close() throws IOException;
 	
 	public static class AudioFileException extends MusicPlayerException {
 

@@ -20,6 +20,8 @@
  */
 package de.hotware.hotsound.audio.data;
 
+import java.io.IOException;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -105,7 +107,7 @@ public class BasicAudioDevice implements IAudioDevice {
 	}
 
 	@Override
-	public void stop() throws AudioDeviceException {
+	public void close() throws IOException {
 		this.mSourceDataLine.stop();
 		this.mSourceDataLine.flush();
 		this.mStopped = true;

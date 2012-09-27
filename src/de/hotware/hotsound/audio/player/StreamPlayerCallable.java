@@ -194,7 +194,11 @@ public class StreamPlayerCallable implements Callable<Void> {
 		this.mLock.lock();
 		try {
 			if(!this.mStop) {
-				this.mAudioDevice.stop();
+				try {
+					this.mAudioDevice.close();
+				} catch(IOException e) {
+					throw new MusicPlayerException("the AudioDevice couldn't be closed");
+				}
 			}
 			this.mStop = true;
 		} finally {
@@ -240,9 +244,17 @@ public class StreamPlayerCallable implements Callable<Void> {
 		}
 	}
 
-	private void cleanUp() throws AudioFileException, AudioDeviceException {
-		this.mAudioFile.close();
-		this.mAudioDevice.stop();
+	private void cleanUp() throws AudioDeviceException, AudioFileException {
+		try {
+			this.mAudioFile.close();
+		} catch(IOException e) {
+			throw new AudioFileException("coudln't close the AudioFile", e);
+		}
+		try {
+			this.mAudioDevice.close();
+		} catch(IOException e) {
+			throw new AudioDeviceException("coudln't close the AudioDevice", e);
+		}
 	}
 
 }
