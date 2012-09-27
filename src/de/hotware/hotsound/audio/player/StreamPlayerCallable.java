@@ -122,9 +122,9 @@ public class StreamPlayerCallable implements Callable<Void> {
 		this.mLock.lock();
 		try(IAudioDevice dev = this.mAudioDevice;
 				IAudioFile file = this.mAudioFile;) {
-			this.mAudioFile.open();
-			this.mAudioDevice.open(this.mAudioFile.getAudioFormat());
-			AudioFormat format = this.mAudioFile.getAudioFormat();
+			file.open();
+			dev.open(file.getAudioFormat());
+			AudioFormat format = file.getAudioFormat();
 			int bufferSize = (int) format.getSampleRate() * format.getFrameSize();
 			byte[] abData = new byte[bufferSize];
 			while(nBytesRead != -1 && !this.mStop) {
