@@ -161,6 +161,10 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		}
 	}
 
+	/**
+	 * @inheritDoc
+	 * locks until start has been called
+	 */
 	@Override
 	public void stop() throws MusicPlayerException {
 		this.mLock.lock();

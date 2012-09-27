@@ -48,6 +48,7 @@ import de.hotware.hotsound.audio.player.IMusicListener.MusicEvent;
  */
 public class StreamPlayerCallable implements Callable<Void> {
 
+	protected boolean mStartLock;
 	protected Lock mLock;
 	protected AtomicBoolean mPause;
 	protected AtomicBoolean mStop;
@@ -83,6 +84,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 		this.mStop = new AtomicBoolean(true);
 		this.mLock = new ReentrantLock();
 		this.mMusicListener = pMusicListener;
+		this.mStartLock = true;
 	}
 
 	/**
@@ -93,7 +95,10 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 */
 	@Override
 	public Void call() throws MusicPlayerException {
-		boolean initiallyStopped = this.mStop.getAndSet(false);
+		this.mStop.set(false);
+		this.mStartLock = false;
+		this.mLock.tryLock();
+		this.mLock.unlock();
 		int nBytesRead = 0;
 		MusicPlayerException exception = null;
 		boolean failure = false;
@@ -104,7 +109,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 			int bufferSize = (int) format.getSampleRate() *
 					format.getFrameSize();
 			byte[] abData = new byte[bufferSize];
-			while(nBytesRead != -1 && !this.mStop.get() && !initiallyStopped) {
+			while(nBytesRead != -1 && !this.mStop.get()) {
 				if(!this.mAudioDevice.isClosed()) {
 					this.mLock.lock();
 					try {
@@ -180,7 +185,14 @@ public class StreamPlayerCallable implements Callable<Void> {
 		return this.mStop.get();
 	}
 
+	/**
+	 * locks until start has been called
+	 * @throws MusicPlayerException
+	 */
 	public void stop() throws MusicPlayerException {
+		if(this.mStartLock) {
+			this.mLock.lock();
+		}
 		this.mStop.set(true);
 	}
 
