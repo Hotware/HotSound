@@ -69,4 +69,5 @@ public class BasicSong implements ISong {
 			throw new MusicPlayerException("IOException occured while getting the IAudio from this ISong", e);
 		}
 	}
+	
 }
