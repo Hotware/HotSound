@@ -53,6 +53,7 @@ public class AudioUtil {
 	}
 
 	/**
+	 * TODO: create another method and use it for the recording songs specifically
 	 * always converts to PCM_SIGNED
 	 */
 	public static AudioInputStream getSupportedAudioInputStreamFromAudioInputStream(AudioInputStream pAudioInputStream) {
