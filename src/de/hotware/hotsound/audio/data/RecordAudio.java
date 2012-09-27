@@ -20,8 +20,13 @@
  */
 package de.hotware.hotsound.audio.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
@@ -33,7 +38,14 @@ public class RecordAudio implements IAudio {
 	protected TargetDataLine mTargetDataLine;
 	protected boolean mStopped;
 
+	public RecordAudio(Mixer pMixer) {
+		this(pMixer, null);
+	}
+
 	public RecordAudio(Mixer pMixer, AudioFormat pAudioFormat) {
+		if(pMixer == null) {
+			throw new IllegalArgumentException("pMixer may not be null");
+		}
 		this.mMixer = pMixer;
 		this.mAudioFormat = pAudioFormat;
 		this.mStopped = true;
@@ -47,8 +59,16 @@ public class RecordAudio implements IAudio {
 		DataLine.Info info = new DataLine.Info(TargetDataLine.class,
 				this.mAudioFormat);
 		try {
+			if(!this.mMixer.isOpen()) {
+				this.mMixer.open();
+			}
 			this.mTargetDataLine = (TargetDataLine) this.mMixer.getLine(info);
-			this.mTargetDataLine.open(this.mAudioFormat);
+			if(this.mAudioFormat != null) {
+				this.mTargetDataLine.open(this.mAudioFormat);
+			} else {
+				this.mAudioFormat = this.mTargetDataLine.getFormat();
+				this.mTargetDataLine.open();
+			}
 			this.mTargetDataLine.start();
 		} catch(LineUnavailableException e) {
 			throw new AudioException("Error during opening the TargetDataLine");
@@ -73,6 +93,19 @@ public class RecordAudio implements IAudio {
 	public void close() {
 		this.mTargetDataLine.close();
 		this.mStopped = true;
+	}
+
+	public static List<Mixer> getRecordMixers() {
+		Line.Info lineInfo = new Line.Info(TargetDataLine.class);
+		Mixer.Info[] mixerInfo = AudioSystem.getMixerInfo();
+		List<Mixer> ret = new ArrayList<>();
+		for(Mixer.Info info : mixerInfo) {
+			Mixer current = AudioSystem.getMixer(info);
+			if(current.isLineSupported(lineInfo)) {
+				ret.add(current);
+			}
+		}
+		return ret;
 	}
 
 }

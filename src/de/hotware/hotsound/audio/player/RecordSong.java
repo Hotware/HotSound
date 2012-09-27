@@ -31,7 +31,14 @@ public class RecordSong implements ISong {
 	protected AudioFormat mAudioFormat;
 	protected Mixer mMixer;
 
+	public RecordSong(Mixer pMixer) {
+		this(pMixer, null);
+	}
+
 	public RecordSong(Mixer pMixer, AudioFormat pAudioFormat) {
+		if(pMixer == null) {
+			throw new IllegalArgumentException("pMixer may not be null");
+		}
 		this.mMixer = pMixer;
 		this.mAudioFormat = pAudioFormat;
 	}

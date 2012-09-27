@@ -59,7 +59,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public StreamMusicPlayer() {
 		this(null);
 	}
-
+	
 	/**
 	 * Default Constructor. initializes with the given
 	 * {@link #PlayerThreadListener}
