@@ -50,17 +50,18 @@ public class Recorder implements AutoCloseable {
 	}
 
 	public void close() throws IOException {
+		boolean delete = false;
 		try(BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.mTempFile))) {
 			if(this.mBufferedOutputStream != null) {
 				this.mBufferedOutputStream.flush();
 				this.mBufferedOutputStream.close();
-				;
 				((WaveHeader) this.mHeader).read(input);
 				((WaveHeader) this.mHeader).setNumBytes(this.mBytesWritten);
 				if(this.mFile.exists()) {
 					this.mFile.delete();
 				}
 				this.mFile.createNewFile();
+				delete = true;
 				this.mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(this.mFile));
 				int bytesRead = 0;
 				byte[] data = new byte[128000];
@@ -70,7 +71,10 @@ public class Recorder implements AutoCloseable {
 				}
 			}
 		} catch(IOException e) {
-			this.mFile.delete();
+			//only delete if a new file has been written over a possible old file
+			if(delete) {
+				this.mFile.delete();
+			}
 			throw e;
 		} finally {
 			this.mTempFile.delete();
