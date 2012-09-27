@@ -56,7 +56,6 @@ public interface IAudioDevice extends AutoCloseable {
 
 	/**
 	 * stops the IAudioDevice and closes all the opened resources
-	 * @throws AudioDeviceException 
 	 */
 	public void close() throws IOException;
 	
