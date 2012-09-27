@@ -23,8 +23,6 @@ package de.hotware.hotsound.audio.data;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.Mixer;
 
 import de.hotware.hotsound.audio.player.MusicPlayerException;
 
@@ -44,8 +42,6 @@ public interface IAudioDevice extends AutoCloseable {
 	 */
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException;
 	
-	public void setMixer(Mixer pMixer);
-
 	/**
 	 * pauses the IAudioDevice and the playback
 	 */
@@ -61,12 +57,6 @@ public interface IAudioDevice extends AutoCloseable {
 	 * @throws AudioDeviceException 
 	 */
 	public void close() throws IOException;
-
-	/**
-	 * @return the DataLine to which is being written (with that you can control
-	 *         the volume, etc.)
-	 */
-	public DataLine getDataLine();
 	
 	public static class AudioDeviceException extends MusicPlayerException {
 

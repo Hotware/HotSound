@@ -29,7 +29,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 
-public class BasicAudioDevice implements IAudioDevice {
+public class BasicAudioDevice implements IPlaybackAudioDevice {
 
 	protected Mixer mMixer;
 	protected SourceDataLine mSourceDataLine;
