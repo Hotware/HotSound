@@ -42,7 +42,7 @@ public interface IAudioDevice {
 	 * starts and initializes the IAudioDevice for playback
 	 * @throws IOException 
 	 */
-	public void start(AudioFormat pAudioFormat) throws AudioDeviceException;
+	public void open(AudioFormat pAudioFormat) throws AudioDeviceException;
 	
 	public void setMixer(Mixer pMixer);
 

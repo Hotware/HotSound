@@ -31,12 +31,27 @@ import de.hotware.hotsound.audio.util.AudioUtil;
 
 public class BasicAudioFile implements ISeekableAudioFile {
 
+	protected InputStream mInputStream;
 	protected AudioInputStream mAudioInputStream;
+	protected boolean mStopped;
 
-	public BasicAudioFile(InputStream pInputStream) throws UnsupportedAudioFileException,
-			IOException {
-		this.mAudioInputStream = AudioUtil
-				.getSupportedAudioInputStreamFromInputStream(pInputStream);
+	public BasicAudioFile(InputStream pInputStream) {
+		this.mInputStream = pInputStream;
+		this.mStopped = true;
+	}
+
+	@Override
+	public void open() throws AudioFileException {
+		if(!this.mStopped) {
+			throw new IllegalStateException("The AudioFile is already opened");
+		}
+		try {
+			this.mAudioInputStream = AudioUtil
+					.getSupportedAudioInputStreamFromInputStream(this.mInputStream);
+		} catch(UnsupportedAudioFileException | IOException e) {
+			throw new AudioFileException("Error while opening the audiostream", e);
+		}
+		this.mStopped = false;
 	}
 
 	@Override
@@ -46,6 +61,9 @@ public class BasicAudioFile implements ISeekableAudioFile {
 
 	@Override
 	public int read(byte[] pData, int pStart, int pBufferSize) throws AudioFileException {
+		if(this.mStopped) {
+			throw new IllegalStateException("The AudioFile is not opened");
+		}
 		try {
 			return this.mAudioInputStream.read(pData, pStart, pBufferSize);
 		} catch(IOException e) {
@@ -54,8 +72,15 @@ public class BasicAudioFile implements ISeekableAudioFile {
 	}
 
 	@Override
-	public void close() throws IOException {
-		this.mAudioInputStream.close();
+	public void close() {
+		if(this.mStopped) {
+			throw new IllegalStateException("The AudioFile is not opened");
+		}
+		try {
+			this.mAudioInputStream.close();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

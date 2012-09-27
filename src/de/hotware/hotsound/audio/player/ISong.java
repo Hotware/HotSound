@@ -21,20 +21,18 @@
 package de.hotware.hotsound.audio.player;
 
 import java.io.IOException;
-import java.io.InputStream;
+
+import de.hotware.hotsound.audio.data.IAudioFile;
 
 
 /**
  * Song interface for future potato-based implementations
- * 
+ * TODO: wrapper Exception?
  * @author Martin Braun
  * 
  */
 public interface ISong {
 
-	/**
-	 * @return the InputStream to the Song
-	 */
-	public InputStream getInputStream() throws IOException;
+	public IAudioFile getAudioFile() throws IOException;
 
 }

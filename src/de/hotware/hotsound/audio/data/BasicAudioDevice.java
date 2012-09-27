@@ -47,9 +47,9 @@ public class BasicAudioDevice implements IAudioDevice {
 	}
 	
 	@Override
-	public void start(AudioFormat pAudioFormat) throws AudioDeviceException {
+	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
 		if(!this.mStopped) {
-			throw new IllegalStateException("The AudioDevice is not stopped");
+			throw new IllegalStateException("The AudioDevice is not opened yet");
 		}
 		DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class,
 				pAudioFormat,

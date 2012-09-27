@@ -33,8 +33,8 @@ public class SavingAudioDevice extends BasicAudioDevice {
 	}
 
 	@Override
-	public void start(AudioFormat pAudioFormat) throws AudioDeviceException {
-		super.start(pAudioFormat);
+	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
+		super.open(pAudioFormat);
 		if(this.mFile.exists()) {
 			throw new IllegalStateException("File " + this.mFile +
 					" already exists!");
@@ -75,7 +75,6 @@ public class SavingAudioDevice extends BasicAudioDevice {
 			throw new IllegalStateException("File " + this.mFile +
 					" already exists");
 		}
-
 		AudioFormat audioFormat = this.mSourceDataLine.getFormat();
 		byte[] data = this.mByteArrayOutputStream.toByteArray();
 		try(ByteArrayInputStream input = new ByteArrayInputStream(data);

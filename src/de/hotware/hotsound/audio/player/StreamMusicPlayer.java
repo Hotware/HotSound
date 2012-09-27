@@ -39,7 +39,6 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.hotware.hotsound.audio.data.BasicAudioDevice;
-import de.hotware.hotsound.audio.data.BasicAudioFile;
 import de.hotware.hotsound.audio.data.IAudioDevice;
 
 public class StreamMusicPlayer implements IMusicPlayer {
@@ -287,8 +286,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
 		}
 		try {
-			this.mPlayerRunnable = new StreamPlayerCallable(new BasicAudioFile(pSong
-					.getInputStream()), this.mPlaybackListener, pAudioDevice);
+			this.mPlayerRunnable = new StreamPlayerCallable(pSong.getAudioFile(), this.mPlaybackListener, pAudioDevice);
 		} catch(UnsupportedAudioFileException
 				| IOException
 				| LineUnavailableException e) {

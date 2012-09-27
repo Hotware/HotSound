@@ -20,13 +20,13 @@
  */
 package de.hotware.hotsound.audio.data;
 
-import java.io.IOException;
+import java.io.Closeable;
 
 import javax.sound.sampled.AudioFormat;
 
 import de.hotware.hotsound.audio.player.MusicPlayerException;
 
-public interface IAudioFile {
+public interface IAudioFile extends Closeable {
 
 	/**
 	 * @return the AudioFormat of the IAudioFile
@@ -41,11 +41,13 @@ public interface IAudioFile {
 	 * read.
 	 */
 	public int read(byte[] pData, int pStart, int pBufferSize) throws AudioFileException;
+	
+	public void open() throws AudioFileException;
 
 	/**
 	 * closes the IAudioFiles resources
 	 */
-	public void close() throws IOException;
+	public void close();
 	
 	public static class AudioFileException extends MusicPlayerException {
 

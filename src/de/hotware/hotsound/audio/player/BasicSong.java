@@ -28,6 +28,9 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
+import de.hotware.hotsound.audio.data.BasicAudioFile;
+import de.hotware.hotsound.audio.data.IAudioFile;
+
 
 /**
  * Base implementation of a song. instantiable because it already knows enough
@@ -54,10 +57,14 @@ public class BasicSong implements ISong {
 		this.mURL = pFile.toURI().toURL();
 	}
 
-	@Override
 	public InputStream getInputStream() throws IOException {
 		URLConnection uc = this.mURL.openConnection();
 		return uc.getInputStream();
+	}
+
+	@Override
+	public IAudioFile getAudioFile() throws IOException {
+		return new BasicAudioFile(this.getInputStream());
 	}
 
 }

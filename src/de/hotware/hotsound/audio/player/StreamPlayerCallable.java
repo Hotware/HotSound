@@ -33,6 +33,7 @@ import de.hotware.hotsound.audio.data.BasicAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice.AudioDeviceException;
 import de.hotware.hotsound.audio.data.IAudioFile;
+import de.hotware.hotsound.audio.data.IAudioFile.AudioFileException;
 import de.hotware.hotsound.audio.data.ISeekableAudioFile;
 import de.hotware.hotsound.audio.player.IPlaybackListener.PlaybackEndEvent;
 
@@ -60,42 +61,48 @@ public class StreamPlayerCallable implements Callable<Void> {
 	/**
 	 * initializes the StreamPlayerRunnable without a
 	 * {@link #PlayerThreadListener} and the default Mixer
-	 * @throws AudioDeviceException 
+	 * 
+	 * @throws AudioDeviceException
 	 */
 	public StreamPlayerCallable(IAudioFile pAudioFile) throws UnsupportedAudioFileException,
 			IOException,
-			LineUnavailableException, AudioDeviceException {
+			LineUnavailableException,
+			AudioDeviceException {
 		this(pAudioFile, null);
 	}
 
 	/**
 	 * initializes the StreamPlayerRunnable with the given
 	 * {@link #PlayerThreadListener} and the default Mixer
-	 * @throws AudioDeviceException 
+	 * 
+	 * @throws AudioDeviceException
 	 */
 	public StreamPlayerCallable(IAudioFile pAudioFile,
 			IPlaybackListener pPlayerThreadListener) throws UnsupportedAudioFileException,
 			IOException,
-			LineUnavailableException, AudioDeviceException {
+			LineUnavailableException,
+			AudioDeviceException {
 		this(pAudioFile, pPlayerThreadListener, new BasicAudioDevice());
 	}
 
 	/**
 	 * initializes the StreamPlayerRunnable with the given
 	 * {@link #PlayerThreadListener} and the given Mixer
-	 * @throws AudioDeviceException 
+	 * 
+	 * @throws AudioDeviceException
 	 */
 	public StreamPlayerCallable(IAudioFile pAudioFile,
 			IPlaybackListener pPlaybackListener,
 			IAudioDevice pAudioDevice) throws UnsupportedAudioFileException,
 			IOException,
-			LineUnavailableException, AudioDeviceException {
+			LineUnavailableException,
+			AudioDeviceException {
 		if(pAudioDevice == null || pAudioFile == null) {
 			throw new IllegalArgumentException("the audiodevice and the audiofile may not be null");
 		}
 		this.mAudioFile = pAudioFile;
 		this.mAudioDevice = pAudioDevice;
-		this.mAudioDevice.start(pAudioFile.getAudioFormat());
+		this.mAudioDevice.open(pAudioFile.getAudioFormat());
 		this.mPause = false;
 		this.mStop = true;
 		this.mLock = new ReentrantLock();
@@ -110,6 +117,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 */
 	@Override
 	public Void call() throws MusicPlayerException {
+		this.mAudioFile.open();
 		this.mStop = false;
 		int nBytesRead = 0;
 		AudioFormat format = this.mAudioFile.getAudioFormat();
@@ -135,7 +143,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 			this.mLock.unlock();
 			try {
 				this.cleanUp();
-			} catch(IOException e) {
+			} catch(MusicPlayerException e) {
 				e.printStackTrace();
 			}
 			this.mStop = true;
@@ -232,7 +240,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 		}
 	}
 
-	private void cleanUp() throws IOException, AudioDeviceException {
+	private void cleanUp() throws AudioFileException, AudioDeviceException {
 		this.mAudioFile.close();
 		this.mAudioDevice.stop();
 	}
