@@ -181,7 +181,8 @@ public class WaveHeader implements IHeader {
     public int read(InputStream in) throws IOException {
         /* RIFF header */
         readId(in, "RIFF");
-        int numBytes = readInt(in) - 36;
+        @SuppressWarnings("unused")
+		int numBytes = readInt(in) - 36;
         readId(in, "WAVE");
 
         /* fmt chunk */

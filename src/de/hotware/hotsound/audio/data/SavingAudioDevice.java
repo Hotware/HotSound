@@ -30,8 +30,7 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
- * saves the audio to a file. currently only supports up to 100MB of data
- * (approx. 9:50min of .wav). All the old data will always get overwritten.
+ * TODO: implement IHeader and move to IHeader instead of WaveHeader
  * 
  * @author Martin Braun
  * 
