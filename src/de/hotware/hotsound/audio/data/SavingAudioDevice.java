@@ -58,8 +58,7 @@ public class SavingAudioDevice extends BasicAudioDevice {
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
 		super.open(pAudioFormat);
 		if(this.mFile.exists()) {
-			throw new IllegalStateException("File " + this.mFile +
-					" already exists!");
+			this.mFile.delete();
 		}
 		try {
 			this.mFile.createNewFile();
