@@ -69,6 +69,9 @@ public class Recorder implements AutoCloseable {
 					this.write(data, 0, bytesRead);
 				}
 			}
+		} catch(IOException e) {
+			this.mFile.delete();
+			throw e;
 		} finally {
 			this.mTempFile.delete();
 			this.mBufferedOutputStream.flush();
