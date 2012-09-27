@@ -1,18 +1,20 @@
 package de.hotware.hotsound.audio.data;
 
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 
 public class RecordAudioFile implements IAudioFile {
 
+	protected Mixer mMixer;
 	protected AudioFormat mAudioFormat;
 	protected TargetDataLine mTargetDataLine;
 	protected boolean mStopped;
 
-	public RecordAudioFile(AudioFormat pAudioFormat) {
+	public RecordAudioFile(Mixer pMixer, AudioFormat pAudioFormat) {
+		this.mMixer = pMixer;
 		this.mAudioFormat = pAudioFormat;
 		this.mStopped = true;
 	}
@@ -25,7 +27,7 @@ public class RecordAudioFile implements IAudioFile {
 		DataLine.Info info = new DataLine.Info(TargetDataLine.class,
 				this.mAudioFormat);
 		try {
-			this.mTargetDataLine = (TargetDataLine) AudioSystem.getLine(info);
+			this.mTargetDataLine = (TargetDataLine) this.mMixer.getLine(info);
 			this.mTargetDataLine.open(this.mAudioFormat);
 			this.mTargetDataLine.start();
 		} catch(LineUnavailableException e) {
