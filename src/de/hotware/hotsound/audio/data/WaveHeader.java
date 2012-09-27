@@ -1,4 +1,7 @@
 /*
+ * 
+ * MODIFIED by Martin Braun
+ * 
  * Copyright (C) 2009 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +23,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
+ * TODO: rewrite this and only with write support
+ * 
  * This class represents the header of a WAVE format audio file, which usually
  * have a .wav suffix.  The following integer valued fields are contained:
  * <ul>
@@ -31,7 +36,6 @@ import java.io.OutputStream;
  * </ul>
  * 
  * Not yet ready to be supported, so
- * @hide
  */
 public class WaveHeader implements IHeader {
     
