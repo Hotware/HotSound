@@ -141,7 +141,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 			throw exception;
 		} catch(IOException e) {
 			failure = true;
-			exception = new MusicPlayerException("an IOException occured during closing",
+			exception = new MusicPlayerException("an IOException occured during closing the Musicplayers' resources",
 					e);
 			throw exception;
 		} finally {
