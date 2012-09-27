@@ -101,7 +101,6 @@ public class StreamPlayerCallable implements Callable<Void> {
 		}
 		this.mAudioFile = pAudioFile;
 		this.mAudioDevice = pAudioDevice;
-		this.mAudioDevice.open(pAudioFile.getAudioFormat());
 		this.mPause = false;
 		this.mStop = true;
 		this.mLock = new ReentrantLock();
@@ -118,20 +117,21 @@ public class StreamPlayerCallable implements Callable<Void> {
 	public Void call() throws MusicPlayerException {
 		this.mStop = false;
 		int nBytesRead = 0;
-		AudioFormat format = this.mAudioFile.getAudioFormat();
-		int bufferSize = (int) format.getSampleRate() * format.getFrameSize();
-		byte[] abData = new byte[bufferSize];
-		boolean failure = false;
 		MusicPlayerException exception = null;
+		boolean failure = false;
 		this.mLock.lock();
 		try(IAudioDevice dev = this.mAudioDevice;
 				IAudioFile file = this.mAudioFile;) {
 			this.mAudioFile.open();
+			this.mAudioDevice.open(this.mAudioFile.getAudioFormat());
+			AudioFormat format = this.mAudioFile.getAudioFormat();
+			int bufferSize = (int) format.getSampleRate() * format.getFrameSize();
+			byte[] abData = new byte[bufferSize];
 			while(nBytesRead != -1 && !this.mStop) {
 				this.mLock.unlock();
-				nBytesRead = this.mAudioFile.read(abData, 0, bufferSize);
+				nBytesRead = file.read(abData, 0, bufferSize);
 				if(nBytesRead != -1) {
-					this.mAudioDevice.write(abData, 0, nBytesRead);
+					dev.write(abData, 0, nBytesRead);
 				}
 				this.mLock.lock();
 			}

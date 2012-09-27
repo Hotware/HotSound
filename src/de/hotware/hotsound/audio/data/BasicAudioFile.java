@@ -56,6 +56,9 @@ public class BasicAudioFile implements ISeekableAudioFile {
 
 	@Override
 	public AudioFormat getAudioFormat() {
+		if(this.mAudioInputStream == null) {
+			throw new IllegalStateException("not opened yet");
+		}
 		return this.mAudioInputStream.getFormat();
 	}
 
