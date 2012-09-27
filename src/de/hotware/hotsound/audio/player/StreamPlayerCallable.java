@@ -197,21 +197,11 @@ public class StreamPlayerCallable implements Callable<Void> {
 	}
 
 	public AudioFormat getAudioFormat() {
-		this.mLock.lock();
-		try {
-			return this.mAudio.getAudioFormat();
-		} finally {
-			this.mLock.unlock();
-		}
+		return this.mAudio.getAudioFormat();
 	}
 
 	public IAudioDevice getAudioDevice() {
-		this.mLock.lock();
-		try {
-			return this.mAudioDevice;
-		} finally {
-			this.mLock.unlock();
-		}
+		return this.mAudioDevice;
 	}
 
 }
