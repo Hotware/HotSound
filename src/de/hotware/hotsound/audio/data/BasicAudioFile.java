@@ -73,10 +73,8 @@ public class BasicAudioFile implements ISeekableAudioFile {
 
 	@Override
 	public void close() throws IOException {
-		if(this.mStopped) {
-			throw new IllegalStateException("The AudioFile is not opened");
-		}
 		this.mAudioInputStream.close();
+		this.mStopped = true;
 	}
 
 	@Override

@@ -20,14 +20,13 @@
  */
 package de.hotware.hotsound.audio.data;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
 
 import de.hotware.hotsound.audio.player.MusicPlayerException;
 
-public interface IAudioFile extends Closeable {
+public interface IAudioFile extends AutoCloseable {
 
 	/**
 	 * @return the AudioFormat of the IAudioFile

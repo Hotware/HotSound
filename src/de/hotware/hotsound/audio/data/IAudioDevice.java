@@ -20,7 +20,6 @@
  */
 package de.hotware.hotsound.audio.data;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
@@ -29,7 +28,7 @@ import javax.sound.sampled.Mixer;
 
 import de.hotware.hotsound.audio.player.MusicPlayerException;
 
-public interface IAudioDevice extends Closeable {
+public interface IAudioDevice extends AutoCloseable {
 
 	/**
 	 * writes to the IAudioDevice's output. Normally the way to write to its

@@ -71,9 +71,6 @@ public class RecordAudioFile implements IAudioFile {
 
 	@Override
 	public void close() {
-		if(this.mStopped) {
-			throw new IllegalStateException("The AudioFile is not opened");
-		}
 		this.mTargetDataLine.close();
 		this.mStopped = true;
 	}

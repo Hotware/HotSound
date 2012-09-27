@@ -33,7 +33,6 @@ import de.hotware.hotsound.audio.data.BasicAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice.AudioDeviceException;
 import de.hotware.hotsound.audio.data.IAudioFile;
-import de.hotware.hotsound.audio.data.IAudioFile.AudioFileException;
 import de.hotware.hotsound.audio.data.ISeekableAudioFile;
 import de.hotware.hotsound.audio.player.IPlaybackListener.PlaybackEndEvent;
 
@@ -117,7 +116,6 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 */
 	@Override
 	public Void call() throws MusicPlayerException {
-		this.mAudioFile.open();
 		this.mStop = false;
 		int nBytesRead = 0;
 		AudioFormat format = this.mAudioFile.getAudioFormat();
@@ -126,7 +124,9 @@ public class StreamPlayerCallable implements Callable<Void> {
 		boolean failure = false;
 		MusicPlayerException exception = null;
 		this.mLock.lock();
-		try {
+		try(IAudioDevice dev = this.mAudioDevice;
+				IAudioFile file = this.mAudioFile;) {
+			this.mAudioFile.open();
 			while(nBytesRead != -1 && !this.mStop) {
 				this.mLock.unlock();
 				nBytesRead = this.mAudioFile.read(abData, 0, bufferSize);
@@ -139,13 +139,13 @@ public class StreamPlayerCallable implements Callable<Void> {
 			failure = true;
 			exception = e;
 			throw exception;
+		} catch(IOException e) {
+			failure = true;
+			exception = new MusicPlayerException("an IOException occured during closing",
+					e);
+			throw exception;
 		} finally {
 			this.mLock.unlock();
-			try {
-				this.cleanUp();
-			} catch(MusicPlayerException e) {
-				e.printStackTrace();
-			}
 			this.mStop = true;
 			if(this.mPlaybackListener != null) {
 				this.mPlaybackListener.onEnd(new PlaybackEndEvent(this,
@@ -241,19 +241,6 @@ public class StreamPlayerCallable implements Callable<Void> {
 			return this.mAudioDevice;
 		} finally {
 			this.mLock.unlock();
-		}
-	}
-
-	private void cleanUp() throws AudioDeviceException, AudioFileException {
-		try {
-			this.mAudioFile.close();
-		} catch(IOException e) {
-			throw new AudioFileException("coudln't close the AudioFile", e);
-		}
-		try {
-			this.mAudioDevice.close();
-		} catch(IOException e) {
-			throw new AudioDeviceException("coudln't close the AudioDevice", e);
 		}
 	}
 
