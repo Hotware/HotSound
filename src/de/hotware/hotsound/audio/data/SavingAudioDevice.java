@@ -51,6 +51,7 @@ public class SavingAudioDevice extends BasicAudioDevice {
 		try {
 			this.mRecorder.open(pAudioFormat);
 		} catch(IOException e) {
+			this.mClosed = true;
 			throw new AudioDeviceException("couldn't initialize the Streamwriting process",
 					e);
 		}
