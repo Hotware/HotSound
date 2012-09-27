@@ -1,27 +1,24 @@
 package de.hotware.hotsound.audio.data;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
 
+
 public class RecordingAudioDevice implements IAudioDevice {
 
-	protected BufferedOutputStream mBufferedOutputStream;
-	protected IHeader mHeader;
-	protected File mFile;
+	protected Recorder mRecorder;
 	protected boolean mPaused;
 
 	public RecordingAudioDevice(File pFile) {
-		this.mFile = pFile;
+		this.mRecorder = new Recorder(pFile);
 	}
 
 	@Override
 	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException {
 		try {
-			this.mBufferedOutputStream.write(pData, pStart, pLength);
+			this.mRecorder.write(pData, pStart, pLength);
 		} catch(IOException e) {
 			throw new AudioDeviceException("couldn't write to the File", e);
 		}
@@ -30,18 +27,8 @@ public class RecordingAudioDevice implements IAudioDevice {
 
 	@Override
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
-		if(this.mFile.exists()) {
-			this.mFile.delete();
-		}
 		try {
-			this.mFile.createNewFile();
-			this.mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(this.mFile));
-			this.mHeader = new WaveHeader(WaveHeader.FORMAT_PCM,
-					(short) pAudioFormat.getChannels(),
-					(int) pAudioFormat.getSampleRate(),
-					(short) pAudioFormat.getSampleSizeInBits(),
-					-1);
-			this.mHeader.write(this.mBufferedOutputStream);
+			this.mRecorder.open(pAudioFormat);
 		} catch(IOException e) {
 			throw new AudioDeviceException("couldn't initialize the Streamwriting process",
 					e);
@@ -68,7 +55,7 @@ public class RecordingAudioDevice implements IAudioDevice {
 	public void close() throws IOException {
 		try {
 		} finally {
-			this.mBufferedOutputStream.close();
+			this.mRecorder.close();
 		}
 	}
 

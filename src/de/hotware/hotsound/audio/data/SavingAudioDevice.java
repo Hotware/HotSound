@@ -20,9 +20,7 @@
  */
 package de.hotware.hotsound.audio.data;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
@@ -37,9 +35,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  */
 public class SavingAudioDevice extends BasicAudioDevice {
 
-	protected BufferedOutputStream mBufferedOutputStream;
-	protected IHeader mHeader;
-	protected File mFile;
+	protected Recorder mRecorder;
 
 	public SavingAudioDevice(File pFile) {
 		this(pFile, null);
@@ -47,25 +43,14 @@ public class SavingAudioDevice extends BasicAudioDevice {
 
 	protected SavingAudioDevice(File pFile, Mixer pMixer) {
 		super(pMixer);
-		this.mFile = pFile;
+		this.mRecorder = new Recorder(pFile);
 	}
 
 	@Override
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
 		super.open(pAudioFormat);
-		if(this.mFile.exists()) {
-			this.mFile.delete();
-		}
 		try {
-			this.mFile.createNewFile();
-			this.mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(this.mFile));
-			AudioFormat format = this.mSourceDataLine.getFormat();
-			this.mHeader = new WaveHeader(WaveHeader.FORMAT_PCM,
-					(short) format.getChannels(),
-					(int) format.getSampleRate(),
-					(short) format.getSampleSizeInBits(),
-					-1);
-			this.mHeader.write(this.mBufferedOutputStream);
+			this.mRecorder.open(pAudioFormat);
 		} catch(IOException e) {
 			throw new AudioDeviceException("couldn't initialize the Streamwriting process",
 					e);
@@ -76,7 +61,7 @@ public class SavingAudioDevice extends BasicAudioDevice {
 	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException {
 		int ret = super.write(pData, pStart, pLength);
 		try {
-			this.mBufferedOutputStream.write(pData, pStart, pLength);
+			this.mRecorder.write(pData, pStart, pLength);
 		} catch(IOException e) {
 			throw new AudioDeviceException("couldn't write to the File", e);
 		}
@@ -96,19 +81,12 @@ public class SavingAudioDevice extends BasicAudioDevice {
 			throw new IOException("an UnsupportedAudioFileException occured while writing to the file",
 					e);
 		} finally {
-			try {
-				this.mBufferedOutputStream.close();
-			} catch(IOException e) {
-				e.printStackTrace();
-			}
+			this.mRecorder.close();
 		}
 	}
 
 	private void saveData() throws IOException, UnsupportedAudioFileException {
-		try {
-		} finally {
-			this.mBufferedOutputStream.close();
-		}
+		this.mRecorder.close();
 	}
 
 }
