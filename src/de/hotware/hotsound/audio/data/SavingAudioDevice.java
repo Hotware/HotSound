@@ -30,7 +30,6 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
- * TODO: implement IHeader and move to IHeader instead of WaveHeader
  * TODO: audiolength
  * 
  * @author Martin Braun
@@ -71,7 +70,7 @@ public class SavingAudioDevice extends BasicAudioDevice {
 					(int) format.getSampleRate(),
 					(short) format.getSampleSizeInBits(),
 					-1);
-			((WaveHeader) this.mHeader).write(this.mBufferedOutputStream);
+			this.mHeader.write(this.mBufferedOutputStream);
 		} catch(IOException e) {
 			throw new AudioDeviceException("couldn't initialize the Streamwriting process",
 					e);

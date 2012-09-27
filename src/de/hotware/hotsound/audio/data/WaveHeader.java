@@ -228,6 +228,7 @@ public class WaveHeader implements IHeader {
      * @return number of bytes written.
      * @throws IOException
      */
+    @Override
     public int write(OutputStream out) throws IOException {
         /* RIFF header */
         writeId(out, "RIFF");
