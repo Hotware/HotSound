@@ -15,25 +15,7 @@ Known to work:
 
 A tutorial on what you need to get them to work will follow.
 
-## Here is an example:
-    //creates a MusicPlayer object without any listeners or fancy stuff. just plays your audio
-    //and converts it if needed
-    MusicPlayer player = new StreamMusicPlayer();
-    //for the player to be able to play this you need a .ogg SPI
-    ISong song = new BasicSong(new URL("http://listen.technobase.fm/tunein-oggvorbis-pls.ogg"));
-    //if you need a specific Mixer you can pass it here as a second argument.
-    //this method just uses the default system mixer
-    player.insert(song);
-    //starts your playback
-    player.startPlayback();
-    //pauses your playback
-    player.pausePlayback();
-    //unpauses your playback
-    player.unpausePlayback();
-    //stops your playback
-    player.stopPlayback();
-
-## SimplePlayer Example (from HotSoundExamples)
+## SimplePlayer Examples (from HotSoundExamples)
 This is a simple showcase how easy the API can be used in real life applications. No need to write all the tricky stuff. It's nearly as easy as pressing play on a MP3 Player.
 
   package de.hotware.hotsound.examples;
@@ -68,6 +50,37 @@ This is a simple showcase how easy the API can be used in real life applications
 				});
 				player.insert(new BasicSong(new File(args[0])));
 				player.startPlayback();
+			}
+		}
+	
+	}
+
+And a player that also records all the data he is playing (in .wav format)
+
+	package de.hotware.hotsound.examples;
+	
+	import java.io.File;
+	import java.net.MalformedURLException;
+	import java.net.URL;
+	
+	import de.hotware.hotsound.audio.data.SavingAudioDevice;
+	import de.hotware.hotsound.audio.player.BasicSong;
+	import de.hotware.hotsound.audio.player.IMusicPlayer;
+	import de.hotware.hotsound.audio.player.MusicPlayerException;
+	import de.hotware.hotsound.audio.player.StreamMusicPlayer;
+	
+	
+	public class SavingSimplePlayer {
+		
+		public static void main(String[] args) throws MusicPlayerException, MalformedURLException, InterruptedException {
+			if(args.length >= 2) {
+				IMusicPlayer player = new StreamMusicPlayer();
+				player.insert(new BasicSong(new URL(args[0])), new SavingAudioDevice(new File(args[1])));
+				player.startPlayback();
+				//wait 10 seconds (equals approx. 10 seconds of saved audio)
+				Thread.sleep(10000);
+				//always stop for bug avoidance in saving the audiofile
+				player.stopPlayback();
 			}
 		}
 	
