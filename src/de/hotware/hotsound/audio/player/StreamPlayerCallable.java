@@ -34,7 +34,7 @@ import de.hotware.hotsound.audio.data.IAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice.AudioDeviceException;
 import de.hotware.hotsound.audio.data.IAudioFile;
 import de.hotware.hotsound.audio.data.ISeekableAudioFile;
-import de.hotware.hotsound.audio.player.IPlaybackListener.PlaybackEndEvent;
+import de.hotware.hotsound.audio.player.IMusicListener.MusicEvent;
 
 /**
  * To be used with ExecutionServices.
@@ -53,7 +53,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 	protected Lock mLock;
 	protected boolean mPause;
 	protected boolean mStop;
-	protected IPlaybackListener mPlaybackListener;
+	protected IMusicListener mMusicListener;
 	protected IAudioFile mAudioFile;
 	protected IAudioDevice mAudioDevice;
 
@@ -77,7 +77,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 * @throws AudioDeviceException
 	 */
 	public StreamPlayerCallable(IAudioFile pAudioFile,
-			IPlaybackListener pPlayerThreadListener) throws UnsupportedAudioFileException,
+			IMusicListener pPlayerThreadListener) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException,
 			AudioDeviceException {
@@ -91,7 +91,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 * @throws AudioDeviceException
 	 */
 	public StreamPlayerCallable(IAudioFile pAudioFile,
-			IPlaybackListener pPlaybackListener,
+			IMusicListener pMusicListener,
 			IAudioDevice pAudioDevice) throws UnsupportedAudioFileException,
 			IOException,
 			LineUnavailableException,
@@ -104,7 +104,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 		this.mPause = false;
 		this.mStop = true;
 		this.mLock = new ReentrantLock();
-		this.mPlaybackListener = pPlaybackListener;
+		this.mMusicListener = pMusicListener;
 	}
 
 	/**
@@ -147,10 +147,10 @@ public class StreamPlayerCallable implements Callable<Void> {
 		} finally {
 			this.mLock.unlock();
 			this.mStop = true;
-			if(this.mPlaybackListener != null) {
-				this.mPlaybackListener.onEnd(new PlaybackEndEvent(this,
-						failure ? PlaybackEndEvent.Type.FAILURE
-								: PlaybackEndEvent.Type.SUCCESS, exception));
+			if(this.mMusicListener != null) {
+				this.mMusicListener.onEnd(new MusicEvent(this,
+						failure ? MusicEvent.Type.FAILURE
+								: MusicEvent.Type.SUCCESS, exception));
 			}
 		}
 		return null;

@@ -22,21 +22,21 @@ package de.hotware.hotsound.audio.player;
 
 import de.hotware.util.GBaseEvent;
 
-public interface IPlaybackListener {
+public interface IMusicListener {
 
-	public void onEnd(IPlaybackListener.PlaybackEndEvent pEvent);
+	public void onEnd(IMusicListener.MusicEvent pEvent);
 
-	public static class PlaybackEndEvent extends
+	public static class MusicEvent extends
 			GBaseEvent<StreamPlayerCallable> {
 
 		private Type mType;
 		private Throwable mThrowable;
 
-		public PlaybackEndEvent(StreamPlayerCallable pSource, Type pType) {
+		public MusicEvent(StreamPlayerCallable pSource, Type pType) {
 			this(pSource, pType, null);
 		}
 
-		public PlaybackEndEvent(StreamPlayerCallable pSource,
+		public MusicEvent(StreamPlayerCallable pSource,
 				Type pType,
 				Throwable pException) {
 			super(pSource);

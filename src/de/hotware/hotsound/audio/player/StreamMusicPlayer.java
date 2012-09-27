@@ -45,7 +45,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 
 	protected ExecutorService mExecutorService;
 	protected StreamPlayerCallable mPlayerRunnable;
-	protected IPlaybackListener mPlaybackListener;
+	protected IMusicListener mMusicListener;
 	/**
 	 * the current song after insertion
 	 */
@@ -67,29 +67,29 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 * Default Constructor. initializes with the given
 	 * {@link #PlayerThreadListener}
 	 */
-	public StreamMusicPlayer(IPlaybackListener pPlaybackListener) {
-		this(pPlaybackListener, null);
+	public StreamMusicPlayer(IMusicListener pMusicListener) {
+		this(pMusicListener, null);
 	}
 
 	/**
 	 * uses the given ExecutorService to run its tasks. if null is specified it
 	 * uses the current thread
 	 * 
-	 * @param pPlaybackListener
+	 * @param pMusicListener
 	 * @param pExecutorService
 	 */
-	public StreamMusicPlayer(IPlaybackListener pPlaybackListener,
+	public StreamMusicPlayer(IMusicListener pMusicListener,
 			ExecutorService pExecutorService) {
 		this.mLock = new ReentrantLock();
-		this.mPlaybackListener = pPlaybackListener;
+		this.mMusicListener = pMusicListener;
 		this.mExecutorService = pExecutorService;
 		this.mCurrentSong = null;
 		this.mCurrrentAudioDevice = null;
 	}
 
 	@Override
-	public void setPlaybackListener(IPlaybackListener pPlaybackListener) {
-		this.mPlaybackListener = pPlaybackListener;
+	public void setMusicListener(IMusicListener pMusicListener) {
+		this.mMusicListener = pMusicListener;
 	}
 
 	/**
@@ -124,7 +124,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	@Override
-	public void startPlayback() throws MusicPlayerException {
+	public void start() throws MusicPlayerException {
 		this.mLock.lock();
 		try {
 			if(this.mPlayerRunnable == null) {
@@ -146,12 +146,12 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	@Override
-	public void restartPlayback() {
+	public void restart() {
 		throw new UnsupportedOperationException("not implemented yet");
 	}
 
 	@Override
-	public void pausePlayback() {
+	public void pause() {
 		this.mLock.lock();
 		try {
 			if(this.mPlayerRunnable == null) {
@@ -165,7 +165,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	@Override
-	public void stopPlayback() throws MusicPlayerException {
+	public void stop() throws MusicPlayerException {
 		this.mLock.lock();
 		try {
 			if(this.mPlayerRunnable == null) {
@@ -193,7 +193,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	@Override
-	public void unpausePlayback() {
+	public void unpause() {
 		this.mLock.lock();
 		try {
 			if(this.mPlayerRunnable == null) {
@@ -286,7 +286,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
 		}
 		try {
-			this.mPlayerRunnable = new StreamPlayerCallable(pSong.getAudioFile(), this.mPlaybackListener, pAudioDevice);
+			this.mPlayerRunnable = new StreamPlayerCallable(pSong.getAudioFile(), this.mMusicListener, pAudioDevice);
 		} catch(UnsupportedAudioFileException
 				| IOException
 				| LineUnavailableException e) {

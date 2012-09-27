@@ -58,7 +58,7 @@ public interface IMusicPlayer {
 	 * @throws IOException
 	 *             if there was an IO error during the start of the playback
 	 */
-	public void startPlayback() throws MusicPlayerException;
+	public void start() throws MusicPlayerException;
 
 	/**
 	 * pauses the playback
@@ -66,7 +66,7 @@ public interface IMusicPlayer {
 	 * @throws IllegalStateException
 	 *             if the player hasn't been initialized yet (insert not called)
 	 */
-	public void pausePlayback();
+	public void pause();
 
 	/**
 	 * unpauses the playback
@@ -74,7 +74,7 @@ public interface IMusicPlayer {
 	 * @throws IllegalStateException
 	 *             if the player hasn't been initialized yet (insert not called)
 	 */
-	public void unpausePlayback();
+	public void unpause();
 
 	/**
 	 * stops the playback but doesn't reset the Player. you can restart it via
@@ -85,7 +85,7 @@ public interface IMusicPlayer {
 	 * @throws IllegalStateException
 	 *             if the player hasn't been initialized yet (insert not called)
 	 */
-	public void stopPlayback() throws MusicPlayerException;
+	public void stop() throws MusicPlayerException;
 
 	/**
 	 * @return true if stopped (not started or ended), false otherwise
@@ -115,9 +115,9 @@ public interface IMusicPlayer {
 	 */
 	public void seek(int pPosition);
 
-	public void restartPlayback();
+	public void restart();
 
-	public void setPlaybackListener(IPlaybackListener pPlaybackListener);
+	public void setMusicListener(IMusicListener pMusicListener);
 
 	/**
 	 * Exception that occurs if an error during song insertion occurs
