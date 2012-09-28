@@ -29,17 +29,17 @@ import de.hotware.hotsound.audio.data.IAudioDevice;
 /**
  * Music Player interface. provides basic player methods and getters for a
  * player.
- * 
+ *
  * @author Martin Braun
  */
 public interface IMusicPlayer extends AutoCloseable {
 
 	/**
-	 * inserts a Song to the the Player possible difference between
+	 * Inserts a Song to the the Player. Possible difference between
 	 * implementations: some could allow multiple songs to be added, but some
 	 * could only hold one song at a time
-	 * 
-	 * @throws MusicPlayerException
+	 *
+	 * @throws MusicPlayerException if the insertion fails
 	 */
 	public void insert(ISong pSong) throws MusicPlayerException;
 
@@ -55,7 +55,7 @@ public interface IMusicPlayer extends AutoCloseable {
 	 * 
 	 * @throws IllegalStateException
 	 *             if the player hasn't been initialized yet (insert not called)
-	 * @throws IOException
+	 * @throws MusicPlayerException
 	 *             if there was an IO error during the start of the playback
 	 */
 	public void start() throws MusicPlayerException;
@@ -79,16 +79,20 @@ public interface IMusicPlayer extends AutoCloseable {
 	/**
 	 * stops the playback but doesn't reset the Player. you can restart it via
 	 * restartPlayback afterwards
-	 * 
-	 * may lock the call if in multhreaded mode and the player is currently starting
-	 * 
-	 * @throws MusicPlayerException
-	 * 
+	 *
+	 * may lock the call if in multithreaded mode and the player is currently starting
+	 *
+	 * @throws MusicPlayerException if stopping fails
+	 *
 	 * @throws IllegalStateException
 	 *             if the player hasn't been initialized yet (insert not called)
 	 */
 	public void stop() throws MusicPlayerException;
 	
+	/**
+	 * @inheritDoc
+	 * @throws MusicPlayerException if close fails
+	 */
 	@Override
 	public void close() throws MusicPlayerException;
 
@@ -125,8 +129,11 @@ public interface IMusicPlayer extends AutoCloseable {
 	public void setMusicListener(IMusicListener pMusicListener);
 
 	/**
-	 * Exception that occurs if an error during song insertion occurs
-	 * 
+	 * Exception that occurs if an error during song insertion occurs.
+	 *
+	 * At least that was the plan. In reality, this class was forgotten and abandoned
+	 * by its evil programmer. (hints: [1]: unused, [2]: TODO)
+	 *
 	 * @author Martin Braun
 	 */
 	public static class SongInsertionException extends MusicPlayerException {

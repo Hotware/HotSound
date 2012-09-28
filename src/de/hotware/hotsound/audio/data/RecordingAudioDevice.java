@@ -32,7 +32,7 @@ public class RecordingAudioDevice implements IAudioDevice {
 	
 	@Override
 	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException {
-		if(this.mClosed) {
+		if(this.mClosed || this.mPaused) {
 			throw new IllegalStateException("The AudioDevice is not opened");
 		}
 		try {
