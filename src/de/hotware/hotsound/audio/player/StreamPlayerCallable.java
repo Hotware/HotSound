@@ -47,7 +47,7 @@ import de.hotware.hotsound.audio.player.IMusicListener.MusicEvent;
  * 
  * @author Martin Braun
  */
-public class StreamPlayerCallable implements Callable<Void> {
+class StreamPlayerCallable implements Callable<Void> {
 
 	protected IMusicPlayer mMusicPlayer;
 	protected boolean mStartLock;
