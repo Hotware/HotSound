@@ -74,7 +74,19 @@ class StreamPlayerCallable implements Runnable {
 			IAudioDevice pAudioDevice,
 			boolean pMultiThreaded,
 			IMusicPlayer pMusicPlayer) {
-		this(pAudio, pAudioDevice, pMultiThreaded, pMusicPlayer, null);
+		this(pAudio, pAudioDevice, pMultiThreaded, pMusicPlayer, new IMusicListener() {
+
+			@Override
+			public void onEnd(MusicEndEvent pEvent) {
+				
+			}
+
+			@Override
+			public void onExeption(MusicExceptionEvent pEvent) {
+				pEvent.getException().printStackTrace();
+			}
+			
+		});
 	}
 
 	/**
@@ -161,11 +173,9 @@ class StreamPlayerCallable implements Runnable {
 						this.mMusicListener.onExeption(new MusicExceptionEvent(this.mMusicPlayer, e));
 					}
 				} finally {
-					if(this.mMusicListener != null) {
 						this.mMusicListener.onEnd(new MusicEndEvent(this.mMusicPlayer,
 								failure ? MusicEndEvent.Type.FAILURE
 										: MusicEndEvent.Type.SUCCESS));
-					}
 				}
 			}
 		}
