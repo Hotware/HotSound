@@ -20,12 +20,15 @@
  */
 package de.hotware.hotsound.audio.data;
 
-import java.io.IOException;
-
 import javax.sound.sampled.AudioFormat;
 
 import de.hotware.hotsound.audio.player.MusicPlayerException;
 
+/**
+ * From this class all the Audio is being read. Has to be reopenable.
+ * 
+ * @author Martin Braun
+ */
 public interface IAudio extends AutoCloseable {
 
 	/**
@@ -36,23 +39,31 @@ public interface IAudio extends AutoCloseable {
 	/**
 	 * Reads up to a specified maximum number of bytes of data from the audio
 	 * stream, putting them into the given byte array. This method will always
-	 * read an integral number of frames. If pLength does not specify an integral
-	 * number of frames, a maximum of len - (pLength % frameSize) bytes will be
-	 * read.
+	 * read an integral number of frames. If pLength does not specify an
+	 * integral number of frames, a maximum of len - (pLength % frameSize) bytes
+	 * will be read.
+	 * 
+	 * @throws IllegalStateException
+	 *             if not opened yet
 	 */
 	public int read(byte[] pData, int pStart, int pBufferSize) throws AudioException;
-	
+
+	/**
+	 * @throws IllegalStateException
+	 *             if opened while not being closed
+	 */
 	public void open() throws AudioException;
 
 	/**
 	 * closes the IAudios resources
 	 */
-	public void close() throws IOException;
-	
+	@Override
+	public void close() throws AudioException;
+
 	public static class AudioException extends MusicPlayerException {
 
 		private static final long serialVersionUID = 2153542499704614401L;
-		
+
 		public AudioException() {
 			super();
 		}
@@ -64,7 +75,7 @@ public interface IAudio extends AutoCloseable {
 		public AudioException(String pMessage, Throwable pCause) {
 			super(pMessage, pCause);
 		}
-		
+
 	}
 
 }

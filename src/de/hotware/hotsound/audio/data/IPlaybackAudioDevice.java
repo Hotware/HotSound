@@ -9,7 +9,6 @@ import javax.sound.sampled.Mixer;
  * sound of bytes)
  * 
  * @author Martin Braun
- * 
  */
 public interface IPlaybackAudioDevice extends IAudioDevice {
 

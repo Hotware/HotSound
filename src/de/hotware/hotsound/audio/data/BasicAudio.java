@@ -33,16 +33,16 @@ public class BasicAudio implements ISeekableAudio {
 
 	protected InputStream mInputStream;
 	protected AudioInputStream mAudioInputStream;
-	protected boolean mStopped;
+	protected boolean mClosed;
 
 	public BasicAudio(InputStream pInputStream) {
 		this.mInputStream = pInputStream;
-		this.mStopped = true;
+		this.mClosed = true;
 	}
 
 	@Override
 	public void open() throws AudioException {
-		if(!this.mStopped) {
+		if(!this.mClosed) {
 			throw new IllegalStateException("The Audio is already opened");
 		}
 		try {
@@ -51,12 +51,12 @@ public class BasicAudio implements ISeekableAudio {
 		} catch(UnsupportedAudioFileException | IOException e) {
 			throw new AudioException("Error while opening the audiostream", e);
 		}
-		this.mStopped = false;
+		this.mClosed = false;
 	}
 
 	@Override
 	public AudioFormat getAudioFormat() {
-		if(this.mAudioInputStream == null) {
+		if(this.mClosed) {
 			throw new IllegalStateException("not opened yet");
 		}
 		return this.mAudioInputStream.getFormat();
@@ -64,20 +64,24 @@ public class BasicAudio implements ISeekableAudio {
 
 	@Override
 	public int read(byte[] pData, int pStart, int pBufferSize) throws AudioException {
-		if(this.mStopped) {
+		if(this.mClosed) {
 			throw new IllegalStateException("The Audio is not opened");
 		}
 		try {
 			return this.mAudioInputStream.read(pData, pStart, pBufferSize);
 		} catch(IOException e) {
-			throw new AudioException("IOException while reading from the AudioInputStream");
+			throw new AudioException("IOException while reading from the AudioInputStream", e);
 		}
 	}
 
 	@Override
-	public void close() throws IOException {
-		this.mAudioInputStream.close();
-		this.mStopped = true;
+	public void close() throws AudioException {
+		try {
+			this.mClosed = true;
+			this.mAudioInputStream.close();
+		} catch(IOException e) {
+			throw new AudioException("IOException while closing the AudioInputStream", e);
+		}
 	}
 
 	@Override

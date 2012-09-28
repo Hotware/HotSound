@@ -32,7 +32,7 @@ import de.hotware.hotsound.audio.data.IAudioDevice;
  * 
  * @author Martin Braun
  */
-public interface IMusicPlayer {
+public interface IMusicPlayer extends AutoCloseable {
 
 	/**
 	 * inserts a Song to the the Player possible difference between
@@ -80,7 +80,7 @@ public interface IMusicPlayer {
 	 * stops the playback but doesn't reset the Player. you can restart it via
 	 * restartPlayback afterwards
 	 * 
-	 * may lock the call if in multhreaded mode
+	 * may lock the call if in multhreaded mode and the player is currently starting
 	 * 
 	 * @throws MusicPlayerException
 	 * 
@@ -88,6 +88,9 @@ public interface IMusicPlayer {
 	 *             if the player hasn't been initialized yet (insert not called)
 	 */
 	public void stop() throws MusicPlayerException;
+	
+	@Override
+	public void close() throws MusicPlayerException;
 
 	/**
 	 * @return true if stopped (not started or ended), false otherwise

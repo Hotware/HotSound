@@ -63,7 +63,9 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 * 
 	 * @throws AudioDeviceException
 	 */
-	public StreamPlayerCallable(IAudio pAudio, IAudioDevice pAudioDevice, boolean pMultiThreaded) {
+	public StreamPlayerCallable(IAudio pAudio,
+			IAudioDevice pAudioDevice,
+			boolean pMultiThreaded) {
 		this(pAudio, pAudioDevice, null, pMultiThreaded);
 	}
 
@@ -111,7 +113,8 @@ public class StreamPlayerCallable implements Callable<Void> {
 			int nBytesRead = 0;
 			MusicPlayerException exception = null;
 			boolean failure = false;
-			try(IAudioDevice dev = this.mAudioDevice; IAudio audio = this.mAudio;) {
+			try(IAudio audio = this.mAudio;) {
+				IAudioDevice dev = this.mAudioDevice;
 				audio.open();
 				dev.open(audio.getAudioFormat());
 				AudioFormat format = audio.getAudioFormat();
@@ -131,23 +134,19 @@ public class StreamPlayerCallable implements Callable<Void> {
 						}
 					}
 				}
-			} catch(MusicPlayerException e) {
+			} catch(Exception e) {
+				//catch all the exceptions so the user can handle them even if he just can via the listener
 				failure = true;
-				exception = e;
-				throw exception;
-			} catch(IOException e) {
-				failure = true;
-				exception = new MusicPlayerException("an IOException occured during closing the Musicplayers' resources",
+				exception = new MusicPlayerException("An Exception occured during Playback",
 						e);
 				throw exception;
 			} finally {
 				this.mStop = true;
 				try {
+					//has to be closed and therefore handled specifically because of possible saviour behaviour
+					//that might want to be checked by the user (he gets the response out of the Event in the
+					//Listener
 					this.mAudioDevice.close();
-				} catch(IOException e) {
-					failure = true;
-					exception = new AudioDeviceException("Error while closing the AudioDevice", e);
-					throw exception;
 				} finally {
 					if(this.mMusicListener != null) {
 						this.mMusicListener.onEnd(new MusicEvent(this,
@@ -190,17 +189,18 @@ public class StreamPlayerCallable implements Callable<Void> {
 			this.mLock.unlock();
 		}
 	}
-	
+
 	public boolean isPaused() {
 		return this.mPause;
 	}
-	
+
 	public boolean isStopped() {
 		return this.mStop;
 	}
 
 	/**
 	 * locks until start has been called
+	 * 
 	 * @throws MusicPlayerException
 	 */
 	public void stop() throws MusicPlayerException {

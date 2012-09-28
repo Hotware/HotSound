@@ -18,6 +18,7 @@ public class Recorder implements AutoCloseable {
 	private File mTempFile;
 	private IHeader mHeader;
 	private int mBytesWritten;
+	private boolean mClosed;
 
 	public Recorder(File pFile) {
 		if(pFile == null) {
@@ -26,10 +27,18 @@ public class Recorder implements AutoCloseable {
 		this.mFile = pFile;
 		this.mTempFile = new File(pFile.getAbsolutePath() + ".tmp");
 		this.mBytesWritten = 0;
+		this.mClosed = true;
 	}
 
+	/**
+	 * 
+	 * @throws IllegalStateException if opened while not being closed;
+	 */
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException,
 			IOException {
+		if(!this.mClosed) {
+			throw new IllegalStateException("The Recorder is already opened");
+		}
 		if(this.mTempFile.exists()) {
 			this.mFile.delete();
 		}
@@ -41,9 +50,13 @@ public class Recorder implements AutoCloseable {
 				(short) pAudioFormat.getSampleSizeInBits(),
 				Integer.MAX_VALUE);
 		this.mHeader.write(this.mBufferedOutputStream);
+		this.mClosed = false;
 	}
 
 	public int write(byte[] pData, int pStart, int pLength) throws IOException {
+		if(this.mClosed) {
+			throw new IllegalStateException("The Recorder is not open");
+		}
 		this.mBufferedOutputStream.write(pData, pStart, pLength);
 		this.mBytesWritten += pLength;
 		return pLength;
@@ -76,6 +89,7 @@ public class Recorder implements AutoCloseable {
 				}
 				throw e;
 			} finally {
+				this.mClosed = true;
 				this.mTempFile.delete();
 				this.mBufferedOutputStream.flush();
 				this.mBufferedOutputStream.close();

@@ -20,7 +20,7 @@ public class SavingAudio extends BasicAudio {
 
 	@Override
 	public void open() throws AudioException {
-		if(!this.mStopped) {
+		if(!this.mClosed) {
 			throw new IllegalStateException("The Audio is already opened");
 		}
 		try {
@@ -29,7 +29,7 @@ public class SavingAudio extends BasicAudio {
 		} catch(UnsupportedAudioFileException | IOException e) {
 			throw new AudioException("Error while opening the audiostream", e);
 		}
-		this.mStopped = false;
+		this.mClosed = false;
 	}
 
 }

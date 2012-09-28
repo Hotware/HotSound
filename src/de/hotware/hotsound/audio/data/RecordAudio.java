@@ -35,7 +35,7 @@ public class RecordAudio implements IAudio {
 	protected Mixer mMixer;
 	protected AudioFormat mAudioFormat;
 	protected TargetDataLine mTargetDataLine;
-	protected boolean mStopped;
+	protected boolean mClosed;
 
 	public RecordAudio(Mixer pMixer) {
 		this(pMixer, null);
@@ -47,12 +47,12 @@ public class RecordAudio implements IAudio {
 		}
 		this.mMixer = pMixer;
 		this.mAudioFormat = pAudioFormat;
-		this.mStopped = true;
+		this.mClosed = true;
 	}
 
 	@Override
 	public void open() throws AudioException {
-		if(!this.mStopped) {
+		if(!this.mClosed) {
 			throw new IllegalStateException("The Audio is already opened");
 		}
 		DataLine.Info info = new DataLine.Info(TargetDataLine.class,
@@ -72,7 +72,7 @@ public class RecordAudio implements IAudio {
 		} catch(LineUnavailableException e) {
 			throw new AudioException("Error during opening the TargetDataLine");
 		}
-		this.mStopped = false;
+		this.mClosed = false;
 	}
 
 	@Override
@@ -82,7 +82,7 @@ public class RecordAudio implements IAudio {
 
 	@Override
 	public int read(byte[] pData, int pStart, int pLength) throws AudioException {
-		if(this.mStopped) {
+		if(this.mClosed) {
 			throw new IllegalStateException("The Audio is not opened");
 		}
 		return this.mTargetDataLine.read(pData, pStart, pLength);
@@ -91,7 +91,7 @@ public class RecordAudio implements IAudio {
 	@Override
 	public void close() {
 		this.mTargetDataLine.close();
-		this.mStopped = true;
+		this.mClosed = true;
 	}
 
 	public static List<Mixer> getRecordMixers() {

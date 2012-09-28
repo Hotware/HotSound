@@ -39,7 +39,6 @@ import de.hotware.hotsound.audio.data.BasicAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice;
 
 /**
- * is locking in a fair way
  * 
  * @author Martin Braun
  */
@@ -80,7 +79,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 */
 	public StreamMusicPlayer(IMusicListener pMusicListener,
 			ExecutorService pExecutorService) {
-		this.mLock = new ReentrantLock(true);
+		this.mLock = new ReentrantLock();
 		this.mMusicListener = pMusicListener;
 		this.mExecutorService = pExecutorService;
 		this.mCurrentSong = null;
@@ -215,6 +214,18 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this.mLock.lock();
 		try {
 			return this.mStreamPlayerCallable.isPaused();
+		} finally {
+			this.mLock.unlock();
+		}
+	}
+	
+	@Override
+	public void close() throws MusicPlayerException {
+		this.mLock.lock();
+		try {
+			if(this.mStreamPlayerCallable != null) {
+				this.mStreamPlayerCallable.stop();
+			}
 		} finally {
 			this.mLock.unlock();
 		}

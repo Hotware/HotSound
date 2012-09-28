@@ -20,30 +20,38 @@
  */
 package de.hotware.hotsound.audio.data;
 
-import java.io.IOException;
-
 import javax.sound.sampled.AudioFormat;
 
 import de.hotware.hotsound.audio.player.MusicPlayerException;
 
+/**
+ * Class that receives all the Sound input and plays it back or whatever it
+ * should do with it. Has to be reopenable.
+ * 
+ * @author Martin Braun
+ */
 public interface IAudioDevice extends AutoCloseable {
 
 	/**
 	 * writes to the IAudioDevice's output. Normally the way to write to its
 	 * DataLine
 	 * 
+	 * @throws IllegalStateException
+	 *             if not opened yet
 	 * @return number of bytes written
 	 */
 	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException;
 
 	/**
 	 * starts and initializes the IAudioDevice for playback
-	 * @throws IOException 
+	 * 
+	 * @throws IllegalStateException
+	 *             if opened while not being closed
 	 */
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException;
-	
+
 	public boolean isPaused();
-	
+
 	/**
 	 * pauses the IAudioDevice and the playback
 	 */
@@ -57,14 +65,15 @@ public interface IAudioDevice extends AutoCloseable {
 	/**
 	 * stops the IAudioDevice and closes all the opened resources
 	 */
-	public void close() throws IOException;
-	
+	@Override
+	public void close() throws AudioDeviceException;
+
 	public boolean isClosed();
-	
+
 	public static class AudioDeviceException extends MusicPlayerException {
 
 		private static final long serialVersionUID = 2153542499704614401L;
-		
+
 		public AudioDeviceException() {
 			super();
 		}
@@ -76,7 +85,7 @@ public interface IAudioDevice extends AutoCloseable {
 		public AudioDeviceException(String pMessage, Throwable pCause) {
 			super(pMessage, pCause);
 		}
-		
+
 	}
 
 }

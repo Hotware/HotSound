@@ -73,9 +73,14 @@ public class SavingAudioDevice extends BasicAudioDevice {
 	 * @inheritDoc saves all the data
 	 */
 	@Override
-	public void close() throws IOException {
+	public void close() throws AudioDeviceException {
 		super.close();
-		this.mRecorder.close();
+		try {
+			this.mRecorder.close();
+		} catch(IOException e) {
+			throw new AudioDeviceException("IOException occured while closing the Recorder",
+					e);
+		}
 	}
 
 }
