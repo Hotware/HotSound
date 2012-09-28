@@ -39,6 +39,11 @@ import javax.sound.sampled.AudioFormat;
 import de.hotware.hotsound.audio.data.BasicAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice;
 
+/**
+ * is locking in a fair way
+ * 
+ * @author Martin Braun
+ */
 public class StreamMusicPlayer implements IMusicPlayer {
 
 	protected ExecutorService mExecutorService;
@@ -78,7 +83,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 */
 	public StreamMusicPlayer(IMusicListener pMusicListener,
 			ExecutorService pExecutorService) {
-		this.mLock = new ReentrantLock();
+		this.mLock = new ReentrantLock(true);
 		this.mMusicListener = pMusicListener;
 		this.mExecutorService = pExecutorService;
 		this.mCurrentSong = null;

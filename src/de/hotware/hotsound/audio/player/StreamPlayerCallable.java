@@ -84,7 +84,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 		this.mAudioDevice = pAudioDevice;
 		this.mPause = new AtomicBoolean(false);
 		this.mStop = new AtomicBoolean(true);
-		this.mLock = new ReentrantLock();
+		this.mLock = new ReentrantLock(true);
 		this.mMusicListener = pMusicListener;
 		this.mStartLock = true;
 		this.mMultithreaded = pMultiThreaded;
