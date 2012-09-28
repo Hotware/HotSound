@@ -49,10 +49,11 @@ import de.hotware.hotsound.audio.player.IMusicListener.MusicEvent;
 public class StreamPlayerCallable implements Callable<Void> {
 
 	protected boolean mStartLock;
+	protected boolean mPrematureStop;
 	protected boolean mMultithreaded;
 	protected Lock mLock;
 	protected AtomicBoolean mPause;
-	protected AtomicBoolean mStop;
+	protected boolean mStop;
 	protected IMusicListener mMusicListener;
 	protected IAudio mAudio;
 	protected IAudioDevice mAudioDevice;
@@ -83,10 +84,11 @@ public class StreamPlayerCallable implements Callable<Void> {
 		this.mAudio = pAudio;
 		this.mAudioDevice = pAudioDevice;
 		this.mPause = new AtomicBoolean(false);
-		this.mStop = new AtomicBoolean(true);
+		this.mStop = true;
 		this.mLock = new ReentrantLock(true);
 		this.mMusicListener = pMusicListener;
 		this.mStartLock = true;
+		this.mPrematureStop = false;
 		this.mMultithreaded = pMultiThreaded;
 	}
 
@@ -98,58 +100,62 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 */
 	@Override
 	public Void call() throws MusicPlayerException {
-		this.mStop.set(false);
-		this.mStartLock = false;
 		try {
+			//wait for possible stop calls to be active
 			this.mLock.lock();
 		} finally {
 			this.mLock.unlock();
 		}
-		int nBytesRead = 0;
-		MusicPlayerException exception = null;
-		boolean failure = false;
-		try(IAudioDevice dev = this.mAudioDevice; IAudio audio = this.mAudio;) {
-			audio.open();
-			dev.open(audio.getAudioFormat());
-			AudioFormat format = audio.getAudioFormat();
-			int bufferSize = (int) format.getSampleRate() *
-					format.getFrameSize();
-			byte[] abData = new byte[bufferSize];
-			while(nBytesRead != -1 && !this.mStop.get()) {
-				if(!this.mAudioDevice.isClosed()) {
-					this.mLock.lock();
-					try {
-						nBytesRead = audio.read(abData, 0, bufferSize);
-						if(nBytesRead != -1) {
-							dev.write(abData, 0, nBytesRead);
+		if(!this.mPrematureStop) {
+			this.mStop = false;
+			this.mStartLock = false;
+			int nBytesRead = 0;
+			MusicPlayerException exception = null;
+			boolean failure = false;
+			try(IAudioDevice dev = this.mAudioDevice; IAudio audio = this.mAudio;) {
+				this.mLock.lock();
+				audio.open();
+				dev.open(audio.getAudioFormat());
+				AudioFormat format = audio.getAudioFormat();
+				int bufferSize = (int) format.getSampleRate() *
+						format.getFrameSize();
+				byte[] abData = new byte[bufferSize];
+				while(nBytesRead != -1 && !this.mStop) {
+					if(!this.mAudioDevice.isClosed()) {
+						this.mLock.lock();
+						try {
+							nBytesRead = audio.read(abData, 0, bufferSize);
+							if(nBytesRead != -1) {
+								dev.write(abData, 0, nBytesRead);
+							}
+						} finally {
+							this.mLock.unlock();
 						}
-					} finally {
-						this.mLock.unlock();
 					}
 				}
-			}
-		} catch(MusicPlayerException e) {
-			failure = true;
-			exception = e;
-			throw exception;
-		} catch(IOException e) {
-			failure = true;
-			exception = new MusicPlayerException("an IOException occured during closing the Musicplayers' resources",
-					e);
-			throw exception;
-		} finally {
-			this.mStop.set(true);
-			try {
-				this.mAudioDevice.close();
+			} catch(MusicPlayerException e) {
+				failure = true;
+				exception = e;
+				throw exception;
 			} catch(IOException e) {
 				failure = true;
-				exception = new AudioDeviceException("Error while closing the AudioDevice", e);
+				exception = new MusicPlayerException("an IOException occured during closing the Musicplayers' resources",
+						e);
 				throw exception;
 			} finally {
-				if(this.mMusicListener != null) {
-					this.mMusicListener.onEnd(new MusicEvent(this,
-							failure ? MusicEvent.Type.FAILURE
-									: MusicEvent.Type.SUCCESS, exception));
+				this.mStop = true;
+				try {
+					this.mAudioDevice.close();
+				} catch(IOException e) {
+					failure = true;
+					exception = new AudioDeviceException("Error while closing the AudioDevice", e);
+					throw exception;
+				} finally {
+					if(this.mMusicListener != null) {
+						this.mMusicListener.onEnd(new MusicEvent(this,
+								failure ? MusicEvent.Type.FAILURE
+										: MusicEvent.Type.SUCCESS, exception));
+					}
 				}
 			}
 		}
@@ -191,7 +197,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 	}
 	
 	public boolean isStopped() {
-		return this.mStop.get();
+		return this.mStop;
 	}
 
 	/**
@@ -204,9 +210,11 @@ public class StreamPlayerCallable implements Callable<Void> {
 		try {
 			if(this.mStartLock && this.mMultithreaded) {
 				this.mLock.lock();
+				this.mStartLock = false;
+				this.mPrematureStop = true;
 				unlock = true;
 			}
-			this.mStop.set(true);
+			this.mStop = true;
 		} finally {
 			if(unlock) {
 				this.mLock.unlock();
