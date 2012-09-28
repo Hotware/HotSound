@@ -136,6 +136,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 			try {
 				this.mAudioDevice.close();
 			} catch(IOException e) {
+				failure = true;
 				exception = new AudioDeviceException("Error while closing the AudioDevice", e);
 				throw exception;
 			} finally {
