@@ -43,6 +43,8 @@ import de.hotware.hotsound.audio.player.IMusicListener.MusicEvent;
  * hereby mention him as inspiration, because his code helped me to write this
  * class.
  * 
+ * TODO: extra listener for callable that gets redirected in StreamMusicPlayer
+ * 
  * @author Martin Braun
  */
 public class StreamPlayerCallable implements Callable<Void> {
