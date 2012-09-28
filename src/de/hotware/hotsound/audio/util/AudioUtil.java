@@ -35,8 +35,6 @@ import javax.sound.sampled.Mixer.Info;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import org.omg.IOP.Encoding;
-
 public class AudioUtil {
 
 	/**

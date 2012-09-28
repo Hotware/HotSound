@@ -50,9 +50,6 @@ public class BasicAudioDevice implements IPlaybackAudioDevice {
 		this.mPaused = false;
 	}
 
-	/**
-	 *
-	 */
 	@Override
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
 		if(!this.mClosed) {

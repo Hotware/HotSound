@@ -20,8 +20,6 @@
  */
 package de.hotware.hotsound.audio.player;
 
-import java.io.IOException;
-
 import javax.sound.sampled.AudioFormat;
 
 import de.hotware.hotsound.audio.data.IAudioDevice;

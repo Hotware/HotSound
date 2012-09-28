@@ -84,9 +84,6 @@ public class BasicAudio implements ISeekableAudio {
 		}
 	}
 
-	// What's the point in implementing ISeekeableAudio then? These methods are not declared
-	// optional by the interface, so this is not a valid implementation!
-
 	@Override
 	public void seek(int pFrame) {
 		throw new UnsupportedOperationException("not implemented yet");
