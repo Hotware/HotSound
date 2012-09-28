@@ -74,10 +74,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 
 	/**
 	 * uses the given ExecutorService to run its tasks. if null is specified it
-	 * uses the current thread
-	 * 
-	 * @param pMusicListener
-	 * @param pExecutorService
+	 * uses the current thread (singlethreaded mode)
 	 */
 	public StreamMusicPlayer(IMusicListener pMusicListener,
 			ExecutorService pExecutorService) {
