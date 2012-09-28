@@ -30,7 +30,6 @@ package de.hotware.hotsound.audio.player;
  */
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -64,17 +63,15 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 * and in single threaded mode
 	 */
 	public StreamMusicPlayer() {
-		this(null, false);
+		this(null);
 	}
 
 	/**
 	 * Default Constructor. initializes with the given
 	 * {@link #PlayerThreadListener} and in multithreadmode if needed
 	 */
-	public StreamMusicPlayer(IMusicListener pMusicListener,
-			boolean pMultiThreaded) {
-		this(pMusicListener, pMultiThreaded ? Executors
-				.newSingleThreadExecutor() : null);
+	public StreamMusicPlayer(IMusicListener pMusicListener) {
+		this(pMusicListener, null);
 	}
 
 	/**

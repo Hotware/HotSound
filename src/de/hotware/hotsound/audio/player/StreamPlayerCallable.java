@@ -101,7 +101,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 		this.mStop.set(false);
 		this.mStartLock = false;
 		try {
-			this.mLock.tryLock();
+			this.mLock.lock();
 		} finally {
 			this.mLock.unlock();
 		}
@@ -199,11 +199,19 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 * @throws MusicPlayerException
 	 */
 	public void stop() throws MusicPlayerException {
+		boolean unlock = false;
 		//only lock if in multithreaded mode.
-		if(this.mStartLock && this.mMultithreaded) {
-			this.mLock.lock();
+		try {
+			if(this.mStartLock && this.mMultithreaded) {
+				this.mLock.lock();
+				unlock = true;
+			}
+			this.mStop.set(true);
+		} finally {
+			if(unlock) {
+				this.mLock.unlock();
+			}
 		}
-		this.mStop.set(true);
 	}
 
 	public AudioFormat getAudioFormat() {
