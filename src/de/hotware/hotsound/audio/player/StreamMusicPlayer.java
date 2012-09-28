@@ -30,6 +30,7 @@ package de.hotware.hotsound.audio.player;
  */
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -55,17 +56,20 @@ public class StreamMusicPlayer implements IMusicPlayer {
 
 	/**
 	 * Default Constructor. initializes without a {@link #PlayerThreadListener}
+	 * and in single threaded mode
 	 */
 	public StreamMusicPlayer() {
-		this(null);
+		this(null, false);
 	}
-	
+
 	/**
 	 * Default Constructor. initializes with the given
-	 * {@link #PlayerThreadListener}
+	 * {@link #PlayerThreadListener} and in multithreadmode if needed
 	 */
-	public StreamMusicPlayer(IMusicListener pMusicListener) {
-		this(pMusicListener, null);
+	public StreamMusicPlayer(IMusicListener pMusicListener,
+			boolean pMultiThreaded) {
+		this(pMusicListener, pMultiThreaded ? Executors
+				.newSingleThreadExecutor() : null);
 	}
 
 	/**
@@ -90,7 +94,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	/**
-	 * @throws MusicPlayerException 
+	 * @throws MusicPlayerException
 	 * @inheritDoc uses a BasicAudioDevice as AudioDevice
 	 */
 	@Override
@@ -101,7 +105,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	/**
 	 * @param pMixer
 	 *            if null is passed the AudioSystem uses the default Mixer
-	 * @throws MusicPlayerException 
+	 * @throws MusicPlayerException
 	 * @inheritDoc
 	 * @throws SongInsertionException
 	 *             if audio file is either not supported, its line is not
@@ -162,8 +166,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	/**
-	 * @inheritDoc
-	 * locks until start has been called
+	 * @inheritDoc locks until start has been called if in multithreaded mode
+	 *             (ExecutorService != null)
 	 */
 	@Override
 	public void stop() throws MusicPlayerException {
@@ -283,10 +287,14 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	private void insertInternal(ISong pSong, IAudioDevice pAudioDevice) throws MusicPlayerException {
-		if(this.mStreamPlayerCallable != null && !this.mStreamPlayerCallable.isStopped()) {
+		if(this.mStreamPlayerCallable != null &&
+				!this.mStreamPlayerCallable.isStopped()) {
 			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
 		}
-		this.mStreamPlayerCallable = new StreamPlayerCallable(pSong.getAudio(), pAudioDevice, this.mMusicListener);
+		this.mStreamPlayerCallable = new StreamPlayerCallable(pSong.getAudio(),
+				pAudioDevice,
+				this.mMusicListener,
+				this.mExecutorService != null);
 	}
 
 }

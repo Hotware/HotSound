@@ -80,6 +80,8 @@ public interface IMusicPlayer {
 	 * stops the playback but doesn't reset the Player. you can restart it via
 	 * restartPlayback afterwards
 	 * 
+	 * may lock the call if in multhreaded mode
+	 * 
 	 * @throws MusicPlayerException
 	 * 
 	 * @throws IllegalStateException

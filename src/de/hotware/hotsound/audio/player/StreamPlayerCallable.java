@@ -49,6 +49,7 @@ import de.hotware.hotsound.audio.player.IMusicListener.MusicEvent;
 public class StreamPlayerCallable implements Callable<Void> {
 
 	protected boolean mStartLock;
+	protected boolean mMultithreaded;
 	protected Lock mLock;
 	protected AtomicBoolean mPause;
 	protected AtomicBoolean mStop;
@@ -62,8 +63,8 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 * 
 	 * @throws AudioDeviceException
 	 */
-	public StreamPlayerCallable(IAudio pAudio, IAudioDevice pAudioDevice) {
-		this(pAudio, pAudioDevice, null);
+	public StreamPlayerCallable(IAudio pAudio, IAudioDevice pAudioDevice, boolean pMultiThreaded) {
+		this(pAudio, pAudioDevice, null, pMultiThreaded);
 	}
 
 	/**
@@ -74,7 +75,8 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 */
 	public StreamPlayerCallable(IAudio pAudio,
 			IAudioDevice pAudioDevice,
-			IMusicListener pMusicListener) {
+			IMusicListener pMusicListener,
+			boolean pMultiThreaded) {
 		if(pAudioDevice == null || pAudio == null) {
 			throw new IllegalArgumentException("the audiodevice and the audio may not be null");
 		}
@@ -85,6 +87,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 		this.mLock = new ReentrantLock();
 		this.mMusicListener = pMusicListener;
 		this.mStartLock = true;
+		this.mMultithreaded = pMultiThreaded;
 	}
 
 	/**
@@ -97,8 +100,11 @@ public class StreamPlayerCallable implements Callable<Void> {
 	public Void call() throws MusicPlayerException {
 		this.mStop.set(false);
 		this.mStartLock = false;
-		this.mLock.tryLock();
-		this.mLock.unlock();
+		try {
+			this.mLock.tryLock();
+		} finally {
+			this.mLock.unlock();
+		}
 		int nBytesRead = 0;
 		MusicPlayerException exception = null;
 		boolean failure = false;
@@ -193,7 +199,8 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 * @throws MusicPlayerException
 	 */
 	public void stop() throws MusicPlayerException {
-		if(this.mStartLock) {
+		//only lock if in multithreaded mode.
+		if(this.mStartLock && this.mMultithreaded) {
 			this.mLock.lock();
 		}
 		this.mStop.set(true);

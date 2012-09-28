@@ -111,8 +111,10 @@ public class BasicAudioDevice implements IPlaybackAudioDevice {
 
 	@Override
 	public void close() throws IOException {
-		this.mSourceDataLine.stop();
-		this.mSourceDataLine.flush();
+		if(this.mSourceDataLine != null) {
+			this.mSourceDataLine.stop();
+			this.mSourceDataLine.flush();
+		}
 		this.mClosed = true;
 	}
 
