@@ -25,9 +25,9 @@ import javax.sound.sampled.AudioFormat;
 import de.hotware.hotsound.audio.player.MusicPlayerException;
 
 /**
- * Class that receives all the Sound input and plays it back or whatever it
- * should do with it. Has to be reopenable.
- * 
+ * Base interface for all classes that receive all the Sound input and plays
+ * it back or whatever it should do with it. Has to be reopenable.
+ *
  * @author Martin Braun
  */
 public interface IAudioDevice extends AutoCloseable {
@@ -35,18 +35,20 @@ public interface IAudioDevice extends AutoCloseable {
 	/**
 	 * writes to the IAudioDevice's output. Normally the way to write to its
 	 * DataLine
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if not opened yet
+	 *             @throws AudioDeviceException if writing fails
 	 * @return number of bytes written
 	 */
 	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException;
 
 	/**
-	 * starts and initializes the IAudioDevice for playback
-	 * 
+	 * opens and initializes the IAudioDevice for playback
+	 *
 	 * @throws IllegalStateException
 	 *             if opened while not being closed
+	 *             @throws AudioDeviceException if opening fails
 	 */
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException;
 

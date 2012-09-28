@@ -28,6 +28,9 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 
+/**
+ * Default audio device for playing back audio
+ */
 public class BasicAudioDevice implements IPlaybackAudioDevice {
 
 	protected Mixer mMixer;

@@ -26,14 +26,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import de.hotware.hotsound.audio.player.BasicSong;
 import de.hotware.hotsound.audio.player.ISong;
 
 /**
- * default Parsers that are available with HotSound
- * 
+ * default Parsers that ship with HotSound
+ *
  * @author Martin Braun
  */
 public enum StockParser implements IPlaylistParser {
@@ -41,13 +42,13 @@ public enum StockParser implements IPlaylistParser {
 
 		@Override
 		public List<ISong> parse(URL pURL) throws IOException {
-			try(BufferedReader buf = new BufferedReader(new InputStreamReader(pURL
-					.openStream()))) {
+			try(InputStreamReader streamReader = new InputStreamReader(pURL.openStream());
+					BufferedReader buf = new BufferedReader(streamReader)) {
 				List<ISong> ret = new ArrayList<ISong>();
 				String line;
 				while((line = buf.readLine()) != null) {
-					//ignore ALL the unnecessary whitespace
-					line.trim();
+					// ignore ALL the unnecessary whitespace
+					line = line.trim();
 					if(!line.startsWith("#")) {
 						if(!line.startsWith("http")) {
 							File file = new File(line);
@@ -78,7 +79,7 @@ public enum StockParser implements IPlaylistParser {
 
 	};
 
-	protected String[] mKeys;
+	protected final String[] mKeys;
 
 	private StockParser(String... pKeys) {
 		if(pKeys == null) {
@@ -89,7 +90,7 @@ public enum StockParser implements IPlaylistParser {
 
 	@Override
 	public String[] getKeys() {
-		return this.mKeys;
+		return Arrays.copyOf(this.mKeys, this.mKeys.length);
 	}
 
 }

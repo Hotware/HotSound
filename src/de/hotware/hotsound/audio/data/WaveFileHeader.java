@@ -37,7 +37,7 @@ import java.io.OutputStream;
  * 
  * Not yet ready to be supported, so
  */
-public class WaveHeader implements IHeader {
+public class WaveFileHeader implements IAudioFileHeader {
     
     // follows WAVE format in http://ccrma.stanford.edu/courses/422/projects/WaveFormat
 
@@ -62,7 +62,7 @@ public class WaveHeader implements IHeader {
     /**
      * Construct a WaveHeader, with all fields defaulting to zero.
      */
-    public WaveHeader() {
+    public WaveFileHeader() {
     }
     
     /**
@@ -74,7 +74,7 @@ public class WaveHeader implements IHeader {
      * @param bitsPerSample usually 16 for PCM, 8 for ULAW or 8 for ALAW.
      * @param numBytes size of audio data after this header, in bytes.
      */
-    public WaveHeader(short format, short numChannels, int sampleRate, short bitsPerSample, int numBytes) {
+    public WaveFileHeader(short format, short numChannels, int sampleRate, short bitsPerSample, int numBytes) {
         mFormat = format;
         mSampleRate = sampleRate;
         mNumChannels = numChannels;
@@ -97,7 +97,7 @@ public class WaveHeader implements IHeader {
      * one of {@link #FORMAT_PCM}, {@link #FORMAT_ULAW}, or {@link #FORMAT_ALAW}.
      * @return reference to this WaveHeader instance.
      */
-    public WaveHeader setFormat(short format) {
+    public WaveFileHeader setFormat(short format) {
         mFormat = format;
         return this;
     }
@@ -115,7 +115,7 @@ public class WaveHeader implements IHeader {
      * @param numChannels 1 for mono, 2 for stereo.
      * @return reference to this WaveHeader instance.
      */
-    public WaveHeader setNumChannels(short numChannels) {
+    public WaveFileHeader setNumChannels(short numChannels) {
         mNumChannels = numChannels;
         return this;
     }
@@ -133,7 +133,7 @@ public class WaveHeader implements IHeader {
      * @param sampleRate sample rate, typically 8000, 11025, 16000, 22050, or 44100 hz.
      * @return reference to this WaveHeader instance.
      */
-    public WaveHeader setSampleRate(int sampleRate) {
+    public WaveFileHeader setSampleRate(int sampleRate) {
         mSampleRate = sampleRate;
         return this;
     }
@@ -153,7 +153,7 @@ public class WaveHeader implements IHeader {
      * usually 16 for PCM, 8 for ULAW or 8 for ALAW.
      * @return reference to this WaveHeader instance.
      */
-    public WaveHeader setBitsPerSample(short bitsPerSample) {
+    public WaveFileHeader setBitsPerSample(short bitsPerSample) {
         mBitsPerSample = bitsPerSample;
         return this;
     }
@@ -171,7 +171,7 @@ public class WaveHeader implements IHeader {
      * @param numBytes size of audio data after this header, in bytes.
      * @return reference to this WaveHeader instance.
      */
-    public WaveHeader setNumBytes(int numBytes) {
+    public WaveFileHeader setNumBytes(int numBytes) {
         mNumBytes = numBytes;
         return this;
     }

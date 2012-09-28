@@ -23,9 +23,9 @@ package de.hotware.hotsound.audio.player;
 /**
  *  @author Martin Braun
  *  Player inspired by Matthias Pfisterer's examples on JavaSound
- *  (jsresources.org). Because of the fact, that this Software is meant 
- *  to be Open-Source and I don't want to get anybody angry about me 
- *  using parts of his intelligence without mentioning it, I hereby 
+ *  (jsresources.org). Because of the fact, that this Software is meant
+ *  to be Open-Source and I don't want to get anybody angry about me
+ *  using parts of his intelligence without mentioning it, I hereby
  *  mention him as inspiration, because his code helped me to write this class.
  */
 
@@ -42,7 +42,7 @@ import de.hotware.hotsound.audio.data.IAudioDevice;
 /**
  * always runs the playback in its own thread but you can pass an
  * ExecutorService instead if you want to
- * 
+ *
  * @author Martin Braun
  */
 public class StreamMusicPlayer implements IMusicPlayer {
@@ -58,11 +58,11 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	/**
 	 * the current mixer after insertion
 	 */
-	protected IAudioDevice mCurrrentAudioDevice;
+	protected IAudioDevice mCurrentAudioDevice;
 	private Lock mLock;
 
 	/**
-	 * Default Constructor. initializes without a {@link #PlayerThreadListener}
+	 * Default Constructor. initializes without a Listener
 	 * and in single threaded mode
 	 */
 	public StreamMusicPlayer() {
@@ -71,7 +71,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 
 	/**
 	 * Default Constructor. initializes with the given
-	 * {@link #PlayerThreadListener} and in multithreadmode if needed
+	 * listener and in multithreadmode if needed
 	 */
 	public StreamMusicPlayer(IMusicListener pMusicListener) {
 		this(pMusicListener, Executors.newSingleThreadExecutor());
@@ -88,7 +88,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this.mMusicListener = pMusicListener;
 		this.mExecutorService = pExecutorService;
 		this.mCurrentSong = null;
-		this.mCurrrentAudioDevice = null;
+		this.mCurrentAudioDevice = null;
 	}
 
 	@Override
@@ -120,7 +120,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this.mLock.lock();
 		try {
 			this.mCurrentSong = pSong;
-			this.mCurrrentAudioDevice = pAudioDevice;
+			this.mCurrentAudioDevice = pAudioDevice;
 			this.insertInternal(pSong, pAudioDevice);
 		} finally {
 			this.mLock.unlock();
@@ -139,7 +139,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				throw new IllegalStateException("Player is already playing");
 			}
 			if(this.mExecutorService != null) {
-				//run on the thread specified
+				//run on the thread specified - The Callable really should be a Runnable.
 				this.mExecutorService.submit(this.mStreamPlayerCallable);
 			}
 		} finally {
@@ -167,7 +167,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	/**
-	 * @inheritDoc locks until start has been called if in multithreaded mode
+	 * @inheritDoc blocks until start has been called if in multithreaded mode
 	 *             (ExecutorService != null)
 	 */
 	@Override

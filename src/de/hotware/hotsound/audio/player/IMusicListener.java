@@ -24,37 +24,23 @@ import de.hotware.util.GBaseEvent;
 
 public interface IMusicListener {
 
-	public void onEnd(IMusicListener.MusicEvent pEvent);
+	public void onEnd(IMusicListener.MusicEndEvent pEvent);
+	
+	public void onExeption(MusicExceptionEvent pEvent);
 
-	public static class MusicEvent extends
+	public static class MusicEndEvent extends
 			GBaseEvent<IMusicPlayer> {
 
 		private Type mType;
-		private Throwable mThrowable;
 
-		public MusicEvent(IMusicPlayer pSource, Type pType) {
-			this(pSource, pType, null);
-		}
-
-		public MusicEvent(IMusicPlayer pSource,
-				Type pType,
-				Throwable pException) {
+		public MusicEndEvent(IMusicPlayer pSource,
+				Type pType) {
 			super(pSource);
 			this.mType = pType;
-			this.mThrowable = pException;
 		}
 
 		public Type getType() {
 			return this.mType;
-		}
-
-		/**
-		 * @return the throwable causing the failure if getType() ==
-		 *         Type.Failure <br>
-		 *         null otherwise
-		 */
-		public Throwable getThrowable() {
-			return this.mThrowable;
 		}
 
 		public static enum Type {
@@ -62,6 +48,21 @@ public interface IMusicListener {
 			FAILURE
 		}
 
+	}
+	
+	public static class MusicExceptionEvent extends GBaseEvent<IMusicPlayer> {
+		
+		private MusicPlayerException mException;
+
+		public MusicExceptionEvent(IMusicPlayer pSource, MusicPlayerException pException) {
+			super(pSource);
+			this.mException = pException;
+		}
+		
+		public MusicPlayerException getException() {
+			return this.mException;
+		}
+		
 	}
 
 }

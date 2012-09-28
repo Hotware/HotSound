@@ -27,8 +27,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.Mixer;
 
 /**
- * TODO: audiolength
- * 
+ *  
  * @author Martin Braun
  * 
  */
@@ -69,8 +68,8 @@ public class SavingAudioDevice extends BasicAudioDevice {
 	}
 
 	/**
+	 * saves all the data
 	 * @throws AudioDeviceException
-	 * @inheritDoc saves all the data
 	 */
 	@Override
 	public void close() throws AudioDeviceException {

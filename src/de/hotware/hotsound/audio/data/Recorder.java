@@ -9,14 +9,12 @@ import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
 
-import de.hotware.hotsound.audio.data.IAudioDevice.AudioDeviceException;
-
 public class Recorder implements AutoCloseable {
 
 	private BufferedOutputStream mBufferedOutputStream;
 	private File mFile;
 	private File mTempFile;
-	private IHeader mHeader;
+	private IAudioFileHeader mHeader;
 	private int mBytesWritten;
 	private boolean mClosed;
 
@@ -31,20 +29,16 @@ public class Recorder implements AutoCloseable {
 	}
 
 	/**
-	 * 
+	 *
 	 * @throws IllegalStateException if opened while not being closed;
 	 */
-	public void open(AudioFormat pAudioFormat) throws AudioDeviceException,
-			IOException {
+	public void open(AudioFormat pAudioFormat) throws IOException {
 		if(!this.mClosed) {
 			throw new IllegalStateException("The Recorder is already opened");
 		}
-		if(this.mTempFile.exists()) {
-			this.mFile.delete();
-		}
-		this.mTempFile.createNewFile();
+		createEmptyFile(this.mTempFile);
 		this.mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(this.mTempFile));
-		this.mHeader = new WaveHeader(WaveHeader.FORMAT_PCM,
+		this.mHeader = new WaveFileHeader(WaveFileHeader.FORMAT_PCM,
 				(short) pAudioFormat.getChannels(),
 				(int) pAudioFormat.getSampleRate(),
 				(short) pAudioFormat.getSampleSizeInBits(),
@@ -66,35 +60,50 @@ public class Recorder implements AutoCloseable {
 		if(this.mBufferedOutputStream != null) {
 			boolean delete = false;
 			try(BufferedInputStream input = new BufferedInputStream(new FileInputStream(this.mTempFile))) {
-					this.mBufferedOutputStream.flush();
-					this.mBufferedOutputStream.close();
-					((WaveHeader) this.mHeader).read(input);
-					((WaveHeader) this.mHeader).setNumBytes(this.mBytesWritten);
-					if(this.mFile.exists()) {
-						this.mFile.delete();
-					}
-					this.mFile.createNewFile();
-					delete = true;
-					this.mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(this.mFile));
-					int bytesRead = 0;
-					byte[] data = new byte[128000];
-					this.mHeader.write(this.mBufferedOutputStream);
-					while((bytesRead = input.read(data, 0, 128000)) != -1) {
-						this.write(data, 0, bytesRead);
-					}
+				this.mBufferedOutputStream.flush();
+				this.mBufferedOutputStream.close();
+				((WaveFileHeader) this.mHeader).read(input);
+				((WaveFileHeader) this.mHeader).setNumBytes(this.mBytesWritten);
+				createEmptyFile(this.mFile);
+				delete = true;
+				this.mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(this.mFile));
+				int bytesRead = 0;
+				byte[] data = new byte[128000];	// Magic is in the air. The number emits it.
+				this.mHeader.write(this.mBufferedOutputStream);
+				while((bytesRead = input.read(data, 0, 128000)) != -1) {	// The wild magic number appers once again!
+					this.write(data, 0, bytesRead);
+				}
 			} catch(IOException e) {
 				//only delete if a new file has been written over a possible old file
 				if(delete) {
-					this.mFile.delete();
+					if(!this.mTempFile.delete()) {
+						throw new IOException("couldn't delete failure file", e);
+					}
 				}
 				throw e;
 			} finally {
 				this.mClosed = true;
-				this.mTempFile.delete();
-				this.mBufferedOutputStream.flush();
-				this.mBufferedOutputStream.close();
-				this.mBufferedOutputStream = null;
+				// No need to flush, is included in close().
+				try {
+					this.mBufferedOutputStream.close();
+					this.mBufferedOutputStream = null;
+				} finally {
+					if(!this.mTempFile.delete()) {
+						throw new IOException("couldn't delete the tempfile");
+					}
+				}
 			}
+		}
+	}
+	
+	private static void createEmptyFile(File pFile) throws IOException {
+		if(pFile.exists()) {
+			if(!pFile.delete()) {
+				throw new IOException("couldn't delete the old file " + pFile.getAbsolutePath());
+			}
+		}
+		if(!pFile.createNewFile()) {
+			throw new IOException("couldn't create the file " + pFile.getAbsolutePath());
 		}
 	}
 

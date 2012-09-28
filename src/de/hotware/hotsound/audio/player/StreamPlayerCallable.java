@@ -21,33 +21,37 @@
 package de.hotware.hotsound.audio.player;
 
 import java.io.IOException;
-import java.util.concurrent.Callable;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sound.sampled.AudioFormat;
 
+import de.hotware.hotsound.audio.data.IAudio;
 import de.hotware.hotsound.audio.data.IAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice.AudioDeviceException;
-import de.hotware.hotsound.audio.data.IAudio;
 import de.hotware.hotsound.audio.data.ISeekableAudio;
-import de.hotware.hotsound.audio.player.IMusicListener.MusicEvent;
+import de.hotware.hotsound.audio.player.IMusicListener.MusicEndEvent;
+import de.hotware.hotsound.audio.player.IMusicListener.MusicExceptionEvent;
 
 /**
  * To be used with ExecutionServices.
- * 
+ *
  * all playback functions are thread-safe. Player inspired by Matthias
  * Pfisterer's examples on JavaSound (jsresources.org). Because of the fact,
  * that this Software is meant to be Open-Source and I don't want to get anybody
  * angry about me using parts of his intelligence without mentioning it, I
  * hereby mention him as inspiration, because his code helped me to write this
  * class.
- * 
+ *
+ * TODO: extra listener for callable that gets redirected in StreamMusicPlayer
+ *
+ * TODO: Why is this a Callable<Void> instead of a simple Runnable? Why?
+ *
  * TODO: extra listener for callable that gets redirected in StreamMusicPlayer
  * 
  * @author Martin Braun
  */
-class StreamPlayerCallable implements Callable<Void> {
+class StreamPlayerCallable implements Runnable {
 
 	protected IMusicPlayer mMusicPlayer;
 	protected boolean mStartLock;
@@ -62,7 +66,7 @@ class StreamPlayerCallable implements Callable<Void> {
 
 	/**
 	 * initializes the StreamPlayerRunnable without a
-	 * {@link #PlayerThreadListener} and the default Mixer
+	 * listener and the default Mixer
 	 * 
 	 * @throws AudioDeviceException
 	 */
@@ -75,8 +79,8 @@ class StreamPlayerCallable implements Callable<Void> {
 
 	/**
 	 * initializes the StreamPlayerRunnable with the given
-	 * {@link #PlayerThreadListener} and the given Mixer
-	 * 
+	 * listenerand the given Mixer
+	 *
 	 * @throws AudioDeviceException
 	 */
 	public StreamPlayerCallable(IAudio pAudio,
@@ -100,13 +104,11 @@ class StreamPlayerCallable implements Callable<Void> {
 	}
 
 	/**
-	 * @inheritDoc
-	 * 
 	 * @throws IOException
 	 *             if cleanup fails after finished with loading
 	 */
 	@Override
-	public Void call() throws MusicPlayerException {
+	public void run() {
 		try {
 			//wait for possible stop calls to be active
 			this.mLock.lock();
@@ -145,24 +147,28 @@ class StreamPlayerCallable implements Callable<Void> {
 				failure = true;
 				exception = new MusicPlayerException("An Exception occured during Playback",
 						e);
-				throw exception;
+				this.mMusicListener.onExeption(new MusicExceptionEvent(this.mMusicPlayer, exception));
 			} finally {
 				this.mStop = true;
 				try {
-					//has to be closed and therefore handled specifically because of possible saviour behaviour
+					//has to be closed and therefore handled specifically because of possible savior behavior
 					//that might want to be checked by the user (he gets the response out of the Event in the
 					//Listener
-					this.mAudioDevice.close();
+					try {
+						this.mAudioDevice.close();
+					} catch(AudioDeviceException e) {
+						failure = true;
+						this.mMusicListener.onExeption(new MusicExceptionEvent(this.mMusicPlayer, e));
+					}
 				} finally {
 					if(this.mMusicListener != null) {
-						this.mMusicListener.onEnd(new MusicEvent(this.mMusicPlayer,
-								failure ? MusicEvent.Type.FAILURE
-										: MusicEvent.Type.SUCCESS, exception));
+						this.mMusicListener.onEnd(new MusicEndEvent(this.mMusicPlayer,
+								failure ? MusicEndEvent.Type.FAILURE
+										: MusicEndEvent.Type.SUCCESS));
 					}
 				}
 			}
 		}
-		return null;
 	}
 
 	public void seek(int pFrame) {
@@ -205,8 +211,8 @@ class StreamPlayerCallable implements Callable<Void> {
 	}
 
 	/**
-	 * locks until start has been called
-	 * 
+	 * blocks until start has been called
+	 *
 	 * @throws MusicPlayerException
 	 */
 	public void stop() throws MusicPlayerException {

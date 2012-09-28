@@ -25,8 +25,8 @@ import javax.sound.sampled.AudioFormat;
 import de.hotware.hotsound.audio.player.MusicPlayerException;
 
 /**
- * From this class all the Audio is being read. Has to be reopenable.
- * 
+ * All Audio data is being read from subclasses of this interface. Has to be reopenable.
+ *
  * @author Martin Braun
  */
 public interface IAudio extends AutoCloseable {
@@ -42,7 +42,7 @@ public interface IAudio extends AutoCloseable {
 	 * read an integral number of frames. If pLength does not specify an
 	 * integral number of frames, a maximum of len - (pLength % frameSize) bytes
 	 * will be read.
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if not opened yet
 	 */

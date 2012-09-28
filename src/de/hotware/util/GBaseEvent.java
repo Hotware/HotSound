@@ -22,10 +22,10 @@ package de.hotware.util;
 
 /**
  * class for easier Event creation. no need for the source part of Event objects
- * 
+ *
  * @author bender
- * 
- * @param <T>
+ *
+ * @param <T> Type of the Class that caused the event
  */
 public abstract class GBaseEvent<T> {
 
