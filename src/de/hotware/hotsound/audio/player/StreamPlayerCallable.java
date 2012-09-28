@@ -52,7 +52,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 	protected boolean mPrematureStop;
 	protected boolean mMultithreaded;
 	protected Lock mLock;
-	protected AtomicBoolean mPause;
+	protected boolean mPause;
 	protected boolean mStop;
 	protected IMusicListener mMusicListener;
 	protected IAudio mAudio;
@@ -83,7 +83,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 		}
 		this.mAudio = pAudio;
 		this.mAudioDevice = pAudioDevice;
-		this.mPause = new AtomicBoolean(false);
+		this.mPause = false;
 		this.mStop = true;
 		this.mLock = new ReentrantLock(true);
 		this.mMusicListener = pMusicListener;
@@ -113,7 +113,6 @@ public class StreamPlayerCallable implements Callable<Void> {
 			MusicPlayerException exception = null;
 			boolean failure = false;
 			try(IAudioDevice dev = this.mAudioDevice; IAudio audio = this.mAudio;) {
-				this.mLock.lock();
 				audio.open();
 				dev.open(audio.getAudioFormat());
 				AudioFormat format = audio.getAudioFormat();
@@ -179,21 +178,22 @@ public class StreamPlayerCallable implements Callable<Void> {
 	}
 
 	public void pause() {
-		if(!this.mPause.getAndSet(true)) {
+		if(!this.mPause) {
 			this.mLock.lock();
+			this.mPause = true;
 			this.mAudioDevice.pause();
 		}
 	}
 
 	public void unpause() {
-		if(this.mPause.getAndSet(false)) {
+		if(this.mPause) {
 			this.mAudioDevice.unpause();
 			this.mLock.unlock();
 		}
 	}
 	
 	public boolean isPaused() {
-		return this.mPause.get();
+		return this.mPause;
 	}
 	
 	public boolean isStopped() {

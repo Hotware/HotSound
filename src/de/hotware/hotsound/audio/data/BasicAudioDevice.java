@@ -93,18 +93,12 @@ public class BasicAudioDevice implements IPlaybackAudioDevice {
 
 	@Override
 	public void pause() {
-		if(this.mPaused) {
-			throw new IllegalStateException("The AudioDevice is already paused");
-		}
 		this.mSourceDataLine.stop();
 		this.mPaused = true;
 	}
 
 	@Override
 	public void unpause() {
-		if(!this.mPaused) {
-			throw new IllegalStateException("The AudioDevice is not paused");
-		}
 		this.mSourceDataLine.start();
 		this.mPaused = false;
 	}
