@@ -8,7 +8,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import de.hotware.hotsound.audio.util.AudioUtil;
 
 /**
- * same as BasicSong but always converts
+ * same as BasicAudio but always converts
  * 
  * @author Martin Braun
  */

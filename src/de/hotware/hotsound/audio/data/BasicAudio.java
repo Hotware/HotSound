@@ -29,6 +29,11 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.hotware.hotsound.audio.util.AudioUtil;
 
+/**
+ * converts to a playable format
+ * 
+ * @author Martin Braun
+ */
 public class BasicAudio implements ISeekableAudio {
 
 	protected InputStream mInputStream;
@@ -70,7 +75,8 @@ public class BasicAudio implements ISeekableAudio {
 		try {
 			return this.mAudioInputStream.read(pData, pStart, pBufferSize);
 		} catch(IOException e) {
-			throw new AudioException("IOException while reading from the AudioInputStream", e);
+			throw new AudioException("IOException while reading from the AudioInputStream",
+					e);
 		}
 	}
 
@@ -80,7 +86,8 @@ public class BasicAudio implements ISeekableAudio {
 			this.mClosed = true;
 			this.mAudioInputStream.close();
 		} catch(IOException e) {
-			throw new AudioException("IOException while closing the AudioInputStream", e);
+			throw new AudioException("IOException while closing the AudioInputStream",
+					e);
 		}
 	}
 
