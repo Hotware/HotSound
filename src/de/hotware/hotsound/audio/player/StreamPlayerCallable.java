@@ -47,6 +47,7 @@ import de.hotware.hotsound.audio.player.IMusicListener.MusicEvent;
  */
 public class StreamPlayerCallable implements Callable<Void> {
 
+	protected IMusicPlayer mMusicPlayer;
 	protected boolean mStartLock;
 	protected boolean mPrematureStop;
 	protected boolean mMultithreaded;
@@ -65,8 +66,9 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 */
 	public StreamPlayerCallable(IAudio pAudio,
 			IAudioDevice pAudioDevice,
-			boolean pMultiThreaded) {
-		this(pAudio, pAudioDevice, null, pMultiThreaded);
+			boolean pMultiThreaded,
+			IMusicPlayer pMusicPlayer) {
+		this(pAudio, pAudioDevice, pMultiThreaded, pMusicPlayer, null);
 	}
 
 	/**
@@ -77,11 +79,13 @@ public class StreamPlayerCallable implements Callable<Void> {
 	 */
 	public StreamPlayerCallable(IAudio pAudio,
 			IAudioDevice pAudioDevice,
-			IMusicListener pMusicListener,
-			boolean pMultiThreaded) {
+			boolean pMultiThreaded,
+			IMusicPlayer pMusicPlayer,
+			IMusicListener pMusicListener) {
 		if(pAudioDevice == null || pAudio == null) {
 			throw new IllegalArgumentException("the audiodevice and the audio may not be null");
 		}
+		this.mMusicPlayer = pMusicPlayer;
 		this.mAudio = pAudio;
 		this.mAudioDevice = pAudioDevice;
 		this.mPause = false;
@@ -149,7 +153,7 @@ public class StreamPlayerCallable implements Callable<Void> {
 					this.mAudioDevice.close();
 				} finally {
 					if(this.mMusicListener != null) {
-						this.mMusicListener.onEnd(new MusicEvent(this,
+						this.mMusicListener.onEnd(new MusicEvent(this.mMusicPlayer,
 								failure ? MusicEvent.Type.FAILURE
 										: MusicEvent.Type.SUCCESS, exception));
 					}

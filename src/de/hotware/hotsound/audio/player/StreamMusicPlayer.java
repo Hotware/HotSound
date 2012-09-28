@@ -30,6 +30,7 @@ package de.hotware.hotsound.audio.player;
  */
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -39,12 +40,15 @@ import de.hotware.hotsound.audio.data.BasicAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice;
 
 /**
+ * always runs the playback in its own thread but you can pass an
+ * ExecutorService instead if you want to
  * 
  * @author Martin Braun
  */
 public class StreamMusicPlayer implements IMusicPlayer {
 
 	protected ExecutorService mExecutorService;
+	protected boolean mCreatedOwnThread;
 	protected StreamPlayerCallable mStreamPlayerCallable;
 	protected IMusicListener mMusicListener;
 	/**
@@ -70,7 +74,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 * {@link #PlayerThreadListener} and in multithreadmode if needed
 	 */
 	public StreamMusicPlayer(IMusicListener pMusicListener) {
-		this(pMusicListener, null);
+		this(pMusicListener, Executors.newSingleThreadExecutor());
+		this.mCreatedOwnThread = true;
 	}
 
 	/**
@@ -136,8 +141,6 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			if(this.mExecutorService != null) {
 				//run on the thread specified
 				this.mExecutorService.submit(this.mStreamPlayerCallable);
-			} else {
-				this.mStreamPlayerCallable.call();
 			}
 		} finally {
 			this.mLock.unlock();
@@ -218,13 +221,16 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			this.mLock.unlock();
 		}
 	}
-	
+
 	@Override
 	public void close() throws MusicPlayerException {
 		this.mLock.lock();
 		try {
 			if(this.mStreamPlayerCallable != null) {
 				this.mStreamPlayerCallable.stop();
+			}
+			if(this.mCreatedOwnThread) {
+				this.mExecutorService.shutdown();
 			}
 		} finally {
 			this.mLock.unlock();
@@ -303,8 +309,9 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		}
 		this.mStreamPlayerCallable = new StreamPlayerCallable(pSong.getAudio(),
 				pAudioDevice,
-				this.mMusicListener,
-				this.mExecutorService != null);
+				this.mExecutorService != null,
+				this,
+				this.mMusicListener);
 	}
 
 }

@@ -27,16 +27,16 @@ public interface IMusicListener {
 	public void onEnd(IMusicListener.MusicEvent pEvent);
 
 	public static class MusicEvent extends
-			GBaseEvent<StreamPlayerCallable> {
+			GBaseEvent<IMusicPlayer> {
 
 		private Type mType;
 		private Throwable mThrowable;
 
-		public MusicEvent(StreamPlayerCallable pSource, Type pType) {
+		public MusicEvent(IMusicPlayer pSource, Type pType) {
 			this(pSource, pType, null);
 		}
 
-		public MusicEvent(StreamPlayerCallable pSource,
+		public MusicEvent(IMusicPlayer pSource,
 				Type pType,
 				Throwable pException) {
 			super(pSource);
