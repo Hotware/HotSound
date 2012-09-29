@@ -283,7 +283,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	@Override
 	public void close() throws MusicPlayerException {
 		this.mLock.lock();
-		try {
+		//auto close the current audio
+		try(IAudio audio = this.mCurrentAudio) {
 			if(this.mStreamPlayerRunnable != null) {
 				this.mStreamPlayerRunnable.stop();
 			}
