@@ -49,7 +49,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 
 	protected ExecutorService mExecutorService;
 	protected boolean mCreatedOwnThread;
-	protected StreamPlayerCallable mStreamPlayerCallable;
+	protected StreamPlayerRunnable mStreamPlayerRunnable;
 	protected IMusicListener mMusicListener;
 	/**
 	 * the current song after insertion
@@ -131,16 +131,16 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public void start() throws MusicPlayerException {
 		this.mLock.lock();
 		try {
-			if(this.mStreamPlayerCallable == null) {
+			if(this.mStreamPlayerRunnable == null) {
 				throw new IllegalStateException(this +
 						" has not been initialized yet!");
 			}
-			if(!this.mStreamPlayerCallable.isStopped()) {
+			if(!this.mStreamPlayerRunnable.isStopped()) {
 				throw new IllegalStateException("Player is already playing");
 			}
 			if(this.mExecutorService != null) {
 				//run on the thread specified - The Callable really should be a Runnable.
-				this.mExecutorService.submit(this.mStreamPlayerCallable);
+				this.mExecutorService.submit(this.mStreamPlayerRunnable);
 			}
 		} finally {
 			this.mLock.unlock();
@@ -156,11 +156,11 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public void pause() {
 		this.mLock.lock();
 		try {
-			if(this.mStreamPlayerCallable == null) {
+			if(this.mStreamPlayerRunnable == null) {
 				throw new IllegalStateException(this +
 						" has not been initialized yet!");
 			}
-			this.mStreamPlayerCallable.pause();
+			this.mStreamPlayerRunnable.pause();
 		} finally {
 			this.mLock.unlock();
 		}
@@ -174,11 +174,11 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public void stop() throws MusicPlayerException {
 		this.mLock.lock();
 		try {
-			if(this.mStreamPlayerCallable == null) {
+			if(this.mStreamPlayerRunnable == null) {
 				throw new IllegalStateException(this +
 						" has not been initialized yet!");
 			}
-			this.mStreamPlayerCallable.stop();
+			this.mStreamPlayerRunnable.stop();
 		} finally {
 			this.mLock.unlock();
 		}
@@ -188,11 +188,11 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public boolean isStopped() {
 		this.mLock.lock();
 		try {
-			if(this.mStreamPlayerCallable == null) {
+			if(this.mStreamPlayerRunnable == null) {
 				throw new IllegalStateException(this +
 						" has not been initialized yet!");
 			}
-			return this.mStreamPlayerCallable.isStopped();
+			return this.mStreamPlayerRunnable.isStopped();
 		} finally {
 			this.mLock.unlock();
 		}
@@ -202,11 +202,11 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public void unpause() {
 		this.mLock.lock();
 		try {
-			if(this.mStreamPlayerCallable == null) {
+			if(this.mStreamPlayerRunnable == null) {
 				throw new IllegalStateException(this +
 						" has not been initialized yet!");
 			}
-			this.mStreamPlayerCallable.unpause();
+			this.mStreamPlayerRunnable.unpause();
 		} finally {
 			this.mLock.unlock();
 		}
@@ -216,7 +216,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public boolean isPaused() {
 		this.mLock.lock();
 		try {
-			return this.mStreamPlayerCallable.isPaused();
+			return this.mStreamPlayerRunnable.isPaused();
 		} finally {
 			this.mLock.unlock();
 		}
@@ -226,8 +226,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public void close() throws MusicPlayerException {
 		this.mLock.lock();
 		try {
-			if(this.mStreamPlayerCallable != null) {
-				this.mStreamPlayerCallable.stop();
+			if(this.mStreamPlayerRunnable != null) {
+				this.mStreamPlayerRunnable.stop();
 			}
 			if(this.mCreatedOwnThread) {
 				this.mExecutorService.shutdown();
@@ -241,7 +241,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public AudioFormat getAudioFormat() {
 		this.mLock.lock();
 		try {
-			return this.mStreamPlayerCallable.getAudioFormat();
+			return this.mStreamPlayerRunnable.getAudioFormat();
 		} finally {
 			this.mLock.unlock();
 		}
@@ -251,7 +251,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public IAudioDevice getAudioDevice() {
 		this.mLock.lock();
 		try {
-			return this.mStreamPlayerCallable.getAudioDevice();
+			return this.mStreamPlayerRunnable.getAudioDevice();
 		} finally {
 			this.mLock.unlock();
 		}
@@ -303,11 +303,11 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	private void insertInternal(ISong pSong, IAudioDevice pAudioDevice) throws MusicPlayerException {
-		if(this.mStreamPlayerCallable != null &&
-				!this.mStreamPlayerCallable.isStopped()) {
+		if(this.mStreamPlayerRunnable != null &&
+				!this.mStreamPlayerRunnable.isStopped()) {
 			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
 		}
-		this.mStreamPlayerCallable = new StreamPlayerCallable(pSong.getAudio(),
+		this.mStreamPlayerRunnable = new StreamPlayerRunnable(pSong.getAudio(),
 				pAudioDevice,
 				this.mExecutorService != null,
 				this,

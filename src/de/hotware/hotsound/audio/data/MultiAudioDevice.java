@@ -18,9 +18,10 @@ public class MultiAudioDevice implements IAudioDevice {
 	@Override
 	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException {
 		boolean failed = false;
+		int ret = 0;
 		for(IAudioDevice dev : this.mDevices) {
 			try {
-				dev.write(pData, pStart, pLength);
+				ret += dev.write(pData, pStart, pLength);
 			} catch(AudioDeviceException e) {
 				failed = true;
 			}
@@ -28,7 +29,7 @@ public class MultiAudioDevice implements IAudioDevice {
 		if(failed) {
 			throw new AudioDeviceException("couldn't write to all of the underlying AudioDevices");
 		}
-		return pLength;
+		return ret;
 	}
 
 	@Override

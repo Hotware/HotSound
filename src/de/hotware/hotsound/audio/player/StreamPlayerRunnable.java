@@ -35,23 +35,23 @@ import de.hotware.hotsound.audio.player.IMusicListener.MusicExceptionEvent;
 
 /**
  * To be used with ExecutionServices.
- *
+ * 
  * all playback functions are thread-safe. Player inspired by Matthias
  * Pfisterer's examples on JavaSound (jsresources.org). Because of the fact,
  * that this Software is meant to be Open-Source and I don't want to get anybody
  * angry about me using parts of his intelligence without mentioning it, I
  * hereby mention him as inspiration, because his code helped me to write this
  * class.
- *
+ * 
  * TODO: extra listener for callable that gets redirected in StreamMusicPlayer
- *
+ * 
  * TODO: Why is this a Callable<Void> instead of a simple Runnable? Why?
- *
+ * 
  * TODO: extra listener for callable that gets redirected in StreamMusicPlayer
  * 
  * @author Martin Braun
  */
-class StreamPlayerCallable implements Runnable {
+class StreamPlayerRunnable implements Runnable {
 
 	protected IMusicPlayer mMusicPlayer;
 	protected boolean mStartLock;
@@ -65,37 +65,41 @@ class StreamPlayerCallable implements Runnable {
 	protected IAudioDevice mAudioDevice;
 
 	/**
-	 * initializes the StreamPlayerRunnable without a
-	 * listener and the default Mixer
+	 * initializes the StreamPlayerRunnable without a listener and the default
+	 * Mixer
 	 * 
 	 * @throws AudioDeviceException
 	 */
-	public StreamPlayerCallable(IAudio pAudio,
+	public StreamPlayerRunnable(IAudio pAudio,
 			IAudioDevice pAudioDevice,
 			boolean pMultiThreaded,
 			IMusicPlayer pMusicPlayer) {
-		this(pAudio, pAudioDevice, pMultiThreaded, pMusicPlayer, new IMusicListener() {
+		this(pAudio,
+				pAudioDevice,
+				pMultiThreaded,
+				pMusicPlayer,
+				new IMusicListener() {
 
-			@Override
-			public void onEnd(MusicEndEvent pEvent) {
-				
-			}
+					@Override
+					public void onEnd(MusicEndEvent pEvent) {
 
-			@Override
-			public void onExeption(MusicExceptionEvent pEvent) {
-				pEvent.getException().printStackTrace();
-			}
-			
-		});
+					}
+
+					@Override
+					public void onExeption(MusicExceptionEvent pEvent) {
+						pEvent.getException().printStackTrace();
+					}
+
+				});
 	}
 
 	/**
-	 * initializes the StreamPlayerRunnable with the given
-	 * listenerand the given Mixer
-	 *
+	 * initializes the StreamPlayerRunnable with the given listenerand the given
+	 * Mixer
+	 * 
 	 * @throws AudioDeviceException
 	 */
-	public StreamPlayerCallable(IAudio pAudio,
+	public StreamPlayerRunnable(IAudio pAudio,
 			IAudioDevice pAudioDevice,
 			boolean pMultiThreaded,
 			IMusicPlayer pMusicPlayer,
@@ -121,12 +125,9 @@ class StreamPlayerCallable implements Runnable {
 	 */
 	@Override
 	public void run() {
-		try {
-			//wait for possible stop calls to be active
-			this.mLock.lock();
-		} finally {
-			this.mLock.unlock();
-		}
+		//wait for possible stop calls to be active
+		this.mLock.lock();
+		this.mLock.unlock();
 		if(!this.mPrematureStop) {
 			this.mStop = false;
 			this.mStartLock = false;
@@ -159,7 +160,9 @@ class StreamPlayerCallable implements Runnable {
 				failure = true;
 				exception = new MusicPlayerException("An Exception occured during Playback",
 						e);
-				this.mMusicListener.onExeption(new MusicExceptionEvent(this.mMusicPlayer, exception));
+				this.mMusicListener
+						.onExeption(new MusicExceptionEvent(this.mMusicPlayer,
+								exception));
 			} finally {
 				this.mStop = true;
 				try {
@@ -170,12 +173,15 @@ class StreamPlayerCallable implements Runnable {
 						this.mAudioDevice.close();
 					} catch(AudioDeviceException e) {
 						failure = true;
-						this.mMusicListener.onExeption(new MusicExceptionEvent(this.mMusicPlayer, e));
+						this.mMusicListener
+								.onExeption(new MusicExceptionEvent(this.mMusicPlayer,
+										e));
 					}
 				} finally {
-						this.mMusicListener.onEnd(new MusicEndEvent(this.mMusicPlayer,
-								failure ? MusicEndEvent.Type.FAILURE
-										: MusicEndEvent.Type.SUCCESS));
+					this.mMusicListener
+							.onEnd(new MusicEndEvent(this.mMusicPlayer,
+									failure ? MusicEndEvent.Type.FAILURE
+											: MusicEndEvent.Type.SUCCESS));
 				}
 			}
 		}
@@ -222,12 +228,11 @@ class StreamPlayerCallable implements Runnable {
 
 	/**
 	 * blocks until start has been called
-	 *
+	 * 
 	 * @throws MusicPlayerException
 	 */
 	public void stop() throws MusicPlayerException {
 		boolean unlock = false;
-		//only lock if in multithreaded mode.
 		try {
 			if(this.mStartLock && this.mMultithreaded) {
 				this.mLock.lock();
