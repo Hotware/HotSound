@@ -34,13 +34,13 @@ import de.hotware.hotsound.audio.util.AudioUtil;
  * 
  * @author Martin Braun
  */
-public class BasicAudio implements ISeekableAudio {
+public class BasicPlaybackAudio implements ISeekableAudio {
 
 	protected InputStream mInputStream;
 	protected AudioInputStream mAudioInputStream;
 	protected boolean mClosed;
 
-	public BasicAudio(InputStream pInputStream) {
+	public BasicPlaybackAudio(InputStream pInputStream) {
 		this.mInputStream = pInputStream;
 		this.mClosed = true;
 	}
@@ -61,9 +61,6 @@ public class BasicAudio implements ISeekableAudio {
 
 	@Override
 	public AudioFormat getAudioFormat() {
-		if(this.mClosed) {
-			throw new IllegalStateException("not opened yet");
-		}
 		return this.mAudioInputStream.getFormat();
 	}
 

@@ -31,7 +31,7 @@ import javax.sound.sampled.SourceDataLine;
 /**
  * Default audio device for playing back audio
  */
-public class BasicAudioDevice implements IPlaybackAudioDevice {
+public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
 
 	protected Mixer mMixer;
 	protected SourceDataLine mSourceDataLine;
@@ -39,11 +39,11 @@ public class BasicAudioDevice implements IPlaybackAudioDevice {
 	protected boolean mPaused;
 	protected boolean mClosed;
 
-	public BasicAudioDevice() {
+	public BasicPlaybackAudioDevice() {
 		this(null);
 	}
 
-	protected BasicAudioDevice(Mixer pMixer) {
+	protected BasicPlaybackAudioDevice(Mixer pMixer) {
 		this.mMixer = pMixer;
 		this.mRecommendedBufferSize = AudioSystem.NOT_SPECIFIED;
 		this.mClosed = true;

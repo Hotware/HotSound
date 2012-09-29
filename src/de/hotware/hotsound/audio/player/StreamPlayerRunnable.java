@@ -110,11 +110,11 @@ class StreamPlayerRunnable implements Runnable {
 				IAudio audio = this.mAudio;
 				IAudioDevice dev = this.mAudioDevice;
 				AudioFormat format = audio.getAudioFormat();
-				int bufferSize = (int) format.getSampleRate() *
-						format.getFrameSize();
-				byte[] abData = new byte[bufferSize];
-				while(nBytesRead != -1 && !this.mStop) {
-					if(!this.mAudioDevice.isClosed()) {
+				if(format != null) {
+					int bufferSize = (int) format.getSampleRate() *
+							format.getFrameSize();
+					byte[] abData = new byte[bufferSize];
+					while(nBytesRead != -1 && !this.mStop) {
 						this.mLock.lock();
 						try {
 							nBytesRead = audio.read(abData, 0, bufferSize);
@@ -125,6 +125,8 @@ class StreamPlayerRunnable implements Runnable {
 							this.mLock.unlock();
 						}
 					}
+				} else {
+					throw new IllegalStateException("The AudioFormat was null");
 				}
 			} catch(Exception e) {
 				//catch all the exceptions so the user can handle them even if he just can via the listener

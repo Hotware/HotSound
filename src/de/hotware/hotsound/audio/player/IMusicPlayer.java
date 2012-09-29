@@ -27,7 +27,7 @@ import de.hotware.hotsound.audio.data.IAudioDevice;
 /**
  * Music Player interface. provides basic player methods and getters for a
  * player.
- *
+ * 
  * @author Martin Braun
  */
 public interface IMusicPlayer extends AutoCloseable {
@@ -36,8 +36,12 @@ public interface IMusicPlayer extends AutoCloseable {
 	 * Inserts a Song to the the Player. Possible difference between
 	 * implementations: some could allow multiple songs to be added, but some
 	 * could only hold one song at a time
-	 *
-	 * @throws MusicPlayerException if the insertion fails
+	 * 
+	 * uses a default AudioDevice if there is not already one in usage (not
+	 * closed)
+	 * 
+	 * @throws MusicPlayerException
+	 *             if the insertion fails
 	 */
 	public void insert(ISong pSong) throws MusicPlayerException;
 
@@ -77,19 +81,22 @@ public interface IMusicPlayer extends AutoCloseable {
 	/**
 	 * stops the playback but doesn't reset the Player. you can restart it via
 	 * restartPlayback afterwards
-	 *
-	 * may lock the call if in multithreaded mode and the player is currently starting
-	 *
-	 * @throws MusicPlayerException if stopping fails
-	 *
+	 * 
+	 * may lock the call if in multithreaded mode and the player is currently
+	 * starting
+	 * 
+	 * @throws MusicPlayerException
+	 *             if stopping fails
+	 * 
 	 * @throws IllegalStateException
 	 *             if the player hasn't been initialized yet (insert not called)
 	 */
 	public void stop() throws MusicPlayerException;
-	
+
 	/**
 	 * @inheritDoc
-	 * @throws MusicPlayerException if close fails
+	 * @throws MusicPlayerException
+	 *             if close fails
 	 */
 	@Override
 	public void close() throws MusicPlayerException;

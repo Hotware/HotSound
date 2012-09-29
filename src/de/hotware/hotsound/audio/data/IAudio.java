@@ -32,7 +32,8 @@ import de.hotware.hotsound.audio.player.MusicPlayerException;
 public interface IAudio extends AutoCloseable {
 
 	/**
-	 * @return the AudioFormat of the IAudio
+	 * @return the AudioFormat of the IAudio.
+	 * doesn't throw exceptions!
 	 */
 	public AudioFormat getAudioFormat();
 

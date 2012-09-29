@@ -10,7 +10,7 @@ import de.hotware.hotsound.audio.data.IAudio;
 import de.hotware.hotsound.audio.data.WaveAudio;
 
 
-public class SavingSong extends BasicSong {
+public class SavingSong extends BasicPlaybackSong {
 	
 	public SavingSong(URL pURL) {
 		super(pURL);

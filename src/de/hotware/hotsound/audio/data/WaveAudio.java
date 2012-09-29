@@ -12,7 +12,7 @@ import de.hotware.hotsound.audio.util.AudioUtil;
  * 
  * @author Martin Braun
  */
-public class WaveAudio extends BasicAudio {
+public class WaveAudio extends BasicPlaybackAudio {
 
 	public WaveAudio(InputStream pInputStream) {
 		super(pInputStream);

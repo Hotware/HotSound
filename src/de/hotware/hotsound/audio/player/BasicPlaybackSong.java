@@ -28,7 +28,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
-import de.hotware.hotsound.audio.data.BasicAudio;
+import de.hotware.hotsound.audio.data.BasicPlaybackAudio;
 import de.hotware.hotsound.audio.data.IAudio;
 
 /**
@@ -37,19 +37,19 @@ import de.hotware.hotsound.audio.data.IAudio;
  * 
  * @author Martin Braun
  */
-public class BasicSong implements ISong {
+public class BasicPlaybackSong implements ISong {
 
 	protected URL mURL;
 
-	public BasicSong(URL pURL) {
+	public BasicPlaybackSong(URL pURL) {
 		this.mURL = pURL;
 	}
 
-	public BasicSong(URI pURI) throws MalformedURLException {
+	public BasicPlaybackSong(URI pURI) throws MalformedURLException {
 		this(pURI.toURL());
 	}
 
-	public BasicSong(File pFile) throws MalformedURLException {
+	public BasicPlaybackSong(File pFile) throws MalformedURLException {
 		if(!pFile.exists()) {
 			throw new IllegalArgumentException("File does not exist");
 		}
@@ -64,7 +64,7 @@ public class BasicSong implements ISong {
 	@Override
 	public IAudio getAudio() throws MusicPlayerException {
 		try {
-			return new BasicAudio(this.getInputStream());
+			return new BasicPlaybackAudio(this.getInputStream());
 		} catch(IOException e) {
 			throw new MusicPlayerException("IOException occured while getting the IAudio from this ISong", e);
 		}

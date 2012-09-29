@@ -36,7 +36,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sound.sampled.AudioFormat;
 
-import de.hotware.hotsound.audio.data.BasicAudioDevice;
+import de.hotware.hotsound.audio.data.BasicPlaybackAudioDevice;
 import de.hotware.hotsound.audio.data.IAudio;
 import de.hotware.hotsound.audio.data.IAudioDevice;
 import de.hotware.hotsound.audio.data.ISeekableAudio;
@@ -67,15 +67,18 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	private Lock mLock;
 
 	/**
-	 * Default Constructor. initializes without a Listener and in single
-	 * threaded mode
+	 * Default Constructor. initializes without an external Listener
 	 */
 	public StreamMusicPlayer() {
 		this(new IMusicListener() {
 
 			@Override
 			public void onEnd(MusicEndEvent pEvent) {
-
+				try {
+					pEvent.getSource().close();
+				} catch(MusicPlayerException e) {
+					e.printStackTrace();
+				}
 			}
 
 			@Override
@@ -87,17 +90,25 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	/**
-	 * Default Constructor. initializes with the given listener and in
-	 * multithreadmode if needed
+	 * Default Constructor. initializes with the given listener if a
+	 * musiclistener is passed here, make sure to shutdown the StreamMusicPlayer
+	 * correctly or otherwise bugs might occur
 	 */
 	public StreamMusicPlayer(IMusicListener pMusicListener) {
 		this(pMusicListener, Executors.newSingleThreadExecutor());
 		this.mCreatedOwnThread = true;
 	}
+	
+	
+	public StreamMusicPlayer(ExecutorService pExecutorService) {
+		this();
+		this.mExecutorService = pExecutorService;
+	}
 
 	/**
-	 * uses the given ExecutorService to run its tasks. if null is specified it
-	 * uses the current thread (singlethreaded mode)
+	 * uses the given ExecutorService to run the tasks. if a musiclistener is
+	 * passed here, make sure to shutdown the StreamMusicPlayer correctly or
+	 * otherwise bugs might occur
 	 */
 	public StreamMusicPlayer(IMusicListener pMusicListener,
 			ExecutorService pExecutorService) {
@@ -125,6 +136,10 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this.mCurrentAudioDevice = null;
 	}
 
+	/**
+	 * @inheritDoc if a musiclistener is passed here, make sure to shutdown the
+	 *             StreamMusicPlayer correctly or otherwise bugs might occur
+	 */
 	@Override
 	public void setMusicListener(IMusicListener pMusicListener) {
 		this.mMusicListener = pMusicListener;
@@ -132,12 +147,22 @@ public class StreamMusicPlayer implements IMusicPlayer {
 
 	/**
 	 * @throws MusicPlayerException
-	 * @inheritDoc uses a BasicAudioDevice as AudioDevice
+	 * @inheritDoc uses a BasicPlaybackAudioDevice as AudioDevice if there is
+	 *             not already one in usage (not closed)
 	 */
 	@Override
 	public void insert(ISong pSong) throws MusicPlayerException {
-		this.mCreatedOwnAudioDevice = true;
-		this.insert(pSong, new BasicAudioDevice());
+		this.mLock.lock();
+		try {
+			IAudioDevice dev = this.mCurrentAudioDevice;
+			if(dev == null || dev.isClosed()) {
+				this.mCreatedOwnAudioDevice = true;
+				dev = new BasicPlaybackAudioDevice();
+			}
+			this.insert(pSong, dev);
+		} finally {
+			this.mLock.unlock();
+		}
 	}
 
 	/**
@@ -345,11 +370,13 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		}
 		if(this.mCurrentSong != pSong) {
 			//the song has changed, update everything and close the old audio
-			this.mCurrentAudio.close();
+			if(this.mCurrentAudio != null) {
+				this.mCurrentAudio.close();
+			}
 			this.mCurrentSong = pSong;
 			this.mCurrentAudio = pSong.getAudio();
 			this.mCurrentAudio.open();
-		} else {
+		} else if(this.mCurrentSong != null && this.mCurrentAudio != null) {
 			if(this.mCurrentSong instanceof ISeekableAudio &&
 					!this.mCurrentAudio.isClosed()) {
 				//TODO: seek implementation!
@@ -357,16 +384,20 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			} else {
 				this.mCurrentAudio.close();
 			}
+			this.mCurrentAudio = pSong.getAudio();
+			this.mCurrentAudio.open();
 		}
-		if(this.mCreatedOwnAudioDevice &&
+		if(this.mCreatedOwnAudioDevice && this.mCurrentAudioDevice != null &&
 				!this.mCurrentAudioDevice.isClosed() &&
 				this.mCurrentAudioDevice != pAudioDevice) {
 			this.mCurrentAudioDevice.close();
-			this.mCurrentAudioDevice = pAudioDevice;
+		}
+		this.mCurrentAudioDevice = pAudioDevice;
+		if(this.mCurrentAudioDevice.isClosed()) {
 			this.mCurrentAudioDevice.open(this.mCurrentAudio.getAudioFormat());
 		}
-		this.mStreamPlayerRunnable = new StreamPlayerRunnable(pSong.getAudio(),
-				pAudioDevice,
+		this.mStreamPlayerRunnable = new StreamPlayerRunnable(this.mCurrentAudio,
+				this.mCurrentAudioDevice,
 				this.mExecutorService != null,
 				this,
 				this.mPlayerRunnableListener);
