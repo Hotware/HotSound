@@ -36,7 +36,7 @@ import de.hotware.hotsound.audio.player.IMusicListener.MusicExceptionEvent;
 /**
  * To be used with ExecutionServices.
  * 
- * all playback functions are thread-safe. Player inspired by Matthias
+ * Player inspired by Matthias
  * Pfisterer's examples on JavaSound (jsresources.org). Because of the fact,
  * that this Software is meant to be Open-Source and I don't want to get anybody
  * angry about me using parts of his intelligence without mentioning it, I
@@ -44,8 +44,6 @@ import de.hotware.hotsound.audio.player.IMusicListener.MusicExceptionEvent;
  * class.
  * 
  * TODO: extra listener for callable that gets redirected in StreamMusicPlayer
- * 
- * TODO: Why is this a Callable<Void> instead of a simple Runnable? Why?
  * 
  * TODO: extra listener for callable that gets redirected in StreamMusicPlayer
  * 
