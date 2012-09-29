@@ -47,7 +47,7 @@ public interface IAudio extends AutoCloseable {
 	 * @throws IllegalStateException
 	 *             if not opened yet
 	 */
-	public int read(byte[] pData, int pStart, int pBufferSize) throws AudioException;
+	public int read(byte[] pData, int pStart, int pLength) throws AudioException;
 
 	/**
 	 * @throws IllegalStateException

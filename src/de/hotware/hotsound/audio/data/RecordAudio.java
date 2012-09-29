@@ -23,6 +23,7 @@ package de.hotware.hotsound.audio.data;
 import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
@@ -35,6 +36,7 @@ public class RecordAudio implements IAudio {
 	protected Mixer mMixer;
 	protected AudioFormat mAudioFormat;
 	protected TargetDataLine mTargetDataLine;
+	protected int mBufferSize;
 	protected boolean mClosed;
 
 	public RecordAudio(Mixer pMixer) {
@@ -42,12 +44,22 @@ public class RecordAudio implements IAudio {
 	}
 
 	public RecordAudio(Mixer pMixer, AudioFormat pAudioFormat) {
+		this(pMixer, pAudioFormat, AudioSystem.NOT_SPECIFIED);
+	}
+
+	/**
+	 * @param pBufferSize
+	 *            the buffer size you want to use. this is just a hint. it may
+	 *            not be used
+	 */
+	public RecordAudio(Mixer pMixer, AudioFormat pAudioFormat, int pBufferSize) {
 		if(pMixer == null) {
 			throw new IllegalArgumentException("pMixer may not be null");
 		}
 		this.mMixer = pMixer;
 		this.mAudioFormat = pAudioFormat;
 		this.mClosed = true;
+		this.mBufferSize = pBufferSize;
 	}
 
 	@Override
@@ -62,12 +74,10 @@ public class RecordAudio implements IAudio {
 				this.mMixer.open();
 			}
 			this.mTargetDataLine = (TargetDataLine) this.mMixer.getLine(info);
-			if(this.mAudioFormat != null) {
-				this.mTargetDataLine.open(this.mAudioFormat);
-			} else {
+			if(this.mAudioFormat == null) {
 				this.mAudioFormat = this.mTargetDataLine.getFormat();
-				this.mTargetDataLine.open();
 			}
+			this.mTargetDataLine.open(this.mAudioFormat, this.mBufferSize);
 			this.mTargetDataLine.start();
 		} catch(LineUnavailableException e) {
 			throw new AudioException("Error during opening the TargetDataLine");

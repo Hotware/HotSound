@@ -21,6 +21,7 @@
 package de.hotware.hotsound.audio.player;
 
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
 
 import de.hotware.hotsound.audio.data.IAudio;
@@ -30,22 +31,31 @@ public class RecordSong implements ISong {
 
 	protected AudioFormat mAudioFormat;
 	protected Mixer mMixer;
+	protected int mBufferSize;
 
 	public RecordSong(Mixer pMixer) {
 		this(pMixer, null);
 	}
 
 	public RecordSong(Mixer pMixer, AudioFormat pAudioFormat) {
+		this(pMixer, pAudioFormat, AudioSystem.NOT_SPECIFIED);
+	}
+
+	/**
+	 * @param pBufferSize (hint)
+	 */
+	public RecordSong(Mixer pMixer, AudioFormat pAudioFormat, int pBufferSize) {
 		if(pMixer == null) {
 			throw new IllegalArgumentException("pMixer may not be null");
 		}
 		this.mMixer = pMixer;
 		this.mAudioFormat = pAudioFormat;
+		this.mBufferSize = pBufferSize;
 	}
 
 	@Override
 	public IAudio getAudio() throws MusicPlayerException {
-		return new RecordAudio(this.mMixer, this.mAudioFormat);
+		return new RecordAudio(this.mMixer, this.mAudioFormat, this.mBufferSize);
 	}
 
 }

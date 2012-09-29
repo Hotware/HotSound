@@ -65,12 +65,12 @@ public class BasicPlaybackAudio implements ISeekableAudio {
 	}
 
 	@Override
-	public int read(byte[] pData, int pStart, int pBufferSize) throws AudioException {
+	public int read(byte[] pData, int pStart, int pLength) throws AudioException {
 		if(this.mClosed) {
 			throw new IllegalStateException("The Audio is not opened");
 		}
 		try {
-			return this.mAudioInputStream.read(pData, pStart, pBufferSize);
+			return this.mAudioInputStream.read(pData, pStart, pLength);
 		} catch(IOException e) {
 			throw new AudioException("IOException while reading from the AudioInputStream",
 					e);

@@ -20,7 +20,6 @@
  */
 package de.hotware.hotsound.audio.data;
 
-
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -35,7 +34,7 @@ public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
 
 	protected Mixer mMixer;
 	protected SourceDataLine mSourceDataLine;
-	protected int mRecommendedBufferSize;
+	protected int mBufferSize;
 	protected boolean mPaused;
 	protected boolean mClosed;
 
@@ -43,13 +42,22 @@ public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
 		this(null);
 	}
 
-	protected BasicPlaybackAudioDevice(Mixer pMixer) {
+	public BasicPlaybackAudioDevice(Mixer pMixer) {
+		this(pMixer, AudioSystem.NOT_SPECIFIED);
+	}
+
+	/**
+	 * @param pBufferSize
+	 *            the buffer size you want to use. this is just a hint. it may
+	 *            not be used
+	 */
+	public BasicPlaybackAudioDevice(Mixer pMixer, int pBufferSize) {
 		this.mMixer = pMixer;
-		this.mRecommendedBufferSize = AudioSystem.NOT_SPECIFIED;
 		this.mClosed = true;
 		this.mPaused = false;
+		this.mBufferSize = pBufferSize;
 	}
-	
+
 	@Override
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
 		if(!this.mClosed) {
@@ -57,7 +65,7 @@ public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
 		}
 		DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class,
 				pAudioFormat,
-				this.mRecommendedBufferSize);
+				this.mBufferSize);
 		try {
 			if(this.mMixer == null) {
 				this.mSourceDataLine = (SourceDataLine) AudioSystem
@@ -71,7 +79,8 @@ public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
 			}
 			this.mSourceDataLine.open(pAudioFormat);
 		} catch(LineUnavailableException e) {
-			throw new AudioDeviceException("The AudioDevices' line is not available", e);
+			throw new AudioDeviceException("The AudioDevices' line is not available",
+					e);
 		}
 		this.mSourceDataLine.start();
 		this.mClosed = false;
@@ -84,7 +93,7 @@ public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
 		}
 		return this.mSourceDataLine.write(pData, pStart, pLength);
 	}
-	
+
 	@Override
 	public void setMixer(Mixer pMixer) {
 		if(!this.mClosed) {
