@@ -37,24 +37,29 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.sound.sampled.AudioFormat;
 
 import de.hotware.hotsound.audio.data.BasicAudioDevice;
+import de.hotware.hotsound.audio.data.IAudio;
 import de.hotware.hotsound.audio.data.IAudioDevice;
+import de.hotware.hotsound.audio.data.ISeekableAudio;
 
 /**
  * always runs the playback in its own thread but you can pass an
  * ExecutorService instead if you want to
- *
+ * 
  * @author Martin Braun
  */
 public class StreamMusicPlayer implements IMusicPlayer {
 
 	protected ExecutorService mExecutorService;
 	protected boolean mCreatedOwnThread;
+	protected boolean mCreatedOwnAudioDevice;
 	protected StreamPlayerRunnable mStreamPlayerRunnable;
 	protected IMusicListener mMusicListener;
+	protected IPlayerRunnableListener mPlayerRunnableListener;
 	/**
 	 * the current song after insertion
 	 */
 	protected ISong mCurrentSong;
+	protected IAudio mCurrentAudio;
 	/**
 	 * the current mixer after insertion
 	 */
@@ -62,16 +67,28 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	private Lock mLock;
 
 	/**
-	 * Default Constructor. initializes without a Listener
-	 * and in single threaded mode
+	 * Default Constructor. initializes without a Listener and in single
+	 * threaded mode
 	 */
 	public StreamMusicPlayer() {
-		this(null);
+		this(new IMusicListener() {
+
+			@Override
+			public void onEnd(MusicEndEvent pEvent) {
+
+			}
+
+			@Override
+			public void onException(MusicExceptionEvent pEvent) {
+				pEvent.getException().printStackTrace();
+			}
+
+		});
 	}
 
 	/**
-	 * Default Constructor. initializes with the given
-	 * listener and in multithreadmode if needed
+	 * Default Constructor. initializes with the given listener and in
+	 * multithreadmode if needed
 	 */
 	public StreamMusicPlayer(IMusicListener pMusicListener) {
 		this(pMusicListener, Executors.newSingleThreadExecutor());
@@ -86,6 +103,23 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			ExecutorService pExecutorService) {
 		this.mLock = new ReentrantLock();
 		this.mMusicListener = pMusicListener;
+		this.mPlayerRunnableListener = new IPlayerRunnableListener() {
+
+			@Override
+			public void onEnd(MusicEndEvent pEvent) {
+				if(StreamMusicPlayer.this.mMusicListener != null) {
+					StreamMusicPlayer.this.mMusicListener.onEnd(pEvent);
+				}
+			}
+
+			@Override
+			public void onException(MusicExceptionEvent pEvent) {
+				if(StreamMusicPlayer.this.mMusicListener != null) {
+					StreamMusicPlayer.this.mMusicListener.onException(pEvent);
+				}
+			}
+
+		};
 		this.mExecutorService = pExecutorService;
 		this.mCurrentSong = null;
 		this.mCurrentAudioDevice = null;
@@ -102,6 +136,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 */
 	@Override
 	public void insert(ISong pSong) throws MusicPlayerException {
+		this.mCreatedOwnAudioDevice = true;
 		this.insert(pSong, new BasicAudioDevice());
 	}
 
@@ -119,8 +154,6 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public void insert(ISong pSong, IAudioDevice pAudioDevice) throws MusicPlayerException {
 		this.mLock.lock();
 		try {
-			this.mCurrentSong = pSong;
-			this.mCurrentAudioDevice = pAudioDevice;
 			this.insertInternal(pSong, pAudioDevice);
 		} finally {
 			this.mLock.unlock();
@@ -232,6 +265,9 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			if(this.mCreatedOwnThread) {
 				this.mExecutorService.shutdown();
 			}
+			if(this.mCreatedOwnAudioDevice) {
+				this.mCurrentAudioDevice.close();
+			}
 		} finally {
 			this.mLock.unlock();
 		}
@@ -307,11 +343,33 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				!this.mStreamPlayerRunnable.isStopped()) {
 			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
 		}
+		if(this.mCurrentSong != pSong) {
+			//the song has changed, update everything and close the old audio
+			this.mCurrentAudio.close();
+			this.mCurrentSong = pSong;
+			this.mCurrentAudio = pSong.getAudio();
+			this.mCurrentAudio.open();
+		} else {
+			if(this.mCurrentSong instanceof ISeekableAudio &&
+					!this.mCurrentAudio.isClosed()) {
+				//TODO: seek implementation!
+				this.mCurrentAudio.close();
+			} else {
+				this.mCurrentAudio.close();
+			}
+		}
+		if(this.mCreatedOwnAudioDevice &&
+				!this.mCurrentAudioDevice.isClosed() &&
+				this.mCurrentAudioDevice != pAudioDevice) {
+			this.mCurrentAudioDevice.close();
+			this.mCurrentAudioDevice = pAudioDevice;
+			this.mCurrentAudioDevice.open(this.mCurrentAudio.getAudioFormat());
+		}
 		this.mStreamPlayerRunnable = new StreamPlayerRunnable(pSong.getAudio(),
 				pAudioDevice,
 				this.mExecutorService != null,
 				this,
-				this.mMusicListener);
+				this.mPlayerRunnableListener);
 	}
 
 }

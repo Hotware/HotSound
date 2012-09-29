@@ -101,4 +101,9 @@ public class BasicAudio implements ISeekableAudio {
 		throw new UnsupportedOperationException("not implemented yet");
 	}
 
+	@Override
+	public boolean isClosed() {
+		return this.mClosed;
+	}
+
 }

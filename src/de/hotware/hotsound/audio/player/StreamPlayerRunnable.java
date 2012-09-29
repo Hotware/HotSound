@@ -30,18 +30,15 @@ import de.hotware.hotsound.audio.data.IAudio;
 import de.hotware.hotsound.audio.data.IAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice.AudioDeviceException;
 import de.hotware.hotsound.audio.data.ISeekableAudio;
-import de.hotware.hotsound.audio.player.IMusicListener.MusicEndEvent;
-import de.hotware.hotsound.audio.player.IMusicListener.MusicExceptionEvent;
 
 /**
  * To be used with ExecutionServices. Is not thread-safe! Do not execute twice!
  * 
- * Player inspired by Matthias
- * Pfisterer's examples on JavaSound (jsresources.org). Because of the fact,
- * that this Software is meant to be Open-Source and I don't want to get anybody
- * angry about me using parts of his intelligence without mentioning it, I
- * hereby mention him as inspiration, because his code helped me to write this
- * class.
+ * Player inspired by Matthias Pfisterer's examples on JavaSound
+ * (jsresources.org). Because of the fact, that this Software is meant to be
+ * Open-Source and I don't want to get anybody angry about me using parts of his
+ * intelligence without mentioning it, I hereby mention him as inspiration,
+ * because his code helped me to write this class.
  * 
  * TODO: extra listener for callable that gets redirected in StreamMusicPlayer
  * 
@@ -59,38 +56,9 @@ class StreamPlayerRunnable implements Runnable {
 	protected Lock mLock;
 	protected boolean mPause;
 	protected boolean mStop;
-	protected IMusicListener mMusicListener;
+	protected IPlayerRunnableListener mPlayerRunnableListener;
 	protected IAudio mAudio;
 	protected IAudioDevice mAudioDevice;
-
-	/**
-	 * initializes the StreamPlayerRunnable without a listener and the default
-	 * Mixer
-	 * 
-	 * @throws AudioDeviceException
-	 */
-	public StreamPlayerRunnable(IAudio pAudio,
-			IAudioDevice pAudioDevice,
-			boolean pMultiThreaded,
-			IMusicPlayer pMusicPlayer) {
-		this(pAudio,
-				pAudioDevice,
-				pMultiThreaded,
-				pMusicPlayer,
-				new IMusicListener() {
-
-					@Override
-					public void onEnd(MusicEndEvent pEvent) {
-
-					}
-
-					@Override
-					public void onExeption(MusicExceptionEvent pEvent) {
-						pEvent.getException().printStackTrace();
-					}
-
-				});
-	}
 
 	/**
 	 * initializes the StreamPlayerRunnable with the given listenerand the given
@@ -102,7 +70,7 @@ class StreamPlayerRunnable implements Runnable {
 			IAudioDevice pAudioDevice,
 			boolean pMultiThreaded,
 			IMusicPlayer pMusicPlayer,
-			IMusicListener pMusicListener) {
+			IPlayerRunnableListener pPlayerRunnableListener) {
 		if(pAudioDevice == null || pAudio == null) {
 			throw new IllegalArgumentException("the audiodevice and the audio may not be null");
 		}
@@ -112,7 +80,7 @@ class StreamPlayerRunnable implements Runnable {
 		this.mPause = false;
 		this.mStop = true;
 		this.mLock = new ReentrantLock(true);
-		this.mMusicListener = pMusicListener;
+		this.mPlayerRunnableListener = pPlayerRunnableListener;
 		this.mStartLock = true;
 		this.mPrematureStop = false;
 		this.mAlreadyStarted = false;
@@ -126,7 +94,7 @@ class StreamPlayerRunnable implements Runnable {
 	@Override
 	public void run() {
 		if(this.mAlreadyStarted) {
-			throw new IllegalStateException("has alredy been started once!");
+			throw new IllegalStateException("has alredy been started once and not finished!");
 		}
 		//wait for possible stop calls to be active
 		this.mLock.lock();
@@ -138,10 +106,9 @@ class StreamPlayerRunnable implements Runnable {
 			int nBytesRead = 0;
 			MusicPlayerException exception = null;
 			boolean failure = false;
-			try(IAudio audio = this.mAudio;) {
+			try {
+				IAudio audio = this.mAudio;
 				IAudioDevice dev = this.mAudioDevice;
-				audio.open();
-				dev.open(audio.getAudioFormat());
 				AudioFormat format = audio.getAudioFormat();
 				int bufferSize = (int) format.getSampleRate() *
 						format.getFrameSize();
@@ -164,29 +131,15 @@ class StreamPlayerRunnable implements Runnable {
 				failure = true;
 				exception = new MusicPlayerException("An Exception occured during Playback",
 						e);
-				this.mMusicListener
-						.onExeption(new MusicExceptionEvent(this.mMusicPlayer,
+				this.mPlayerRunnableListener
+						.onException(new MusicExceptionEvent(this.mMusicPlayer,
 								exception));
 			} finally {
 				this.mStop = true;
-				try {
-					//has to be closed and therefore handled specifically because of possible savior behavior
-					//that might want to be checked by the user (he gets the response out of the Event in the
-					//Listener
-					try {
-						this.mAudioDevice.close();
-					} catch(AudioDeviceException e) {
-						failure = true;
-						this.mMusicListener
-								.onExeption(new MusicExceptionEvent(this.mMusicPlayer,
-										e));
-					}
-				} finally {
-					this.mMusicListener
-							.onEnd(new MusicEndEvent(this.mMusicPlayer,
-									failure ? MusicEndEvent.Type.FAILURE
-											: MusicEndEvent.Type.SUCCESS));
-				}
+				this.mPlayerRunnableListener
+						.onEnd(new MusicEndEvent(this.mMusicPlayer,
+								failure ? MusicEndEvent.Type.FAILURE
+										: MusicEndEvent.Type.SUCCESS));
 			}
 		}
 	}

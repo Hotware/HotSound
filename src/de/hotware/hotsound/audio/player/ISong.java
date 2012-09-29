@@ -31,6 +31,9 @@ import de.hotware.hotsound.audio.data.IAudio;
  */
 public interface ISong {
 
+	/**
+	 * @return new IAudio instance
+	 */
 	public IAudio getAudio() throws MusicPlayerException;
 
 }

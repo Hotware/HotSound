@@ -98,4 +98,9 @@ public class RecordAudio implements IAudio {
 		return AudioUtil.getCompatibleMixers(TargetDataLine.class);
 	}
 
+	@Override
+	public boolean isClosed() {
+		return this.mClosed;
+	}
+
 }

@@ -20,49 +20,10 @@
  */
 package de.hotware.hotsound.audio.player;
 
-import de.hotware.util.GBaseEvent;
-
 public interface IMusicListener {
 
-	public void onEnd(IMusicListener.MusicEndEvent pEvent);
+	public void onEnd(MusicEndEvent pEvent);
 	
-	public void onExeption(MusicExceptionEvent pEvent);
-
-	public static class MusicEndEvent extends
-			GBaseEvent<IMusicPlayer> {
-
-		private Type mType;
-
-		public MusicEndEvent(IMusicPlayer pSource,
-				Type pType) {
-			super(pSource);
-			this.mType = pType;
-		}
-
-		public Type getType() {
-			return this.mType;
-		}
-
-		public static enum Type {
-			SUCCESS,
-			FAILURE
-		}
-
-	}
-	
-	public static class MusicExceptionEvent extends GBaseEvent<IMusicPlayer> {
-		
-		private MusicPlayerException mException;
-
-		public MusicExceptionEvent(IMusicPlayer pSource, MusicPlayerException pException) {
-			super(pSource);
-			this.mException = pException;
-		}
-		
-		public MusicPlayerException getException() {
-			return this.mException;
-		}
-		
-	}
+	public void onException(MusicExceptionEvent pEvent);
 
 }
