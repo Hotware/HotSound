@@ -21,5 +21,5 @@ Give HotSound a try and learn how to use it here:
 https://github.com/s4ke/HotSoundExamples
 
 ##Contributors:
-Martin Braun <martinbraun123@aol.com>
+Martin Braun <martinbraun123@aol.com> (Lead Developer)
 David Bauske <toolazy@toofind.mail>
