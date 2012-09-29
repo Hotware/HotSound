@@ -22,4 +22,4 @@ https://github.com/s4ke/HotSoundExamples
 
 ##Contributors:
 * Martin Braun <martinbraun123@aol.com> (Lead Developer)
-* David Bauske <toolazy@toofind.mail>
+* David Bauske <toolazy@tofind.mail>
