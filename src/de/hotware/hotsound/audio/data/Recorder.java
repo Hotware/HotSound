@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
 
-public class Recorder implements AutoCloseable {
+class Recorder implements AutoCloseable {
 
 	private BufferedOutputStream mBufferedOutputStream;
 	private File mFile;
