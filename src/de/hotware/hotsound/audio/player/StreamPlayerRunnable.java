@@ -34,7 +34,7 @@ import de.hotware.hotsound.audio.player.IMusicListener.MusicEndEvent;
 import de.hotware.hotsound.audio.player.IMusicListener.MusicExceptionEvent;
 
 /**
- * To be used with ExecutionServices.
+ * To be used with ExecutionServices. Is not thread-safe! Do not execute twice!
  * 
  * Player inspired by Matthias
  * Pfisterer's examples on JavaSound (jsresources.org). Because of the fact,
@@ -52,6 +52,7 @@ import de.hotware.hotsound.audio.player.IMusicListener.MusicExceptionEvent;
 class StreamPlayerRunnable implements Runnable {
 
 	protected IMusicPlayer mMusicPlayer;
+	protected boolean mAlreadyStarted;
 	protected boolean mStartLock;
 	protected boolean mPrematureStop;
 	protected boolean mMultithreaded;
@@ -114,6 +115,7 @@ class StreamPlayerRunnable implements Runnable {
 		this.mMusicListener = pMusicListener;
 		this.mStartLock = true;
 		this.mPrematureStop = false;
+		this.mAlreadyStarted = false;
 		this.mMultithreaded = pMultiThreaded;
 	}
 
@@ -123,10 +125,14 @@ class StreamPlayerRunnable implements Runnable {
 	 */
 	@Override
 	public void run() {
+		if(this.mAlreadyStarted) {
+			throw new IllegalStateException("has alredy been started once!");
+		}
 		//wait for possible stop calls to be active
 		this.mLock.lock();
 		this.mLock.unlock();
 		if(!this.mPrematureStop) {
+			this.mAlreadyStarted = true;
 			this.mStop = false;
 			this.mStartLock = false;
 			int nBytesRead = 0;
