@@ -12,9 +12,9 @@ import de.hotware.hotsound.audio.util.AudioUtil;
  * 
  * @author Martin Braun
  */
-public class SavingAudio extends BasicAudio {
+public class WaveAudio extends BasicAudio {
 
-	public SavingAudio(InputStream pInputStream) {
+	public WaveAudio(InputStream pInputStream) {
 		super(pInputStream);
 	}
 

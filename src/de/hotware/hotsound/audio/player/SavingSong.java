@@ -7,7 +7,7 @@ import java.net.URI;
 import java.net.URL;
 
 import de.hotware.hotsound.audio.data.IAudio;
-import de.hotware.hotsound.audio.data.SavingAudio;
+import de.hotware.hotsound.audio.data.WaveAudio;
 
 
 public class SavingSong extends BasicSong {
@@ -27,7 +27,7 @@ public class SavingSong extends BasicSong {
 	@Override
 	public IAudio getAudio() throws MusicPlayerException {
 		try {
-			return new SavingAudio(this.getInputStream());
+			return new WaveAudio(this.getInputStream());
 		} catch(IOException e) {
 			throw new MusicPlayerException("IOException occured while getting the IAudio from this ISong", e);
 		}
