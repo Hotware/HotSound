@@ -23,6 +23,7 @@ package de.hotware.hotsound.audio.player;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
+import javax.sound.sampled.TargetDataLine;
 
 import de.hotware.hotsound.audio.data.IAudio;
 import de.hotware.hotsound.audio.data.RecordAudio;
@@ -30,6 +31,7 @@ import de.hotware.hotsound.audio.data.RecordAudio;
 public class RecordSong implements ISong {
 
 	protected AudioFormat mAudioFormat;
+	protected Class<? extends TargetDataLine> mTargetDataLineClass;
 	protected Mixer mMixer;
 	protected int mBufferSize;
 
@@ -45,17 +47,23 @@ public class RecordSong implements ISong {
 	 * @param pBufferSize (hint)
 	 */
 	public RecordSong(Mixer pMixer, AudioFormat pAudioFormat, int pBufferSize) {
+		this(pMixer, pAudioFormat, pBufferSize, TargetDataLine.class);
+	}
+	
+	public RecordSong(Mixer pMixer, AudioFormat pAudioFormat, int pBufferSize, Class<? extends TargetDataLine> pTargetDataLineClass) {
 		if(pMixer == null) {
 			throw new IllegalArgumentException("pMixer may not be null");
 		}
 		this.mMixer = pMixer;
 		this.mAudioFormat = pAudioFormat;
 		this.mBufferSize = pBufferSize;
+		this.mTargetDataLineClass = pTargetDataLineClass;
 	}
+
 
 	@Override
 	public IAudio getAudio() throws MusicPlayerException {
-		return new RecordAudio(this.mMixer, this.mAudioFormat, this.mBufferSize);
+		return new RecordAudio(this.mMixer, this.mAudioFormat, this.mBufferSize, this.mTargetDataLineClass);
 	}
 
 }

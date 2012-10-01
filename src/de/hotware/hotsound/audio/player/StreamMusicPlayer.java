@@ -67,7 +67,10 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	private Lock mLock;
 
 	/**
-	 * Default Constructor. initializes without an external Listener
+	 * Default Constructor. initializes without an external Listener. An
+	 * instance created with it always closes its resources. so you might want
+	 * to use a different constructor if you want to use the player several
+	 * times
 	 */
 	public StreamMusicPlayer() {
 		this(new IMusicListener() {
@@ -98,8 +101,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this(pMusicListener, Executors.newSingleThreadExecutor());
 		this.mCreatedOwnThread = true;
 	}
-	
-	
+
 	public StreamMusicPlayer(ExecutorService pExecutorService) {
 		this();
 		this.mExecutorService = pExecutorService;

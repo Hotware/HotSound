@@ -36,6 +36,7 @@ public class RecordAudio implements IAudio {
 	protected Mixer mMixer;
 	protected AudioFormat mAudioFormat;
 	protected TargetDataLine mTargetDataLine;
+	protected Class<? extends TargetDataLine> mTargetDataLineClass;
 	protected int mBufferSize;
 	protected boolean mClosed;
 
@@ -46,13 +47,18 @@ public class RecordAudio implements IAudio {
 	public RecordAudio(Mixer pMixer, AudioFormat pAudioFormat) {
 		this(pMixer, pAudioFormat, AudioSystem.NOT_SPECIFIED);
 	}
-
+	
 	/**
 	 * @param pBufferSize
 	 *            the buffer size you want to use. this is just a hint. it may
 	 *            not be used
 	 */
 	public RecordAudio(Mixer pMixer, AudioFormat pAudioFormat, int pBufferSize) {
+		this(pMixer, pAudioFormat, pBufferSize, TargetDataLine.class);
+	}
+	
+	
+	public RecordAudio(Mixer pMixer, AudioFormat pAudioFormat, int pBufferSize, Class<? extends TargetDataLine> pTargetDataLineClass) {
 		if(pMixer == null) {
 			throw new IllegalArgumentException("pMixer may not be null");
 		}
@@ -60,6 +66,7 @@ public class RecordAudio implements IAudio {
 		this.mAudioFormat = pAudioFormat;
 		this.mClosed = true;
 		this.mBufferSize = pBufferSize;
+		this.mTargetDataLineClass = pTargetDataLineClass;
 	}
 
 	@Override
@@ -67,7 +74,7 @@ public class RecordAudio implements IAudio {
 		if(!this.mClosed) {
 			throw new IllegalStateException("The Audio is already opened");
 		}
-		DataLine.Info info = new DataLine.Info(TargetDataLine.class,
+		DataLine.Info info = new DataLine.Info(this.mTargetDataLineClass,
 				this.mAudioFormat);
 		try {
 			if(!this.mMixer.isOpen()) {

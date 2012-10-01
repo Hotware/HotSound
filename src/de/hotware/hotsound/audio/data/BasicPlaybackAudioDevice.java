@@ -34,6 +34,7 @@ public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
 
 	protected Mixer mMixer;
 	protected SourceDataLine mSourceDataLine;
+	protected Class<? extends SourceDataLine> mSourceDataLineClass;
 	protected int mBufferSize;
 	protected boolean mPaused;
 	protected boolean mClosed;
@@ -52,10 +53,15 @@ public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
 	 *            not be used
 	 */
 	public BasicPlaybackAudioDevice(Mixer pMixer, int pBufferSize) {
+		this(pMixer, pBufferSize, SourceDataLine.class);
+	}
+	
+	public BasicPlaybackAudioDevice(Mixer pMixer, int pBufferSize, Class<? extends SourceDataLine> pSourceDataLineClass) {
 		this.mMixer = pMixer;
 		this.mClosed = true;
 		this.mPaused = false;
 		this.mBufferSize = pBufferSize;
+		this.mSourceDataLineClass = pSourceDataLineClass;
 	}
 
 	@Override
@@ -63,7 +69,7 @@ public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
 		if(!this.mClosed) {
 			throw new IllegalStateException("The AudioDevice is already opened");
 		}
-		DataLine.Info dataLineInfo = new DataLine.Info(SourceDataLine.class,
+		DataLine.Info dataLineInfo = new DataLine.Info(this.mSourceDataLineClass,
 				pAudioFormat,
 				this.mBufferSize);
 		try {
