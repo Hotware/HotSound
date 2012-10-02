@@ -54,7 +54,7 @@ class StreamPlayerRunnable implements Runnable {
 	protected boolean mPrematureStop;
 	protected boolean mMultithreaded;
 	protected Lock mLock;
-	protected boolean mPause;
+	protected boolean mPaused;
 	protected boolean mStop;
 	protected IPlayerRunnableListener mPlayerRunnableListener;
 	protected IAudio mAudio;
@@ -77,7 +77,7 @@ class StreamPlayerRunnable implements Runnable {
 		this.mMusicPlayer = pMusicPlayer;
 		this.mAudio = pAudio;
 		this.mAudioDevice = pAudioDevice;
-		this.mPause = false;
+		this.mPaused = false;
 		this.mStop = true;
 		this.mLock = new ReentrantLock(true);
 		this.mPlayerRunnableListener = pPlayerRunnableListener;
@@ -162,23 +162,18 @@ class StreamPlayerRunnable implements Runnable {
 		return this.mAudio instanceof ISeekableAudio;
 	}
 
-	public void pause() {
-		if(!this.mPause) {
+	public void pause(boolean pPause) {
+		if(!this.mPaused) {
 			this.mLock.lock();
-			this.mPause = true;
-			this.mAudioDevice.pause();
-		}
-	}
-
-	public void unpause() {
-		if(this.mPause) {
-			this.mAudioDevice.unpause();
+		} else {
 			this.mLock.unlock();
 		}
+		this.mPaused = pPause;
+		this.mAudioDevice.pause(pPause);
 	}
-
+	
 	public boolean isPaused() {
-		return this.mPause;
+		return this.mPaused;
 	}
 
 	public boolean isStopped() {

@@ -63,20 +63,12 @@ public interface IMusicPlayer extends AutoCloseable {
 	public void start() throws MusicPlayerException;
 
 	/**
-	 * pauses the playback
+	 * pauses/unpauses the playback
 	 * 
 	 * @throws IllegalStateException
 	 *             if the player hasn't been initialized yet (insert not called)
 	 */
-	public void pause();
-
-	/**
-	 * unpauses the playback
-	 * 
-	 * @throws IllegalStateException
-	 *             if the player hasn't been initialized yet (insert not called)
-	 */
-	public void unpause();
+	public void pause(boolean pPause);
 
 	/**
 	 * stops the playback but doesn't reset the Player. you can restart it via

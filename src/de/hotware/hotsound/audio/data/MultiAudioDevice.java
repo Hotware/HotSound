@@ -80,16 +80,9 @@ public class MultiAudioDevice implements IAudioDevice {
 	}
 
 	@Override
-	public void pause() {
+	public void pause(boolean pPause) {
 		for(IAudioDevice dev : this.mDevices) {
-			dev.pause();
-		}
-	}
-
-	@Override
-	public void unpause() {
-		for(IAudioDevice dev : this.mDevices) {
-			dev.unpause();
+			dev.pause(pPause);
 		}
 	}
 

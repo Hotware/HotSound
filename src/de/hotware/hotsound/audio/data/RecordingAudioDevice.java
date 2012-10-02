@@ -64,13 +64,8 @@ public class RecordingAudioDevice implements IAudioDevice {
 	}
 
 	@Override
-	public void pause() {
-		this.mPaused = true;
-	}
-
-	@Override
-	public void unpause() {
-		this.mPaused = false;
+	public void pause(boolean pPause) {
+		this.mPaused = pPause;
 	}
 
 	@Override

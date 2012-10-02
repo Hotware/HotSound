@@ -109,15 +109,13 @@ public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
 	}
 
 	@Override
-	public void pause() {
-		this.mSourceDataLine.stop();
-		this.mPaused = true;
-	}
-
-	@Override
-	public void unpause() {
-		this.mSourceDataLine.start();
-		this.mPaused = false;
+	public void pause(boolean pPause) {
+		if(pPause) {
+			this.mSourceDataLine.stop();
+		} else {
+			this.mSourceDataLine.start();
+		}
+		this.mPaused = pPause;
 	}
 
 	@Override

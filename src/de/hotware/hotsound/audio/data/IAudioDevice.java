@@ -55,14 +55,9 @@ public interface IAudioDevice extends AutoCloseable {
 	public boolean isPaused();
 
 	/**
-	 * pauses the IAudioDevice and the playback
+	 * pauses/unpauses the IAudioDevice and the playback
 	 */
-	public void pause();
-
-	/**
-	 * unpauses the IAudioDevice and the playback
-	 */
-	public void unpause();
+	public void pause(boolean pPause);
 
 	/**
 	 * stops the IAudioDevice and closes all the opened resources

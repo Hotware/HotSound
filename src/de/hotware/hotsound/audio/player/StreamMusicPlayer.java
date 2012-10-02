@@ -213,14 +213,14 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	@Override
-	public void pause() {
+	public void pause(boolean pPause) {
 		this.mLock.lock();
 		try {
 			if(this.mStreamPlayerRunnable == null) {
 				throw new IllegalStateException(this +
 						" has not been initialized yet!");
 			}
-			this.mStreamPlayerRunnable.pause();
+			this.mStreamPlayerRunnable.pause(pPause);
 		} finally {
 			this.mLock.unlock();
 		}
@@ -253,20 +253,6 @@ public class StreamMusicPlayer implements IMusicPlayer {
 						" has not been initialized yet!");
 			}
 			return this.mStreamPlayerRunnable.isStopped();
-		} finally {
-			this.mLock.unlock();
-		}
-	}
-
-	@Override
-	public void unpause() {
-		this.mLock.lock();
-		try {
-			if(this.mStreamPlayerRunnable == null) {
-				throw new IllegalStateException(this +
-						" has not been initialized yet!");
-			}
-			this.mStreamPlayerRunnable.unpause();
 		} finally {
 			this.mLock.unlock();
 		}
