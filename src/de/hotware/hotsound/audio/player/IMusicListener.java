@@ -1,5 +1,5 @@
 /**
- * File IPlaybackListener.java
+ * File IMusicListener.java
  * ---------------------------------------------------------
  *
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)

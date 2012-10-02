@@ -58,7 +58,7 @@ public interface IMusicPlayer extends AutoCloseable {
 	 * @throws IllegalStateException
 	 *             if the player hasn't been initialized yet (insert not called)
 	 * @throws MusicPlayerException
-	 *             if there was an IO error during the start of the playback
+	 *             if there was an error during the start of the playback
 	 */
 	public void start() throws MusicPlayerException;
 
