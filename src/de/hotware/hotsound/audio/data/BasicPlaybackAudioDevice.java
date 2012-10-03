@@ -30,14 +30,12 @@ import javax.sound.sampled.SourceDataLine;
 /**
  * Default audio device for playing back audio
  */
-public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
+public class BasicPlaybackAudioDevice extends BaseAudioDevice implements IPlaybackAudioDevice {
 
 	protected Mixer mMixer;
 	protected SourceDataLine mSourceDataLine;
 	protected Class<? extends SourceDataLine> mSourceDataLineClass;
 	protected int mBufferSize;
-	protected boolean mPaused;
-	protected boolean mClosed;
 
 	public BasicPlaybackAudioDevice() {
 		this(null);
@@ -57,18 +55,15 @@ public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
 	}
 	
 	public BasicPlaybackAudioDevice(Mixer pMixer, int pBufferSize, Class<? extends SourceDataLine> pSourceDataLineClass) {
+		super();
 		this.mMixer = pMixer;
-		this.mClosed = true;
-		this.mPaused = false;
 		this.mBufferSize = pBufferSize;
 		this.mSourceDataLineClass = pSourceDataLineClass;
 	}
 
 	@Override
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
-		if(!this.mClosed) {
-			throw new IllegalStateException("The AudioDevice is already opened");
-		}
+		super.open(pAudioFormat);
 		DataLine.Info dataLineInfo = new DataLine.Info(this.mSourceDataLineClass,
 				pAudioFormat,
 				this.mBufferSize);
@@ -85,19 +80,36 @@ public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
 			}
 			this.mSourceDataLine.open(pAudioFormat);
 		} catch(LineUnavailableException e) {
+			this.mClosed = true;
 			throw new AudioDeviceException("The AudioDevices' line is not available",
 					e);
 		}
 		this.mSourceDataLine.start();
-		this.mClosed = false;
 	}
 
 	@Override
 	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException {
-		if(this.mPaused || this.mClosed) {
-			throw new IllegalStateException("The Device is either paused, stopped or has never been started yet");
-		}
+		super.write(pData, pStart, pLength);
 		return this.mSourceDataLine.write(pData, pStart, pLength);
+	}
+
+	@Override
+	public void pause(boolean pPause) {
+		super.pause(pPause);
+		if(pPause) {
+			this.mSourceDataLine.stop();
+		} else {
+			this.mSourceDataLine.start();
+		}
+	}
+
+	@Override
+	public void close() throws AudioDeviceException {
+		super.close();
+		if(this.mSourceDataLine != null) {
+			this.mSourceDataLine.stop();
+			this.mSourceDataLine.flush();
+		}
 	}
 
 	@Override
@@ -109,37 +121,8 @@ public class BasicPlaybackAudioDevice implements IPlaybackAudioDevice {
 	}
 
 	@Override
-	public void pause(boolean pPause) {
-		if(pPause) {
-			this.mSourceDataLine.stop();
-		} else {
-			this.mSourceDataLine.start();
-		}
-		this.mPaused = pPause;
-	}
-
-	@Override
-	public void close() throws AudioDeviceException {
-		if(this.mSourceDataLine != null) {
-			this.mSourceDataLine.stop();
-			this.mSourceDataLine.flush();
-		}
-		this.mClosed = true;
-	}
-
-	@Override
 	public DataLine getDataLine() {
 		return this.mSourceDataLine;
-	}
-
-	@Override
-	public boolean isPaused() {
-		return this.mPaused;
-	}
-
-	@Override
-	public boolean isClosed() {
-		return this.mClosed;
 	}
 
 }

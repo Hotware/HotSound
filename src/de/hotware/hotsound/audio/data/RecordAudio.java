@@ -31,14 +31,12 @@ import javax.sound.sampled.TargetDataLine;
 
 import de.hotware.hotsound.audio.util.AudioUtil;
 
-public class RecordAudio implements IAudio {
+public class RecordAudio extends BaseAudio {
 
 	protected Mixer mMixer;
-	protected AudioFormat mAudioFormat;
 	protected TargetDataLine mTargetDataLine;
 	protected Class<? extends TargetDataLine> mTargetDataLineClass;
 	protected int mBufferSize;
-	protected boolean mClosed;
 
 	public RecordAudio(Mixer pMixer) {
 		this(pMixer, null);
@@ -59,6 +57,7 @@ public class RecordAudio implements IAudio {
 	
 	
 	public RecordAudio(Mixer pMixer, AudioFormat pAudioFormat, int pBufferSize, Class<? extends TargetDataLine> pTargetDataLineClass) {
+		super();
 		if(pMixer == null) {
 			throw new IllegalArgumentException("pMixer may not be null");
 		}
@@ -71,9 +70,7 @@ public class RecordAudio implements IAudio {
 
 	@Override
 	public void open() throws AudioException {
-		if(!this.mClosed) {
-			throw new IllegalStateException("The Audio is already opened");
-		}
+		super.open();
 		DataLine.Info info = new DataLine.Info(this.mTargetDataLineClass,
 				this.mAudioFormat);
 		try {
@@ -87,37 +84,25 @@ public class RecordAudio implements IAudio {
 			this.mTargetDataLine.open(this.mAudioFormat, this.mBufferSize);
 			this.mTargetDataLine.start();
 		} catch(LineUnavailableException e) {
+			this.mClosed = true;
 			throw new AudioException("Error during opening the TargetDataLine");
 		}
-		this.mClosed = false;
-	}
-
-	@Override
-	public AudioFormat getAudioFormat() {
-		return this.mAudioFormat;
 	}
 
 	@Override
 	public int read(byte[] pData, int pStart, int pLength) throws AudioException {
-		if(this.mClosed) {
-			throw new IllegalStateException("The Audio is not opened");
-		}
+		super.read(pData, pStart, pLength);
 		return this.mTargetDataLine.read(pData, pStart, pLength);
 	}
 
 	@Override
-	public void close() {
+	public void close() throws AudioException {
+		super.close();
 		this.mTargetDataLine.close();
-		this.mClosed = true;
 	}
 
 	public static List<Mixer> getRecordMixers() {
 		return AudioUtil.getCompatibleMixers(TargetDataLine.class);
-	}
-
-	@Override
-	public boolean isClosed() {
-		return this.mClosed;
 	}
 
 }

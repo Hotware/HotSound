@@ -25,26 +25,22 @@ import java.io.IOException;
 
 import javax.sound.sampled.AudioFormat;
 
-public class RecordingAudioDevice implements IAudioDevice {
+public class RecordingAudioDevice extends BaseAudioDevice {
 
 	protected Recorder mRecorder;
-	protected boolean mPaused;
-	protected boolean mClosed;
 
 	public RecordingAudioDevice(File pFile) {
+		super();
 		this.mRecorder = new Recorder(pFile);
-		this.mClosed = true;
 	}
 
 	@Override
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
-		if(!this.mClosed) {
-			throw new IllegalStateException("The AudioDevice is already opened!");
-		}
+		super.open(pAudioFormat);
 		try {
 			this.mRecorder.open(pAudioFormat);
-			this.mClosed = false;
 		} catch(IOException e) {
+			this.mClosed = true;
 			throw new AudioDeviceException("couldn't initialize the Streamwriting process",
 					e);
 		}
@@ -52,9 +48,7 @@ public class RecordingAudioDevice implements IAudioDevice {
 	
 	@Override
 	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException {
-		if(this.mClosed || this.mPaused) {
-			throw new IllegalStateException("The AudioDevice is not opened");
-		}
+		super.write(pData, pStart, pLength);
 		try {
 			this.mRecorder.write(pData, pStart, pLength);
 		} catch(IOException e) {
@@ -64,28 +58,13 @@ public class RecordingAudioDevice implements IAudioDevice {
 	}
 
 	@Override
-	public void pause(boolean pPause) {
-		this.mPaused = pPause;
-	}
-
-	@Override
 	public void close() throws AudioDeviceException {
+		super.close();
 		try {
-			this.mClosed = true;
 			this.mRecorder.close();
 		} catch(IOException e) {
 			throw new AudioDeviceException("IOException occured while closing the Recorder", e);
 		}
-	}
-
-	@Override
-	public boolean isPaused() {
-		return this.mPaused;
-	}
-
-	@Override
-	public boolean isClosed() {
-		return this.mClosed;
 	}
 
 }

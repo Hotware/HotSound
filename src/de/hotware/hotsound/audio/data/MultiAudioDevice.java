@@ -44,6 +44,7 @@ public class MultiAudioDevice implements IAudioDevice {
 				ret += dev.write(pData, pStart, pLength);
 			} catch(AudioDeviceException e) {
 				failed = true;
+				//TODO: exception with list
 			}
 		}
 		if(failed) {
