@@ -29,6 +29,7 @@ package de.hotware.hotsound.audio.player;
  *  mention him as inspiration, because his code helped me to write this class.
  */
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
@@ -49,7 +50,7 @@ import de.hotware.hotsound.audio.data.ISeekableAudio;
  */
 public class StreamMusicPlayer implements IMusicPlayer {
 
-	protected ExecutorService mExecutorService;
+	protected Executor mExecutor;
 	protected boolean mCreatedOwnThread;
 	protected boolean mCreatedOwnAudioDevice;
 	protected StreamPlayerRunnable mStreamPlayerRunnable;
@@ -102,9 +103,9 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this.mCreatedOwnThread = true;
 	}
 
-	public StreamMusicPlayer(ExecutorService pExecutorService) {
+	public StreamMusicPlayer(Executor pExecutor) {
 		this();
-		this.mExecutorService = pExecutorService;
+		this.mExecutor = pExecutor;
 	}
 
 	/**
@@ -133,7 +134,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			}
 
 		};
-		this.mExecutorService = pExecutorService;
+		this.mExecutor = pExecutorService;
 		this.mCurrentSong = null;
 		this.mCurrentAudioDevice = null;
 	}
@@ -198,9 +199,9 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			if(!this.mStreamPlayerRunnable.isStopped()) {
 				throw new IllegalStateException("Player is already playing");
 			}
-			if(this.mExecutorService != null) {
+			if(this.mExecutor != null) {
 				//run on the thread specified - The Callable really should be a Runnable.
-				this.mExecutorService.submit(this.mStreamPlayerRunnable);
+				this.mExecutor.execute(this.mStreamPlayerRunnable);
 			}
 		} finally {
 			this.mLock.unlock();
@@ -277,7 +278,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				this.mStreamPlayerRunnable.stop();
 			}
 			if(this.mCreatedOwnThread) {
-				this.mExecutorService.shutdown();
+				((ExecutorService) this.mExecutor).shutdown();
 			}
 			if(this.mCreatedOwnAudioDevice) {
 				this.mCurrentAudioDevice.close();
@@ -387,7 +388,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		}
 		this.mStreamPlayerRunnable = new StreamPlayerRunnable(this.mCurrentAudio,
 				this.mCurrentAudioDevice,
-				this.mExecutorService != null,
+				this.mExecutor != null,
 				this,
 				this.mPlayerRunnableListener);
 	}
