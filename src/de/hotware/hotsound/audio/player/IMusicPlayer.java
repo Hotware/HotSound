@@ -86,7 +86,8 @@ public interface IMusicPlayer extends AutoCloseable {
 	public void stop() throws MusicPlayerException;
 
 	/**
-	 * @inheritDoc
+	 * @inheritDoc only closes resources it has opened itself (everything that
+	 *             got passed in by methods won't get closed)
 	 * @throws MusicPlayerException
 	 *             if close fails
 	 */
