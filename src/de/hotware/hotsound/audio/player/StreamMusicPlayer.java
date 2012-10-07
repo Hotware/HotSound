@@ -199,10 +199,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			if(!this.mStreamPlayerRunnable.isStopped()) {
 				throw new IllegalStateException("Player is already playing");
 			}
-			if(this.mExecutor != null) {
-				//run on the thread specified - The Callable really should be a Runnable.
-				this.mExecutor.execute(this.mStreamPlayerRunnable);
-			}
+			this.mExecutor.execute(this.mStreamPlayerRunnable);
 		} finally {
 			this.mLock.unlock();
 		}
