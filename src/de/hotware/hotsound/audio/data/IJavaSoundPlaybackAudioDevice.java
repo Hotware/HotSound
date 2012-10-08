@@ -1,5 +1,5 @@
 /**
- * File IPlaybackAudioDevice.java
+ * File IJavaSoundPlaybackAudioDevice.java
  * ---------------------------------------------------------
  *
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
