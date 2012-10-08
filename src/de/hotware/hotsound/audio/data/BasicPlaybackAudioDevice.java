@@ -30,7 +30,7 @@ import javax.sound.sampled.SourceDataLine;
 /**
  * Default audio device for playing back audio
  */
-public class BasicPlaybackAudioDevice extends BaseAudioDevice implements IPlaybackAudioDevice {
+public class BasicPlaybackAudioDevice extends BaseAudioDevice implements IJavaSoundPlaybackAudioDevice {
 
 	protected Mixer mMixer;
 	protected SourceDataLine mSourceDataLine;

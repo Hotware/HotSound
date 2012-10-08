@@ -30,7 +30,7 @@ import javax.sound.sampled.Mixer;
  * 
  * @author Martin Braun
  */
-public interface IPlaybackAudioDevice extends IAudioDevice {
+public interface IJavaSoundPlaybackAudioDevice extends IAudioDevice {
 
 	public void setMixer(Mixer pMixer);
 
