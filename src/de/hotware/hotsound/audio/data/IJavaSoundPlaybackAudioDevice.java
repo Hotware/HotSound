@@ -37,6 +37,7 @@ public interface IJavaSoundPlaybackAudioDevice extends IAudioDevice {
 	/**
 	 * @return the DataLine to which is being written (with that you can control
 	 *         the volume, etc.)
+	 *         may be null depending on the state of the audiodevice
 	 */
 	public DataLine getDataLine();
 

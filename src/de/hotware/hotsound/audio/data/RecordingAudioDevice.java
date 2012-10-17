@@ -28,16 +28,18 @@ import javax.sound.sampled.AudioFormat;
 public class RecordingAudioDevice extends BaseAudioDevice {
 
 	protected Recorder mRecorder;
+	protected File mFile;
 
 	public RecordingAudioDevice(File pFile) {
 		super();
-		this.mRecorder = new Recorder(pFile);
+		this.mFile = pFile;
 	}
 
 	@Override
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
 		super.open(pAudioFormat);
 		try {
+			this.mRecorder = new Recorder(this.mFile);
 			this.mRecorder.open(pAudioFormat);
 		} catch(IOException e) {
 			this.mClosed = true;
@@ -62,6 +64,7 @@ public class RecordingAudioDevice extends BaseAudioDevice {
 		super.close();
 		try {
 			this.mRecorder.close();
+			this.mRecorder = null;
 		} catch(IOException e) {
 			throw new AudioDeviceException("IOException occured while closing the Recorder", e);
 		}

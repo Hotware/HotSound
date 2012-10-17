@@ -109,6 +109,7 @@ public class BasicPlaybackAudioDevice extends BaseAudioDevice implements IJavaSo
 		if(this.mSourceDataLine != null) {
 			this.mSourceDataLine.stop();
 			this.mSourceDataLine.flush();
+			this.mSourceDataLine = null;
 		}
 	}
 

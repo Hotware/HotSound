@@ -61,6 +61,7 @@ public interface IAudioDevice extends AutoCloseable {
 
 	/**
 	 * stops the IAudioDevice and closes all the opened resources
+	 * may be reused afterwards!
 	 */
 	@Override
 	public void close() throws AudioDeviceException;
