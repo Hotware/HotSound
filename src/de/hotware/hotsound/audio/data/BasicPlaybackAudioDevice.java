@@ -96,10 +96,12 @@ public class BasicPlaybackAudioDevice extends BaseAudioDevice implements IJavaSo
 	@Override
 	public void pause(boolean pPause) {
 		super.pause(pPause);
-		if(pPause) {
-			this.mSourceDataLine.stop();
-		} else {
-			this.mSourceDataLine.start();
+		if(this.mSourceDataLine != null) {
+			if(pPause) {
+				this.mSourceDataLine.stop();
+			} else {
+				this.mSourceDataLine.start();
+			}
 		}
 	}
 
