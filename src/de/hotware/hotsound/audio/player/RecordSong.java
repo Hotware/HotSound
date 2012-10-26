@@ -52,7 +52,7 @@ public class RecordSong implements ISong {
 	
 	public RecordSong(Mixer pMixer, AudioFormat pAudioFormat, int pBufferSize, Class<? extends TargetDataLine> pTargetDataLineClass) {
 		if(pMixer == null) {
-			throw new IllegalArgumentException("pMixer may not be null");
+			throw new NullPointerException("pMixer may not be null");
 		}
 		this.mMixer = pMixer;
 		this.mAudioFormat = pAudioFormat;

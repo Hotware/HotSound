@@ -30,7 +30,7 @@ public class MultiAudioDevice implements IAudioDevice {
 
 	public MultiAudioDevice(List<IAudioDevice> pDevices) {
 		if(pDevices == null) {
-			throw new IllegalArgumentException("pDevices may not be null");
+			throw new NullPointerException("pDevices may not be null");
 		}
 		this.mDevices = pDevices;
 	}

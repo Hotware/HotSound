@@ -40,7 +40,7 @@ class Recorder implements AutoCloseable {
 
 	public Recorder(File pFile) {
 		if(pFile == null) {
-			throw new IllegalArgumentException("pFile may not be null");
+			throw new NullPointerException("pFile may not be null");
 		}
 		this.mFile = pFile;
 		this.mTempFile = new File(pFile.getAbsolutePath() + ".tmp");

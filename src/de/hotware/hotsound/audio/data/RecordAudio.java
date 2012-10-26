@@ -59,7 +59,7 @@ public class RecordAudio extends BaseAudio {
 	public RecordAudio(Mixer pMixer, AudioFormat pAudioFormat, int pBufferSize, Class<? extends TargetDataLine> pTargetDataLineClass) {
 		super();
 		if(pMixer == null) {
-			throw new IllegalArgumentException("pMixer may not be null");
+			throw new NullPointerException("pMixer may not be null");
 		}
 		this.mMixer = pMixer;
 		this.mAudioFormat = pAudioFormat;

@@ -72,7 +72,7 @@ class StreamPlayerRunnable implements Runnable {
 			IMusicPlayer pMusicPlayer,
 			IPlayerRunnableListener pPlayerRunnableListener) {
 		if(pAudioDevice == null || pAudio == null) {
-			throw new IllegalArgumentException("the audiodevice and the audio may not be null");
+			throw new NullPointerException("the audiodevice and the audio may not be null");
 		}
 		this.mMusicPlayer = pMusicPlayer;
 		this.mAudio = pAudio;

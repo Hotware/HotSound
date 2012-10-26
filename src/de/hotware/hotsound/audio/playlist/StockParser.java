@@ -83,7 +83,7 @@ public enum StockParser implements IPlaylistParser {
 
 	private StockParser(String... pKeys) {
 		if(pKeys == null) {
-			throw new IllegalArgumentException("pKeys may not be null");
+			throw new NullPointerException("pKeys may not be null");
 		}
 		this.mKeys = pKeys;
 	}
