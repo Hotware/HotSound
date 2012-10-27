@@ -281,6 +281,9 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				this.mCurrentAudioDevice.flush();
 				this.mCurrentAudioDevice.close();
 			}
+			this.mCurrentAudio = null;
+			this.mCurrentAudioDevice = null;
+			this.mCurrentSong = null;
 		} finally {
 			this.mLock.unlock();
 		}
@@ -305,47 +308,22 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			this.mLock.unlock();
 		}
 	}
-
+	
 	@Override
-	public void seek(long pPosition) {
+	public void skip(long pFrames) throws MusicPlayerException {
 		this.mLock.lock();
 		try {
-			throw new UnsupportedOperationException("not implemented yet");
-			//			// just pause the playback
-			//			this.stopPlayback();
-			//			try {
-			//				this.insertInternal(this.mCurrentSong, this.mCurrentMixer);
-			//				if(file != null && this.mPlayerRunnable.mAudioFormat.getFrameLength() != -1)
-			//				{	
-			//				double skippedPercentage = (double)percentage/100;
-			//				System.out.println("Percentage to skip " + skippedPercentage);
-			//				long framesToSkip = (long) (getFrameLength() * skippedPercentage);
-			//				System.out.println("Skipping " + framesToSkip + " frames with " + getFrameLength() + " available");
-			//				long bytesSkipped = 0;
-			//				byte[] garbage = new byte[4096];
-			//				long bytesDropped = 0;
-			//				while(bytesSkipped <= framesToSkip*audioFormat.getFrameSize() && bytesDropped != -1)
-			//				{
-			//				// System.out.println(bytesSkipped/audioFormat.getFrameSize());
-			//				bytesDropped = audioInputStream.read(garbage, 0, garbage.length);
-			//				// bytesDropped = audioInputStream.skip(4096);
-			//				// System.out.println("Dropped " + bytesDropped + " bytes");
-			//				bytesSkipped += bytesDropped;
-			//				}
-			//				skippedFrames += bytesSkipped/audioFormat.getFrameSize();
-			//				System.out.println("Skipped Frames: " + bytesSkipped/audioFormat.getFrameSize());
-			//				}
-			//				}
-			//				catch (IOException e)
-			//				{
-			//				e.printStackTrace();
-			//				}	
-			//				catch(Exception e)
-			//				{
-			//				e.printStackTrace();
-			//			}
-			//			// start playing again
-			//			this.startPlayback();
+			this.mStreamPlayerRunnable.seek(pFrames);
+		} finally {
+			this.mLock.unlock();
+		}
+	}
+
+	@Override
+	public void seek(long pFrame) {
+		this.mLock.lock();
+		try {
+			this.mStreamPlayerRunnable.seek(pFrame);
 		} finally {
 			this.mLock.unlock();
 		}
@@ -389,11 +367,6 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				this.mExecutor != null,
 				this,
 				this.mPlayerRunnableListener);
-	}
-
-	@Override
-	public void skip(long pFrames) throws MusicPlayerException {
-		this.mStreamPlayerRunnable.skip(pFrames);		
 	}
 
 }
