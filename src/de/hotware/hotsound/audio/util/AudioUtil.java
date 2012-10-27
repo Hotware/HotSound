@@ -36,6 +36,8 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class AudioUtil {
+	
+	private AudioUtil() {}
 
 	/**
 	 * retrieves a AudioInputStream from a given Inputstream. converts the

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.hotware.hotsound.audio.util.AudioUtil;
@@ -33,14 +34,26 @@ import de.hotware.hotsound.audio.util.AudioUtil;
  * 
  * @author Martin Braun
  */
-public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
+public class BasicPlaybackAudio extends BaseAudio {
 
 	protected InputStream mInputStream;
 	protected AudioInputStream mAudioInputStream;
+	protected long mFramePosition;
+	protected long mFrameSize;
+	protected long mFrameLength;
+	protected boolean mIsEncoded;
 
 	public BasicPlaybackAudio(InputStream pInputStream) {
+		this(pInputStream, AudioSystem.NOT_SPECIFIED);
+	}
+	
+	public BasicPlaybackAudio(InputStream pInputStream, long pFrameLength) {
 		super();
 		this.mInputStream = pInputStream;
+		this.mFramePosition = 0;
+		this.mFrameSize = 0;
+		this.mFrameLength = pFrameLength;
+		this.mIsEncoded = false;
 	}
 
 	@Override
@@ -50,6 +63,7 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 			this.mAudioInputStream = AudioUtil
 					.getSupportedAudioInputStreamFromInputStream(this.mInputStream);
 			this.mAudioFormat = this.mAudioInputStream.getFormat();
+			this.mFrameSize = this.mAudioFormat.getFrameSize();
 		} catch(UnsupportedAudioFileException | IOException e) {
 			this.mClosed = true;
 			throw new AudioException("Error while opening the audiostream", e);
@@ -60,7 +74,9 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 	public int read(byte[] pData, int pStart, int pLength) throws AudioException {
 		super.read(pData, pStart, pLength);
 		try {
-			return this.mAudioInputStream.read(pData, pStart, pLength);
+			int read = this.mAudioInputStream.read(pData, pStart, pLength);
+			this.mFramePosition += read / this.mFrameSize;
+			return read;
 		} catch(IOException e) {
 			throw new AudioException("IOException while reading from the AudioInputStream",
 					e);
@@ -78,16 +94,6 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 			throw new AudioException("IOException while closing the AudioInputStream",
 					e);
 		}
-	}
-
-	@Override
-	public void seek(int pFrame) {
-		throw new UnsupportedOperationException("not implemented yet");
-	}
-
-	@Override
-	public void skip(int pFrames) {
-		throw new UnsupportedOperationException("not implemented yet");
 	}
 
 }

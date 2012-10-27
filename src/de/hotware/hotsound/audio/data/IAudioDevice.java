@@ -65,6 +65,12 @@ public interface IAudioDevice extends AutoCloseable {
 	 */
 	@Override
 	public void close() throws AudioDeviceException;
+	
+	/**
+	 * blocks until all current audio has been played
+	 * @throws AudioDeviceException
+	 */
+	public void flush() throws AudioDeviceException;
 
 	public boolean isClosed();
 

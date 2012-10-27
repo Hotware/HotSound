@@ -278,6 +278,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				((ExecutorService) this.mExecutor).shutdown();
 			}
 			if(this.mCreatedOwnAudioDevice) {
+				this.mCurrentAudioDevice.flush();
 				this.mCurrentAudioDevice.close();
 			}
 		} finally {
@@ -306,7 +307,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	@Override
-	public void seek(int pPosition) {
+	public void seek(long pPosition) {
 		this.mLock.lock();
 		try {
 			throw new UnsupportedOperationException("not implemented yet");
@@ -388,6 +389,11 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				this.mExecutor != null,
 				this,
 				this.mPlayerRunnableListener);
+	}
+
+	@Override
+	public void skip(long pFrames) throws MusicPlayerException {
+		this.mStreamPlayerRunnable.skip(pFrames);		
 	}
 
 }

@@ -28,6 +28,10 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import de.hotware.hotsound.audio.data.BasicPlaybackAudio;
 import de.hotware.hotsound.audio.data.IAudio;
 
@@ -64,8 +68,14 @@ public class BasicPlaybackSong implements ISong {
 	@Override
 	public IAudio getAudio() throws MusicPlayerException {
 		try {
-			return new BasicPlaybackAudio(this.getInputStream());
-		} catch(IOException e) {
+			AudioFileFormat audioFileFormat;
+			if(this.mURL.getProtocol().toLowerCase().equals("file")) {
+				audioFileFormat = AudioSystem.getAudioFileFormat(new File(this.mURL.getFile()));
+			} else {
+				audioFileFormat = AudioSystem.getAudioFileFormat(this.mURL);
+			}
+			return new BasicPlaybackAudio(this.getInputStream(), audioFileFormat.getFrameLength());
+		} catch(IOException | UnsupportedAudioFileException e) {
 			throw new MusicPlayerException("IOException occured while getting the IAudio from this ISong", e);
 		}
 	}

@@ -42,7 +42,7 @@ public class MultiAudioDevice implements IAudioDevice {
 		for(IAudioDevice dev : this.mDevices) {
 			try {
 				ret += dev.write(pData, pStart, pLength);
-			} catch(AudioDeviceException e) {
+			} catch(Exception e) {
 				failed = true;
 				//TODO: exception with list
 			}
@@ -51,6 +51,21 @@ public class MultiAudioDevice implements IAudioDevice {
 			throw new AudioDeviceException("couldn't write to all of the underlying AudioDevices");
 		}
 		return ret;
+	}
+	
+	@Override
+	public void flush() throws AudioDeviceException {
+		boolean failed = false;
+		for(IAudioDevice dev : this.mDevices) {
+			try {
+				dev.flush();
+			} catch(Exception e) {
+				failed = true;
+			}
+		}
+		if(failed) {
+			throw new AudioDeviceException("couldn't flush all of the underlying AudioDevices");
+		}
 	}
 
 	@Override

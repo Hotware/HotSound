@@ -28,7 +28,7 @@ public interface ISeekableAudio extends IAudio {
 	 * @param pFrame
 	 *            the number of the frame to skip to
 	 */
-	public void seek(int pFrame);
+	public void seek(long pFrame) throws AudioException;
 
 	/**
 	 * skips the given amount of frames
@@ -36,6 +36,18 @@ public interface ISeekableAudio extends IAudio {
 	 * @param pFrames
 	 *            the amount of frames to skip
 	 */
-	public void skip(int pFrames);
+	public void skip(long pFrames) throws AudioException;
+
+	public long getFramePosition();
+
+	public static interface ISeekingStrategy {
+
+		public SeekData seek(SeekData pSeekData);
+		
+		public static interface SeekData {
+			
+		}
+		
+	}
 
 }

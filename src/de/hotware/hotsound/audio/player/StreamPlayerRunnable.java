@@ -27,6 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.sound.sampled.AudioFormat;
 
 import de.hotware.hotsound.audio.data.IAudio;
+import de.hotware.hotsound.audio.data.IAudio.AudioException;
 import de.hotware.hotsound.audio.data.IAudioDevice;
 import de.hotware.hotsound.audio.data.IAudioDevice.AudioDeviceException;
 import de.hotware.hotsound.audio.data.ISeekableAudio;
@@ -43,6 +44,8 @@ import de.hotware.hotsound.audio.data.ISeekableAudio;
  * TODO: extra listener for callable that gets redirected in StreamMusicPlayer
  * 
  * TODO: extra listener for callable that gets redirected in StreamMusicPlayer
+ * TODO: review the stopping process and change if necessary. works but may be
+ * bad code.
  * 
  * @author Martin Braun
  */
@@ -146,15 +149,23 @@ class StreamPlayerRunnable implements Runnable {
 		}
 	}
 
-	public void seek(int pFrame) {
+	public void seek(long pFrame) {
 		if(!(this.mAudio instanceof ISeekableAudio)) {
 			throw new UnsupportedOperationException("seeking is not possible on the current AudioFile");
 		}
 	}
 
-	public void skip(int pFrames) {
+	public void skip(long pFrames) throws AudioDeviceException {
 		if(!(this.mAudio instanceof ISeekableAudio)) {
 			throw new UnsupportedOperationException("skipping is not possible on the current AudioFile");
+		}
+		try {
+			this.pause(true);
+			((ISeekableAudio) this.mAudio).skip(pFrames);
+		} catch(AudioException e) {
+			throw new AudioDeviceException("couldn't skip with the current audio");
+		} finally {
+			this.pause(false);
 		}
 	}
 
@@ -171,7 +182,7 @@ class StreamPlayerRunnable implements Runnable {
 		this.mPaused = pPause;
 		this.mAudioDevice.pause(pPause);
 	}
-	
+
 	public boolean isPaused() {
 		return this.mPaused;
 	}

@@ -116,11 +116,10 @@ public interface IMusicPlayer extends AutoCloseable {
 
 	/**
 	 * seeks to the given position
-	 * 
-	 * @param pPosition
-	 *            position in microseconds
 	 */
-	public void seek(int pPosition);
+	public void seek(long pFrame) throws MusicPlayerException;
+	
+	public void skip(long pFrames) throws MusicPlayerException;
 
 	public void restart();
 

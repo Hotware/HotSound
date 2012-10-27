@@ -92,6 +92,12 @@ public class BasicPlaybackAudioDevice extends BaseAudioDevice implements IJavaSo
 		super.write(pData, pStart, pLength);
 		return this.mSourceDataLine.write(pData, pStart, pLength);
 	}
+	
+	@Override
+	public void flush() throws AudioDeviceException {
+		super.flush();
+		this.mSourceDataLine.flush();
+	}
 
 	@Override
 	public void pause(boolean pPause) {

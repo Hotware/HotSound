@@ -42,6 +42,13 @@ public abstract class BaseAudioDevice implements IAudioDevice {
 		}
 		return 0;
 	}
+	
+	@Override
+	public void flush() throws AudioDeviceException {
+		if(this.mPaused || this.mClosed) {
+			throw new IllegalStateException("The Device is either paused, stopped or has never been started yet");
+		}
+	}
 
 	@Override
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
