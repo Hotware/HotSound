@@ -23,6 +23,7 @@ package de.hotware.hotsound.audio.data;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -136,13 +137,8 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 	}
 
 	@Override
-	public long getFrameSize() {
-		return this.mFrameSize;
-	}
-
-	@Override
-	public float getFrameRate() {
-		return this.mAudioFormat.getFrameRate();
+	public AudioFormat getAudioFormat() {
+		return this.mAudioFormat;
 	}
 
 }
