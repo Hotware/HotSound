@@ -43,7 +43,11 @@ public abstract class BaseAudio implements IAudio {
 		}
 		return 0;
 	}
-
+	
+	/**
+	 * @inheritdoc
+	 * all implementing classes must set mAudioFormat in here.
+	 */
 	@Override
 	public void open() throws AudioException {
 		if(!this.mClosed) {

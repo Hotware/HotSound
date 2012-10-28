@@ -60,10 +60,19 @@ public class RecordSong implements ISong {
 		this.mTargetDataLineClass = pTargetDataLineClass;
 	}
 
-
 	@Override
 	public IAudio getAudio() throws MusicPlayerException {
 		return new RecordAudio(this.mMixer, this.mAudioFormat, this.mBufferSize, this.mTargetDataLineClass);
+	}
+
+	@Override
+	public long getFrameLength() {
+		return AudioSystem.NOT_SPECIFIED;
+	}
+
+	@Override
+	public AudioFormat getAudioFormat() {
+		return this.mAudioFormat;
 	}
 
 }

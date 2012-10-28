@@ -20,6 +20,8 @@
  */
 package de.hotware.hotsound.audio.player;
 
+import javax.sound.sampled.AudioFormat;
+
 import de.hotware.hotsound.audio.data.IAudio;
 
 /**
@@ -35,5 +37,9 @@ public interface ISong {
 	 * @return new IAudio instance
 	 */
 	public IAudio getAudio() throws MusicPlayerException;
+
+	public long getFrameLength();
+	
+	public AudioFormat getAudioFormat();
 
 }

@@ -29,6 +29,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -44,6 +45,8 @@ import de.hotware.hotsound.audio.data.IAudio;
 public class BasicPlaybackSong implements ISong {
 
 	protected URL mURL;
+	protected long mFrameLength;
+	protected AudioFormat mAudioFormat;
 
 	public BasicPlaybackSong(URL pURL) {
 		this.mURL = pURL;
@@ -74,10 +77,21 @@ public class BasicPlaybackSong implements ISong {
 			} else {
 				audioFileFormat = AudioSystem.getAudioFileFormat(this.mURL);
 			}
+			this.mAudioFormat = audioFileFormat.getFormat();
 			return new BasicPlaybackAudio(this.getInputStream(), audioFileFormat.getFrameLength());
 		} catch(IOException | UnsupportedAudioFileException e) {
 			throw new MusicPlayerException("IOException occured while getting the IAudio from this ISong", e);
 		}
+	}
+	
+	@Override
+	public long getFrameLength() {
+		return this.mFrameLength;
+	}
+
+	@Override
+	public AudioFormat getAudioFormat() {
+		return this.mAudioFormat;
 	}
 	
 }

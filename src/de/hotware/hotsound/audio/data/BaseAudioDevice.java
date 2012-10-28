@@ -22,7 +22,6 @@ package de.hotware.hotsound.audio.data;
 
 import javax.sound.sampled.AudioFormat;
 
-
 public abstract class BaseAudioDevice implements IAudioDevice {
 	
 	protected boolean mPaused;
