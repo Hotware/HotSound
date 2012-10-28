@@ -104,6 +104,7 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 		if(this.mClosed) {
 			throw new IllegalStateException("The Audio is not opened");
 		}
+		throw new UnsupportedOperationException("not implemented yet");
 	}
 
 	@Override
