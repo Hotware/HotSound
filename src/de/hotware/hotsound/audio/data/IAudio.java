@@ -58,6 +58,8 @@ public interface IAudio extends AutoCloseable {
 	public boolean isClosed();
 	
 	public long getFrameSize();
+	
+	public float getFrameRate();
 
 	/**
 	 * closes the IAudios resources

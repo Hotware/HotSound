@@ -110,4 +110,9 @@ public class RecordAudio extends BaseAudio {
 		return this.mAudioFormat.getFrameSize();
 	}
 
+	@Override
+	public float getFrameRate() {
+		return this.mAudioFormat.getFrameRate();
+	}
+
 }

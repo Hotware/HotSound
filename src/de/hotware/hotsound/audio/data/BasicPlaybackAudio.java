@@ -41,7 +41,6 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 	protected long mFramePosition;
 	protected long mFrameSize;
 	protected long mFrameLength;
-	protected boolean mIsEncoded;
 
 	public BasicPlaybackAudio(InputStream pInputStream) {
 		this(pInputStream, AudioSystem.NOT_SPECIFIED);
@@ -53,7 +52,6 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 		this.mFramePosition = 0;
 		this.mFrameSize = 0;
 		this.mFrameLength = pFrameLength;
-		this.mIsEncoded = false;
 	}
 
 	@Override
@@ -140,6 +138,11 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 	@Override
 	public long getFrameSize() {
 		return this.mFrameSize;
+	}
+
+	@Override
+	public float getFrameRate() {
+		return this.mAudioFormat.getFrameRate();
 	}
 
 }
