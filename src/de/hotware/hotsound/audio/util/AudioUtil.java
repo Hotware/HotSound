@@ -130,7 +130,7 @@ public class AudioUtil {
 				sourceAudioFormat,
 				AudioSystem.NOT_SPECIFIED);
 		boolean directSupport = AudioSystem.isLineSupported(supportInfo);
-		if(!(sourceAudioFormat.getEncoding() != AudioFormat.Encoding.PCM_SIGNED && pAlwaysConvert) ||
+		if(sourceAudioFormat.getEncoding() != AudioFormat.Encoding.PCM_SIGNED && pAlwaysConvert ||
 				!directSupport) {
 			// Audio format is not supported -> Convert to a supported format
 			float sampleRate = sourceAudioFormat.getSampleRate();
