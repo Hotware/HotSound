@@ -313,7 +313,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public void skip(long pFrames) throws MusicPlayerException {
 		this.mLock.lock();
 		try {
-			this.mStreamPlayerRunnable.seek(pFrames);
+			this.mStreamPlayerRunnable.skip(pFrames);
 		} finally {
 			this.mLock.unlock();
 		}

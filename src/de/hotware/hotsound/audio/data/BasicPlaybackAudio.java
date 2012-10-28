@@ -34,7 +34,7 @@ import de.hotware.hotsound.audio.util.AudioUtil;
  * 
  * @author Martin Braun
  */
-public class BasicPlaybackAudio extends BaseAudio {
+public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 
 	protected InputStream mInputStream;
 	protected AudioInputStream mAudioInputStream;
@@ -46,7 +46,7 @@ public class BasicPlaybackAudio extends BaseAudio {
 	public BasicPlaybackAudio(InputStream pInputStream) {
 		this(pInputStream, AudioSystem.NOT_SPECIFIED);
 	}
-	
+
 	public BasicPlaybackAudio(InputStream pInputStream, long pFrameLength) {
 		super();
 		this.mInputStream = pInputStream;
@@ -94,6 +94,52 @@ public class BasicPlaybackAudio extends BaseAudio {
 			throw new AudioException("IOException while closing the AudioInputStream",
 					e);
 		}
+	}
+
+	@Override
+	public void seek(long pFrame) throws AudioException {
+		if(this.mClosed) {
+			throw new IllegalStateException("The Audio is not opened");
+		}
+	}
+
+	@Override
+	public void skip(long pFrames) throws AudioException {
+		if(this.mClosed) {
+			throw new IllegalStateException("The Audio is not opened");
+		}
+		double rate = ((double) pFrames) / this.mFrameLength;
+		long bytesToSkip = (long) Math.round(rate * this.mFrameLength *
+				this.mFrameSize);
+		long totalSkipped = 0;
+		try {
+			while(totalSkipped < bytesToSkip) {
+				long skipped = this.mAudioInputStream.skip(bytesToSkip -
+						totalSkipped);
+				totalSkipped += skipped;
+				if(skipped == 0) {
+					break;
+				}
+			}
+		} catch(IOException e) {
+			throw new AudioException("couldn't skip the audio");
+		}
+		this.mFramePosition += totalSkipped / this.mFrameSize;
+	}
+
+	@Override
+	public long getFramePosition() {
+		return this.mFramePosition;
+	}
+
+	@Override
+	public long getFrameLength() {
+		return this.mFrameLength;
+	}
+
+	@Override
+	public long getFrameSize() {
+		return this.mFrameSize;
 	}
 
 }

@@ -39,6 +39,8 @@ public interface ISeekableAudio extends IAudio {
 	public void skip(long pFrames) throws AudioException;
 
 	public long getFramePosition();
+	
+	public long getFrameLength();
 
 	public static interface ISeekingStrategy {
 

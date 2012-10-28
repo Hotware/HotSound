@@ -105,4 +105,9 @@ public class RecordAudio extends BaseAudio {
 		return AudioUtil.getCompatibleMixers(TargetDataLine.class);
 	}
 
+	@Override
+	public long getFrameSize() {
+		return this.mAudioFormat.getFrameSize();
+	}
+
 }

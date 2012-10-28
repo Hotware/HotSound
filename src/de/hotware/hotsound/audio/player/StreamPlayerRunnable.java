@@ -159,13 +159,14 @@ class StreamPlayerRunnable implements Runnable {
 		if(!(this.mAudio instanceof ISeekableAudio)) {
 			throw new UnsupportedOperationException("skipping is not possible on the current AudioFile");
 		}
+		boolean pause = this.mPaused;
 		try {
 			this.pause(true);
 			((ISeekableAudio) this.mAudio).skip(pFrames);
 		} catch(AudioException e) {
 			throw new AudioDeviceException("couldn't skip with the current audio");
 		} finally {
-			this.pause(false);
+			this.pause(pause);
 		}
 	}
 

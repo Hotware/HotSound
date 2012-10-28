@@ -22,7 +22,6 @@ package de.hotware.hotsound.audio.data;
 
 import javax.sound.sampled.AudioFormat;
 
-
 public abstract class BaseAudio implements IAudio {
 
 	protected boolean mClosed;
