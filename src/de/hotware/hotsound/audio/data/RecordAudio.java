@@ -35,6 +35,7 @@ public class RecordAudio extends BaseAudio {
 
 	protected Mixer mMixer;
 	protected TargetDataLine mTargetDataLine;
+	protected AudioFormat mAudioFormat;
 	protected Class<? extends TargetDataLine> mTargetDataLineClass;
 	protected int mBufferSize;
 
@@ -70,7 +71,9 @@ public class RecordAudio extends BaseAudio {
 
 	@Override
 	public void open() throws AudioException {
-		super.open();
+		if(!this.mClosed) {
+			throw new IllegalStateException("The Audio is already opened");
+		}
 		DataLine.Info info = new DataLine.Info(this.mTargetDataLineClass,
 				this.mAudioFormat);
 		try {
@@ -91,7 +94,9 @@ public class RecordAudio extends BaseAudio {
 
 	@Override
 	public int read(byte[] pData, int pStart, int pLength) throws AudioException {
-		super.read(pData, pStart, pLength);
+		if(this.mClosed) {
+			throw new IllegalStateException("The Audio is not opened");
+		}
 		return this.mTargetDataLine.read(pData, pStart, pLength);
 	}
 
@@ -103,6 +108,11 @@ public class RecordAudio extends BaseAudio {
 
 	public static List<Mixer> getRecordMixers() {
 		return AudioUtil.getCompatibleMixers(TargetDataLine.class);
+	}
+
+	@Override
+	public AudioFormat getAudioFormat() {
+		return this.mAudioFormat;
 	}
 
 }

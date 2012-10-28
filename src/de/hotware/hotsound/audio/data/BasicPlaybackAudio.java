@@ -57,12 +57,14 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 
 	@Override
 	public void open() throws AudioException {
-		super.open();
+		if(!this.mClosed) {
+			throw new IllegalStateException("The Audio is already opened");
+		}
 		try {
 			this.mAudioInputStream = AudioUtil
 					.getSupportedAudioInputStreamFromInputStream(this.mInputStream);
-			this.mAudioFormat = this.mAudioInputStream.getFormat();
-			this.mFrameSize = this.mAudioFormat.getFrameSize();
+			AudioFormat format = this.mAudioInputStream.getFormat();
+			this.mFrameSize = format.getFrameSize();
 		} catch(UnsupportedAudioFileException | IOException e) {
 			this.mClosed = true;
 			throw new AudioException("Error while opening the audiostream", e);
@@ -71,7 +73,9 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 
 	@Override
 	public int read(byte[] pData, int pStart, int pLength) throws AudioException {
-		super.read(pData, pStart, pLength);
+		if(this.mClosed) {
+			throw new IllegalStateException("The Audio is not opened");
+		}
 		try {
 			int read = this.mAudioInputStream.read(pData, pStart, pLength);
 			this.mFramePosition += read / this.mFrameSize;
@@ -138,7 +142,7 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 
 	@Override
 	public AudioFormat getAudioFormat() {
-		return this.mAudioFormat;
+		return this.mAudioInputStream.getFormat();
 	}
 
 }

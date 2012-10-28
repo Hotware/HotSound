@@ -46,7 +46,6 @@ public class WaveAudio extends BasicPlaybackAudio {
 		try {
 			this.mAudioInputStream = AudioUtil
 					.getPCMSignedAudioInputStreamFromAudioInputStream(this.mInputStream);
-			this.mAudioFormat = this.mAudioInputStream.getFormat();
 		} catch(UnsupportedAudioFileException | IOException e) {
 			throw new AudioException("Error while opening the audiostream", e);
 		}
