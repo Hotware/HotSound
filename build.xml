@@ -7,6 +7,7 @@
   <property name="build.dir" location="build" />
   <property name="docs.dir" location="docs" />
   <property name="dist.dir" location="dist" />
+  <property name="project.version" value="0.1" />
 
   <!-- Deletes the existing build directory-->
   <target name="clean">
@@ -35,7 +36,7 @@
   
   <!--Creates the deployable jar file  -->
   <target name="jar" depends="compile">
-    <jar destfile="${dist.dir}\hotsound.jar" basedir="${build.dir}">
+    <jar destfile="${dist.dir}\hotsound-${project.version}.jar" basedir="${build.dir}">
       <manifest>
       </manifest>
     </jar>
