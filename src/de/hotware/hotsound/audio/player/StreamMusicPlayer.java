@@ -268,7 +268,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			if(this.mStreamPlayerRunnable != null) {
 				this.mStreamPlayerRunnable.stop();
 			}
-			if(this.mCreateOwnThread) {
+			if(this.mCreateOwnThread && this.mExecutor != null) {
 				((ExecutorService) this.mExecutor).shutdown();
 			}
 			if(this.mCreatedOwnAudioDevice) {
