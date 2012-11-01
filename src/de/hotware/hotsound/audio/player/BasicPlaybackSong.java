@@ -80,7 +80,7 @@ public class BasicPlaybackSong implements ISong {
 			this.mAudioFormat = audioFileFormat.getFormat();
 			return new BasicPlaybackAudio(this.getInputStream(), audioFileFormat.getFrameLength());
 		} catch(IOException | UnsupportedAudioFileException e) {
-			throw new MusicPlayerException("IOException occured while getting the IAudio from this ISong", e);
+			throw new MusicPlayerException("Exception occured while getting the IAudio from this ISong", e);
 		}
 	}
 	

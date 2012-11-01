@@ -260,6 +260,10 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public boolean isPaused() {
 		this.mLock.lock();
 		try {
+			if(this.mStreamPlayerRunnable == null) {
+				throw new IllegalStateException(this +
+						" has not been initialized yet!");
+			}
 			return this.mStreamPlayerRunnable.isPaused();
 		} finally {
 			this.mLock.unlock();
@@ -281,10 +285,11 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				this.mCurrentAudioDevice.flush();
 				this.mCurrentAudioDevice.close();
 			}
+		} finally {
+			this.mStreamPlayerRunnable = null;
 			this.mCurrentAudio = null;
 			this.mCurrentAudioDevice = null;
 			this.mCurrentSong = null;
-		} finally {
 			this.mLock.unlock();
 		}
 	}
@@ -293,6 +298,10 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public AudioFormat getAudioFormat() {
 		this.mLock.lock();
 		try {
+			if(this.mStreamPlayerRunnable == null) {
+				throw new IllegalStateException(this +
+						" has not been initialized yet!");
+			}
 			return this.mStreamPlayerRunnable.getAudioFormat();
 		} finally {
 			this.mLock.unlock();
@@ -303,6 +312,10 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public IAudioDevice getAudioDevice() {
 		this.mLock.lock();
 		try {
+			if(this.mStreamPlayerRunnable == null) {
+				throw new IllegalStateException(this +
+						" has not been initialized yet!");
+			}
 			return this.mStreamPlayerRunnable.getAudioDevice();
 		} finally {
 			this.mLock.unlock();
@@ -313,6 +326,10 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public void skip(long pFrames) throws MusicPlayerException {
 		this.mLock.lock();
 		try {
+			if(this.mStreamPlayerRunnable == null) {
+				throw new IllegalStateException(this +
+						" has not been initialized yet!");
+			}
 			this.mStreamPlayerRunnable.skip(pFrames);
 		} finally {
 			this.mLock.unlock();
@@ -323,6 +340,10 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public void seek(long pFrame) {
 		this.mLock.lock();
 		try {
+			if(this.mStreamPlayerRunnable == null) {
+				throw new IllegalStateException(this +
+						" has not been initialized yet!");
+			}
 			this.mStreamPlayerRunnable.seek(pFrame);
 		} finally {
 			this.mLock.unlock();
