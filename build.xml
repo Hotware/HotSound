@@ -7,7 +7,7 @@
   <property name="build.dir" location="build" />
   <property name="docs.dir" location="docs" />
   <property name="dist.dir" location="dist" />
-  <property name="project.version" value="0.1" />
+  <property name="project.version" value="0.1-java7" />
 
   <!-- Deletes the existing build directory-->
   <target name="clean">
