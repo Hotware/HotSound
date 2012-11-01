@@ -20,7 +20,9 @@
  */
 package de.hotware.hotsound.audio.playlist;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 
@@ -34,6 +36,10 @@ public interface IPlaylistParser {
 	 * @return List of parsed ISongs, if none was parsed an empty List
 	 */
 	public List<ISong> parse(URL pURL) throws IOException;
+	
+	public List<ISong> parse(URI pURI) throws IOException;
+	
+	public List<ISong> parse(File pFile) throws IOException;
 
 	/**
 	 * @return the keys for the parser (for identification). never null or empty

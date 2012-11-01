@@ -69,6 +69,7 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 			this.mClosed = true;
 			throw new AudioException("Error while opening the audiostream", e);
 		}
+		this.mClosed = false;
 	}
 
 	@Override

@@ -94,4 +94,9 @@ public class BasicPlaybackSong implements ISong {
 		return this.mAudioFormat;
 	}
 	
+	@Override
+	public String toString() {
+		return this.mURL.toString();
+	}
+	
 }

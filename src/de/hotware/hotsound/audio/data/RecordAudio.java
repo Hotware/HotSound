@@ -90,6 +90,7 @@ public class RecordAudio extends BaseAudio {
 			this.mClosed = true;
 			throw new AudioException("Error during opening the TargetDataLine");
 		}
+		this.mClosed = false;
 	}
 
 	@Override

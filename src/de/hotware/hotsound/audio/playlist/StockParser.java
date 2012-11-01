@@ -24,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,6 +92,16 @@ public enum StockParser implements IPlaylistParser {
 	@Override
 	public String[] getKeys() {
 		return Arrays.copyOf(this.mKeys, this.mKeys.length);
+	}
+	
+	@Override
+	public List<ISong> parse(File pFile) throws IOException {
+		return this.parse(pFile.toURI());
+	}
+	
+	@Override
+	public List<ISong> parse(URI pURI) throws IOException {
+		return this.parse(pURI.toURL());
 	}
 
 }

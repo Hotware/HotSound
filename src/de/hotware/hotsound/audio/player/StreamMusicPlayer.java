@@ -51,7 +51,7 @@ import de.hotware.hotsound.audio.data.ISeekableAudio;
 public class StreamMusicPlayer implements IMusicPlayer {
 
 	protected Executor mExecutor;
-	protected boolean mCreatedOwnThread;
+	protected boolean mCreateOwnThread;
 	protected boolean mCreatedOwnAudioDevice;
 	protected StreamPlayerRunnable mStreamPlayerRunnable;
 	protected IMusicListener mMusicListener;
@@ -99,8 +99,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 * correctly or otherwise bugs might occur
 	 */
 	public StreamMusicPlayer(IMusicListener pMusicListener) {
-		this(pMusicListener, Executors.newSingleThreadExecutor());
-		this.mCreatedOwnThread = true;
+		this(pMusicListener, null);
+		this.mCreateOwnThread = true;
 	}
 
 	public StreamMusicPlayer(Executor pExecutor) {
@@ -114,7 +114,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 * otherwise bugs might occur
 	 */
 	public StreamMusicPlayer(IMusicListener pMusicListener,
-			ExecutorService pExecutorService) {
+			ExecutorService pExecutor) {
 		this.mLock = new ReentrantLock();
 		this.mMusicListener = pMusicListener;
 		this.mPlayerRunnableListener = new IPlayerRunnableListener() {
@@ -134,7 +134,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			}
 
 		};
-		this.mExecutor = pExecutorService;
+		this.mExecutor = pExecutor;
 		this.mCurrentSong = null;
 		this.mCurrentAudioDevice = null;
 	}
@@ -278,7 +278,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			if(this.mStreamPlayerRunnable != null) {
 				this.mStreamPlayerRunnable.stop();
 			}
-			if(this.mCreatedOwnThread) {
+			if(this.mCreateOwnThread) {
 				((ExecutorService) this.mExecutor).shutdown();
 			}
 			if(this.mCreatedOwnAudioDevice) {
@@ -286,6 +286,9 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				this.mCurrentAudioDevice.close();
 			}
 		} finally {
+			if(this.mCreateOwnThread) {
+				this.mExecutor = null;
+			}
 			this.mStreamPlayerRunnable = null;
 			this.mCurrentAudio = null;
 			this.mCurrentAudioDevice = null;
@@ -351,6 +354,9 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	private void insertInternal(ISong pSong, IAudioDevice pAudioDevice) throws MusicPlayerException {
+		if(this.mCreateOwnThread && this.mExecutor == null) {
+			 this.mExecutor = Executors.newFixedThreadPool(1);
+		}
 		if(this.mStreamPlayerRunnable != null &&
 				!this.mStreamPlayerRunnable.isStopped()) {
 			throw new IllegalStateException("You can only insert Songs while the Player is stopped!");

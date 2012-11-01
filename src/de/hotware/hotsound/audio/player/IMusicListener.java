@@ -20,7 +20,9 @@
  */
 package de.hotware.hotsound.audio.player;
 
-public interface IMusicListener {
+import java.util.EventListener;
+
+public interface IMusicListener extends EventListener {
 
 	public void onEnd(MusicEndEvent pEvent);
 	

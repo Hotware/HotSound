@@ -74,5 +74,10 @@ public class RecordSong implements ISong {
 	public AudioFormat getAudioFormat() {
 		return this.mAudioFormat;
 	}
+	
+	@Override
+	public String toString() {
+		return "RecordSong " + this.mAudioFormat;
+	}
 
 }

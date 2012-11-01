@@ -20,7 +20,9 @@
  */
 package de.hotware.hotsound.audio.player;
 
-public interface IPlayerRunnableListener {
+import java.util.EventListener;
+
+public interface IPlayerRunnableListener extends EventListener {
 	
 	public void onEnd(MusicEndEvent pEvent);
 	
