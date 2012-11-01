@@ -193,9 +193,9 @@ final class StreamPlayerRunnable implements Runnable {
 	}
 
 	public void pause(boolean pPause) {
-		if(!this.mPaused) {
+		if(!this.mPaused && pPause) {
 			this.mPauseLock.lock();
-		} else {
+		} else if(!pPause) {
 			this.mPauseLock.unlock();
 		}
 		this.mPaused = pPause;
