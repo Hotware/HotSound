@@ -21,6 +21,7 @@
 package de.hotware.hotsound.audio.player;
 
 import java.io.IOException;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -49,19 +50,21 @@ import de.hotware.hotsound.audio.data.ISeekableAudio;
  * 
  * @author Martin Braun
  */
-class StreamPlayerRunnable implements Runnable {
+final class StreamPlayerRunnable implements Runnable {
 
 	protected IMusicPlayer mMusicPlayer;
 	protected boolean mAlreadyStarted;
-	protected boolean mStartLock;
 	protected boolean mPrematureStop;
 	protected boolean mMultithreaded;
-	protected Lock mLock;
+	protected Lock mPauseLock;
+	protected Lock mJoinLock;
+	protected Condition mJoinCondition;
 	protected boolean mPaused;
-	protected boolean mStop;
+	protected boolean mStopped;
 	protected IPlayerRunnableListener mPlayerRunnableListener;
 	protected IAudio mAudio;
 	protected IAudioDevice mAudioDevice;
+	protected boolean mDone;
 
 	/**
 	 * initializes the StreamPlayerRunnable with the given listenerand the given
@@ -81,12 +84,14 @@ class StreamPlayerRunnable implements Runnable {
 		this.mAudio = pAudio;
 		this.mAudioDevice = pAudioDevice;
 		this.mPaused = false;
-		this.mStop = true;
-		this.mLock = new ReentrantLock(true);
+		this.mStopped = false;
+		this.mPauseLock = new ReentrantLock(true);
+		this.mJoinLock = new ReentrantLock(true);
+		this.mJoinCondition = this.mJoinLock.newCondition();
 		this.mPlayerRunnableListener = pPlayerRunnableListener;
-		this.mStartLock = true;
 		this.mPrematureStop = false;
 		this.mAlreadyStarted = false;
+		this.mDone = false;
 		this.mMultithreaded = pMultiThreaded;
 	}
 
@@ -96,17 +101,13 @@ class StreamPlayerRunnable implements Runnable {
 	 */
 	@Override
 	public void run() {
-		if(this.mAlreadyStarted) {
-			throw new IllegalStateException("has alredy been started once and not finished!");
-		}
-		//wait for possible stop calls to be active
-		this.mLock.lock();
-		this.mLock.unlock();
-		if(!this.mPrematureStop) {
+		this.mJoinLock.lock();
+		try {
+			if(this.mAlreadyStarted) {
+				throw new IllegalStateException("has alredy been started once!");
+			}
 			this.mAlreadyStarted = true;
-			this.mStop = false;
-			this.mStartLock = false;
-			int nBytesRead = 0;
+			int bytesRead = 0;
 			MusicPlayerException exception = null;
 			boolean failure = false;
 			try {
@@ -116,23 +117,23 @@ class StreamPlayerRunnable implements Runnable {
 				if(format != null) {
 					int bufferSize = (int) format.getSampleRate() *
 							format.getFrameSize();
-					byte[] abData = new byte[bufferSize];
-					while(nBytesRead != -1 && !this.mStop) {
-						this.mLock.lock();
+					byte[] data = new byte[bufferSize];
+					while(bytesRead != -1 && !this.mStopped) {
+						this.mPauseLock.lock();
 						try {
-							nBytesRead = audio.read(abData, 0, bufferSize);
-							if(nBytesRead != -1) {
-								dev.write(abData, 0, nBytesRead);
+							bytesRead = audio.read(data, 0, bufferSize);
+							if(bytesRead != -1) {
+								dev.write(data, 0, bytesRead);
 							}
 						} finally {
-							this.mLock.unlock();
+							this.mPauseLock.unlock();
 						}
 					}
 				} else {
 					throw new IllegalStateException("The AudioFormat was null");
 				}
 			} catch(Exception e) {
-				//catch all the exceptions so the user can handle them even if he just can via the listener
+				//catch all the exceptions so the user can handle them even if he can do that only via the listener
 				failure = true;
 				exception = new MusicPlayerException("An Exception occured during Playback",
 						e);
@@ -140,12 +141,29 @@ class StreamPlayerRunnable implements Runnable {
 						.onException(new MusicExceptionEvent(this.mMusicPlayer,
 								exception));
 			} finally {
-				this.mStop = true;
-				this.mPlayerRunnableListener
-						.onEnd(new MusicEndEvent(this.mMusicPlayer,
-								failure ? MusicEndEvent.Type.FAILURE
-										: MusicEndEvent.Type.SUCCESS));
+				MusicEndEvent.Type type = failure ? MusicEndEvent.Type.FAILURE
+						: MusicEndEvent.Type.SUCCESS;
+				if(this.mStopped) {
+					type = MusicEndEvent.Type.MANUALLY_STOPPED;
+				}
+				this.mStopped = true;
+				final MusicEndEvent.Type finalType = type;
+				//TODO: look for a better way to run the event on a separate Thread
+				//this has to be done on a separate one because of the signaling behaviour
+				new Thread() {
+	
+					public void run() {
+						StreamPlayerRunnable.this.mPlayerRunnableListener
+								.onEnd(new MusicEndEvent(StreamPlayerRunnable.this.mMusicPlayer,
+										finalType));
+					}
+	
+				}.start();
+				this.mJoinCondition.signal();
+				this.mDone = true;
 			}
+		} finally {
+			this.mJoinLock.unlock();
 		}
 	}
 
@@ -176,9 +194,9 @@ class StreamPlayerRunnable implements Runnable {
 
 	public void pause(boolean pPause) {
 		if(!this.mPaused) {
-			this.mLock.lock();
+			this.mPauseLock.lock();
 		} else {
-			this.mLock.unlock();
+			this.mPauseLock.unlock();
 		}
 		this.mPaused = pPause;
 		this.mAudioDevice.pause(pPause);
@@ -189,28 +207,22 @@ class StreamPlayerRunnable implements Runnable {
 	}
 
 	public boolean isStopped() {
-		return this.mStop;
+		//a runnable that has not yet been started counts as stopped as well
+		return this.mStopped || !this.mAlreadyStarted;
 	}
 
-	/**
-	 * blocks until start has been called
-	 * 
-	 * @throws MusicPlayerException
-	 */
 	public void stop() throws MusicPlayerException {
-		boolean unlock = false;
+		this.mStopped = true;
+	}
+	
+	public void join() throws InterruptedException {
+		this.mJoinLock.lock();
 		try {
-			if(this.mStartLock && this.mMultithreaded) {
-				this.mLock.lock();
-				this.mStartLock = false;
-				this.mPrematureStop = true;
-				unlock = true;
+			if(!this.mDone) {
+				this.mJoinCondition.await();
 			}
-			this.mStop = true;
 		} finally {
-			if(unlock) {
-				this.mLock.unlock();
-			}
+			this.mJoinLock.unlock();
 		}
 	}
 

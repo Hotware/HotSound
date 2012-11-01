@@ -35,7 +35,7 @@ import javax.sound.sampled.Mixer.Info;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class AudioUtil {
+public final class AudioUtil {
 	
 	private AudioUtil() {}
 

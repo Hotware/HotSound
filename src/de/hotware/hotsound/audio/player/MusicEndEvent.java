@@ -39,7 +39,8 @@ public class MusicEndEvent extends
 
 	public static enum Type {
 		SUCCESS,
-		FAILURE
+		MANUALLY_STOPPED,
+		FAILURE,
 	}
 
 }
