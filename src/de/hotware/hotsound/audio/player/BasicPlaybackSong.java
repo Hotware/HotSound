@@ -22,7 +22,6 @@ package de.hotware.hotsound.audio.player;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -64,11 +63,6 @@ public class BasicPlaybackSong implements ISong {
 		this.mURL = pFile.toURI().toURL();
 	}
 
-	public InputStream getInputStream() throws IOException {
-		URLConnection uc = this.mURL.openConnection();
-		return uc.getInputStream();
-	}
-
 	@Override
 	public IAudio getAudio() throws MusicPlayerException {
 		try {
@@ -83,7 +77,8 @@ public class BasicPlaybackSong implements ISong {
 				audioFileFormat = AudioSystem.getAudioFileFormat(this.mURL);
 			}
 			this.mAudioFormat = audioFileFormat.getFormat();
-			return new BasicPlaybackAudio(this.getInputStream(), audioFileFormat.getFrameLength());
+			URLConnection uc = this.mURL.openConnection();
+			return new BasicPlaybackAudio(uc.getInputStream(), audioFileFormat.getFrameLength());
 		} catch(IOException | UnsupportedAudioFileException e) {
 			throw new MusicPlayerException("Exception occured while getting the IAudio from this ISong", e);
 		}

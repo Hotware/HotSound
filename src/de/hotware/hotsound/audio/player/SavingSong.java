@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
@@ -63,7 +64,8 @@ public class SavingSong extends BasicPlaybackSong {
 				audioFileFormat = AudioSystem.getAudioFileFormat(this.mURL);
 			}
 			this.mAudioFormat = audioFileFormat.getFormat();
-			return new WaveAudio(this.getInputStream(), audioFileFormat.getFrameLength());
+			URLConnection uc = this.mURL.openConnection();
+			return new WaveAudio(uc.getInputStream(), audioFileFormat.getFrameLength());
 		} catch(IOException | UnsupportedAudioFileException e) {
 			throw new MusicPlayerException("Exception occured while getting the IAudio from this ISong", e);
 		}
