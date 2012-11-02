@@ -118,12 +118,16 @@ final class StreamPlayerRunnable implements Runnable {
 					int bufferSize = (int) format.getSampleRate() *
 							format.getFrameSize();
 					byte[] data = new byte[bufferSize];
-					while(bytesRead != -1 && !this.mStopped) {
+					while(bytesRead != -1) {
 						this.mPauseLock.lock();
 						try {
-							bytesRead = audio.read(data, 0, bufferSize);
-							if(bytesRead != -1) {
-								dev.write(data, 0, bytesRead);
+							if(!this.mStopped) {
+								bytesRead = audio.read(data, 0, bufferSize);
+								if(bytesRead != -1) {
+									dev.write(data, 0, bytesRead);
+								}
+							} else {
+								break;
 							}
 						} finally {
 							this.mPauseLock.unlock();
@@ -213,6 +217,8 @@ final class StreamPlayerRunnable implements Runnable {
 
 	public void stop() throws MusicPlayerException {
 		this.mStopped = true;
+		this.mAudioDevice.flush();
+		this.pause(false);
 	}
 	
 	public void join() throws InterruptedException {
