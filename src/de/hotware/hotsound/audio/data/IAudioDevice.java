@@ -67,7 +67,7 @@ public interface IAudioDevice extends AutoCloseable {
 	public void close() throws AudioDeviceException;
 	
 	/**
-	 * blocks until all current audio has been played
+	 * discards all audio that is currently in the buffer
 	 * @throws AudioDeviceException
 	 */
 	public void flush() throws AudioDeviceException;
