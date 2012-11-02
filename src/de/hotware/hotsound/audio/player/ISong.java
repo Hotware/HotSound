@@ -39,7 +39,11 @@ public interface ISong {
 	public IAudio getAudio() throws MusicPlayerException;
 
 	public long getFrameLength();
-	
+
+	/**
+	 * @return the audioformat of the song. this must not necessarily be the
+	 *         audioformat of the audio returned by getAudio()
+	 */
 	public AudioFormat getAudioFormat();
 
 }
