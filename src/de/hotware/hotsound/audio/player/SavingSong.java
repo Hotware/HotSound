@@ -24,7 +24,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.hotware.hotsound.audio.data.IAudio;
 import de.hotware.hotsound.audio.data.WaveAudio;
@@ -47,9 +52,20 @@ public class SavingSong extends BasicPlaybackSong {
 	@Override
 	public IAudio getAudio() throws MusicPlayerException {
 		try {
-			return new WaveAudio(this.getInputStream());
-		} catch(IOException e) {
-			throw new MusicPlayerException("IOException occured while getting the IAudio from this ISong", e);
+			AudioFileFormat audioFileFormat;
+			if(this.mURL.getProtocol().toLowerCase().equals("file")) {
+				try {
+					audioFileFormat = AudioSystem.getAudioFileFormat(new File(this.mURL.toURI()));
+				} catch(URISyntaxException e) {
+					audioFileFormat = AudioSystem.getAudioFileFormat(new File(this.mURL.getPath()));
+				}
+			} else {
+				audioFileFormat = AudioSystem.getAudioFileFormat(this.mURL);
+			}
+			this.mAudioFormat = audioFileFormat.getFormat();
+			return new WaveAudio(this.getInputStream(), audioFileFormat.getFrameLength());
+		} catch(IOException | UnsupportedAudioFileException e) {
+			throw new MusicPlayerException("Exception occured while getting the IAudio from this ISong", e);
 		}
 	}
 

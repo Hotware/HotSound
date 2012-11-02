@@ -94,7 +94,10 @@ public class BasicPlaybackSong implements ISong {
 		return this.mFrameLength;
 	}
 
-	@Override
+	/**
+	 * @return the audioformat of the song. this must not necessarily be the
+	 *         audioformat of the audio returned by getAudio()
+	 */
 	public AudioFormat getAudioFormat() {
 		return this.mAudioFormat;
 	}

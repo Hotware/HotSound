@@ -69,11 +69,6 @@ public class RecordSong implements ISong {
 	public long getFrameLength() {
 		return AudioSystem.NOT_SPECIFIED;
 	}
-
-	@Override
-	public AudioFormat getAudioFormat() {
-		return this.mAudioFormat;
-	}
 	
 	@Override
 	public String toString() {
