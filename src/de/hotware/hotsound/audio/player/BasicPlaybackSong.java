@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -73,7 +74,11 @@ public class BasicPlaybackSong implements ISong {
 		try {
 			AudioFileFormat audioFileFormat;
 			if(this.mURL.getProtocol().toLowerCase().equals("file")) {
-				audioFileFormat = AudioSystem.getAudioFileFormat(new File(this.mURL.getFile()));
+				try {
+					audioFileFormat = AudioSystem.getAudioFileFormat(new File(this.mURL.toURI()));
+				} catch(URISyntaxException e) {
+					audioFileFormat = AudioSystem.getAudioFileFormat(new File(this.mURL.getPath()));
+				}
 			} else {
 				audioFileFormat = AudioSystem.getAudioFileFormat(this.mURL);
 			}

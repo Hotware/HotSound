@@ -40,7 +40,6 @@ import javax.sound.sampled.AudioFormat;
 import de.hotware.hotsound.audio.data.BasicPlaybackAudioDevice;
 import de.hotware.hotsound.audio.data.IAudio;
 import de.hotware.hotsound.audio.data.IAudioDevice;
-import de.hotware.hotsound.audio.data.ISeekableAudio;
 
 /**
  * always runs the playback in its own thread but you can pass an
@@ -162,7 +161,12 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				this.mCreatedOwnAudioDevice = true;
 				dev = new BasicPlaybackAudioDevice();
 			}
-			this.insert(pSong, dev);
+			try {
+				this.insert(pSong, dev);
+			} catch(MusicPlayerException e) {
+				this.mCreatedOwnAudioDevice = false;
+				throw e;
+			}
 		} finally {
 			this.mLock.unlock();
 		}
@@ -358,24 +362,17 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		if(this.mCreateOwnThread && this.mExecutor == null) {
 			this.mExecutor = Executors.newFixedThreadPool(1);
 		}
-		if(this.mCurrentSong != pSong) {
-			//the song has changed, update everything and close the old audio
-			if(this.mCurrentAudio != null) {
-				this.mCurrentAudio.close();
-			}
+		if(this.mCurrentAudio != null && !this.mCurrentAudio.isClosed()) {
+			this.mCurrentAudio.close();
+		}
+		try {
 			this.mCurrentSong = pSong;
 			this.mCurrentAudio = pSong.getAudio();
 			this.mCurrentAudio.open();
-		} else if(this.mCurrentSong != null && this.mCurrentAudio != null) {
-			if(this.mCurrentSong instanceof ISeekableAudio &&
-					!this.mCurrentAudio.isClosed()) {
-				//TODO: seek implementation!
-				this.mCurrentAudio.close();
-			} else {
-				this.mCurrentAudio.close();
-			}
-			this.mCurrentAudio = pSong.getAudio();
-			this.mCurrentAudio.open();
+		} catch(MusicPlayerException e) {
+			this.mCurrentAudio = null;
+			this.mCurrentSong = null;
+			throw e;
 		}
 		if(this.mCreatedOwnAudioDevice && this.mCurrentAudioDevice != null &&
 				!this.mCurrentAudioDevice.isClosed() &&
