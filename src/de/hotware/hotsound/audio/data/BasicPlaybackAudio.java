@@ -55,6 +55,9 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 		this.mFrameLength = pFrameLength;
 	}
 
+	/**
+	 * notice for overriding classes: mFrameSize is getting set in here.
+	 */
 	@Override
 	public void open() throws AudioException {
 		if(!this.mClosed) {
