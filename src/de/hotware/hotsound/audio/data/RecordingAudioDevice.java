@@ -58,6 +58,11 @@ public class RecordingAudioDevice extends BaseAudioDevice {
 		}
 		return pLength;
 	}
+	
+	@Override
+	public void flush() throws AudioDeviceException {
+		
+	}
 
 	@Override
 	public void close() throws AudioDeviceException {

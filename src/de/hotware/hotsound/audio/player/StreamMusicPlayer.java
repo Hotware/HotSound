@@ -365,6 +365,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		if(this.mCurrentAudio != null && !this.mCurrentAudio.isClosed()) {
 			this.mCurrentAudio.close();
 		}
+		//TODO: Seekable implementation
 		try {
 			this.mCurrentSong = pSong;
 			this.mCurrentAudio = pSong.getAudio();

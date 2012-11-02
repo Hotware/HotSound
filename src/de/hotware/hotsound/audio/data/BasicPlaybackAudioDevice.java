@@ -95,7 +95,6 @@ public class BasicPlaybackAudioDevice extends BaseAudioDevice implements IJavaSo
 	
 	@Override
 	public void flush() throws AudioDeviceException {
-		super.flush();
 		this.mSourceDataLine.flush();
 	}
 
