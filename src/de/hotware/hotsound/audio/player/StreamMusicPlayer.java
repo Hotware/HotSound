@@ -20,15 +20,6 @@
  */
 package de.hotware.hotsound.audio.player;
 
-/**
- *  @author Martin Braun
- *  Player inspired by Matthias Pfisterer's examples on JavaSound
- *  (jsresources.org). Because of the fact, that this Software is meant
- *  to be Open-Source and I don't want to get anybody angry about me
- *  using parts of his intelligence without mentioning it, I hereby
- *  mention him as inspiration, because his code helped me to write this class.
- */
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

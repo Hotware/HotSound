@@ -34,7 +34,7 @@ import de.hotware.hotsound.audio.data.IAudioDevice.AudioDeviceException;
 import de.hotware.hotsound.audio.data.ISeekableAudio;
 
 /**
- * To be used with ExecutionServices. Is not thread-safe! Do not execute twice!
+ * To be used with Executors. Is not thread-safe! Do not execute twice!
  * 
  * Player inspired by Matthias Pfisterer's examples on JavaSound
  * (jsresources.org). Because of the fact, that this Software is meant to be

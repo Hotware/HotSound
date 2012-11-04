@@ -116,6 +116,11 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 		if(this.mClosed) {
 			throw new IllegalStateException("The Audio is not opened");
 		}
+		if(this.mFrameSize <= 0 || this.mFrameLength <= 0) {
+			throw new AudioException("couldn't skip the audio because" +
+					" framesize or framelength are not known");
+		}
+		//FIXME: skipping in wav files
 		double rate = ((double) pFrames) / this.mFrameLength;
 		long bytesToSkip = (long) Math.round(rate * this.mFrameLength *
 				this.mFrameSize);
