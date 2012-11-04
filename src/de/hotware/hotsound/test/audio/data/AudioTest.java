@@ -20,7 +20,6 @@ import de.hotware.hotsound.audio.player.MusicPlayerException;
 import de.hotware.hotsound.audio.player.RecordSong;
 import de.hotware.hotsound.audio.player.SavingSong;
 
-
 public class AudioTest {
 
 	@Test
