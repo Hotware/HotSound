@@ -25,7 +25,7 @@ import javax.sound.sampled.AudioFormat;
 import de.hotware.hotsound.audio.player.MusicPlayerException;
 
 /**
- * All Audio data is being read from subclasses of this interface. Has to be reopenable.
+ * All Audio data is being read from subclasses of this interface.
  *
  * @author Martin Braun
  */
