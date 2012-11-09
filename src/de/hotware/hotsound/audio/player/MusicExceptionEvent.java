@@ -20,13 +20,13 @@
  */
 package de.hotware.hotsound.audio.player;
 
-import de.hotware.util.GBaseEvent;
+import de.hotware.util.BaseEvent;
 
-public class MusicExceptionEvent extends GBaseEvent<IMusicPlayer> {
+public class MusicExceptionEvent extends BaseEvent<MusicPlayer> {
 	
 	private MusicPlayerException mException;
 
-	public MusicExceptionEvent(IMusicPlayer pSource, MusicPlayerException pException) {
+	public MusicExceptionEvent(MusicPlayer pSource, MusicPlayerException pException) {
 		super(pSource);
 		this.mException = pException;
 	}

@@ -31,21 +31,21 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.hotware.hotsound.audio.player.BasicPlaybackSong;
-import de.hotware.hotsound.audio.player.ISong;
+import de.hotware.hotsound.audio.player.Song;
 
 /**
  * default Parsers that ship with HotSound
  *
  * @author Martin Braun
  */
-public enum StockParser implements IPlaylistParser {
+public enum StockParser implements PlaylistParser {
 	M3U("m3u") {
 
 		@Override
-		public List<ISong> parse(URL pURL) throws IOException {
+		public List<Song> parse(URL pURL) throws IOException {
 			try(InputStreamReader streamReader = new InputStreamReader(pURL.openStream());
 					BufferedReader buf = new BufferedReader(streamReader)) {
-				List<ISong> ret = new ArrayList<ISong>();
+				List<Song> ret = new ArrayList<Song>();
 				String line;
 				while((line = buf.readLine()) != null) {
 					// ignore ALL the unnecessary whitespace
@@ -95,12 +95,12 @@ public enum StockParser implements IPlaylistParser {
 	}
 	
 	@Override
-	public List<ISong> parse(File pFile) throws IOException {
+	public List<Song> parse(File pFile) throws IOException {
 		return this.parse(pFile.toURI());
 	}
 	
 	@Override
-	public List<ISong> parse(URI pURI) throws IOException {
+	public List<Song> parse(URI pURI) throws IOException {
 		return this.parse(pURI.toURL());
 	}
 

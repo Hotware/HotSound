@@ -20,14 +20,14 @@
  */
 package de.hotware.hotsound.audio.player;
 
-import de.hotware.util.GBaseEvent;
+import de.hotware.util.BaseEvent;
 
 public class MusicEndEvent extends
-		GBaseEvent<IMusicPlayer> {
+		BaseEvent<MusicPlayer> {
 
 	private MusicEndEvent.Type mType;
 
-	public MusicEndEvent(IMusicPlayer pSource,
+	public MusicEndEvent(MusicPlayer pSource,
 			MusicEndEvent.Type pType) {
 		super(pSource);
 		this.mType = pType;

@@ -20,7 +20,7 @@
  */
 package de.hotware.hotsound.audio.data;
 
-public abstract class BaseAudio implements IAudio {
+public abstract class BaseAudio implements Audio {
 
 	protected boolean mClosed;
 	

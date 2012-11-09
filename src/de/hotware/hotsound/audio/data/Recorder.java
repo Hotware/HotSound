@@ -34,7 +34,7 @@ class Recorder implements AutoCloseable {
 	private BufferedOutputStream mBufferedOutputStream;
 	private File mFile;
 	private File mTempFile;
-	private IAudioFileHeader mHeader;
+	private AudioFileHeader mHeader;
 	private int mBytesWritten;
 	private boolean mClosed;
 

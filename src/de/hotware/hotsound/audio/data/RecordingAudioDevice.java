@@ -60,7 +60,7 @@ public class RecordingAudioDevice extends BaseAudioDevice {
 	}
 	
 	@Override
-	public void flush() throws AudioDeviceException {
+	public void flush() {
 		
 	}
 

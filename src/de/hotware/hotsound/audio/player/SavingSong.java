@@ -32,7 +32,7 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import de.hotware.hotsound.audio.data.IAudio;
+import de.hotware.hotsound.audio.data.Audio;
 import de.hotware.hotsound.audio.data.WaveAudio;
 
 
@@ -51,7 +51,7 @@ public class SavingSong extends BasicPlaybackSong {
 	}
 	
 	@Override
-	public IAudio getAudio() throws MusicPlayerException {
+	public Audio getAudio() throws MusicPlayerException {
 		try {
 			AudioFileFormat audioFileFormat;
 			if(this.mURL.getProtocol().toLowerCase().equals("file")) {

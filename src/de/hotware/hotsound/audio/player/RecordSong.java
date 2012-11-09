@@ -25,10 +25,10 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 
-import de.hotware.hotsound.audio.data.IAudio;
+import de.hotware.hotsound.audio.data.Audio;
 import de.hotware.hotsound.audio.data.RecordAudio;
 
-public class RecordSong implements ISong {
+public class RecordSong implements Song {
 
 	protected AudioFormat mAudioFormat;
 	protected Class<? extends TargetDataLine> mTargetDataLineClass;
@@ -61,7 +61,7 @@ public class RecordSong implements ISong {
 	}
 
 	@Override
-	public IAudio getAudio() throws MusicPlayerException {
+	public Audio getAudio() throws MusicPlayerException {
 		return new RecordAudio(this.mMixer, this.mAudioFormat, this.mBufferSize, this.mTargetDataLineClass);
 	}
 

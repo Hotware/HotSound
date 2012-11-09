@@ -35,7 +35,7 @@ import de.hotware.hotsound.audio.util.AudioUtil;
  * 
  * @author Martin Braun
  */
-public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
+public class BasicPlaybackAudio extends BaseAudio implements SeekableAudio {
 
 	protected InputStream mInputStream;
 	protected AudioInputStream mAudioInputStream;
@@ -56,16 +56,18 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 	}
 
 	/**
-	 * notice for overriding classes: mFrameSize is getting set in here.
+	 * notice for overriding classes: if you want
+	 * this audio to have a different AudioFormat in 
+	 * it's AudioInputStream, override
+	 * {@link #getAudioInputStream()}
 	 */
 	@Override
-	public void open() throws AudioException {
+	public final void open() throws AudioException {
 		if(!this.mClosed) {
 			throw new IllegalStateException("The Audio is already opened");
 		}
 		try {
-			this.mAudioInputStream = AudioUtil
-					.getSupportedAudioInputStreamFromInputStream(this.mInputStream);
+			this.mAudioInputStream = this.getAudioInputStream();
 			AudioFormat format = this.mAudioInputStream.getFormat();
 			this.mFrameSize = format.getFrameSize();
 		} catch(UnsupportedAudioFileException | IOException e) {
@@ -153,6 +155,15 @@ public class BasicPlaybackAudio extends BaseAudio implements ISeekableAudio {
 	@Override
 	public AudioFormat getAudioFormat() {
 		return this.mAudioInputStream.getFormat();
+	}
+	
+	/**
+	 * Override this, if you want a different audio format
+	 */
+	protected AudioInputStream getAudioInputStream() throws UnsupportedAudioFileException,
+	IOException {
+	return AudioUtil
+			.getSupportedAudioInputStreamFromInputStream(this.mInputStream);
 	}
 
 }

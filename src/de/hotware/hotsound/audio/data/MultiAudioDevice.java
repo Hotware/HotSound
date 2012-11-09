@@ -24,11 +24,11 @@ import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
 
-public class MultiAudioDevice implements IAudioDevice {
+public class MultiAudioDevice implements AudioDevice {
 
-	protected List<IAudioDevice> mDevices;
+	protected List<AudioDevice> mDevices;
 
-	public MultiAudioDevice(List<IAudioDevice> pDevices) {
+	public MultiAudioDevice(List<AudioDevice> pDevices) {
 		if(pDevices == null) {
 			throw new NullPointerException("pDevices may not be null");
 		}
@@ -39,7 +39,7 @@ public class MultiAudioDevice implements IAudioDevice {
 	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException {
 		boolean failed = false;
 		int ret = 0;
-		for(IAudioDevice dev : this.mDevices) {
+		for(AudioDevice dev : this.mDevices) {
 			try {
 				ret += dev.write(pData, pStart, pLength);
 			} catch(Exception e) {
@@ -54,24 +54,16 @@ public class MultiAudioDevice implements IAudioDevice {
 	}
 	
 	@Override
-	public void flush() throws AudioDeviceException {
-		boolean failed = false;
-		for(IAudioDevice dev : this.mDevices) {
-			try {
-				dev.flush();
-			} catch(Exception e) {
-				failed = true;
-			}
-		}
-		if(failed) {
-			throw new AudioDeviceException("couldn't flush all of the underlying AudioDevices");
+	public void flush() {
+		for(AudioDevice dev : this.mDevices) {
+			dev.flush();
 		}
 	}
 
 	@Override
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException {
 		boolean failed = false;
-		for(IAudioDevice dev : this.mDevices) {
+		for(AudioDevice dev : this.mDevices) {
 			try {
 				dev.open(pAudioFormat);
 			} catch(AudioDeviceException e) {
@@ -86,7 +78,7 @@ public class MultiAudioDevice implements IAudioDevice {
 	@Override
 	public boolean isPaused() {
 		boolean ret = true;
-		for(IAudioDevice dev : this.mDevices) {
+		for(AudioDevice dev : this.mDevices) {
 			ret &= dev.isPaused();
 			if(!ret) {
 				break;
@@ -97,7 +89,7 @@ public class MultiAudioDevice implements IAudioDevice {
 
 	@Override
 	public void pause(boolean pPause) {
-		for(IAudioDevice dev : this.mDevices) {
+		for(AudioDevice dev : this.mDevices) {
 			dev.pause(pPause);
 		}
 	}
@@ -105,7 +97,7 @@ public class MultiAudioDevice implements IAudioDevice {
 	@Override
 	public void close() throws AudioDeviceException {
 		boolean failed = false;
-		for(IAudioDevice dev : this.mDevices) {
+		for(AudioDevice dev : this.mDevices) {
 			try {
 				dev.close();
 			} catch(AudioDeviceException e) {
@@ -120,7 +112,7 @@ public class MultiAudioDevice implements IAudioDevice {
 	@Override
 	public boolean isClosed() {
 		boolean ret = true;
-		for(IAudioDevice dev : this.mDevices) {
+		for(AudioDevice dev : this.mDevices) {
 			ret &= dev.isClosed();
 			if(!ret) {
 				break;

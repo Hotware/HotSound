@@ -37,7 +37,7 @@ import java.io.OutputStream;
  * 
  * Not yet ready to be supported, so
  */
-public class WaveFileHeader implements IAudioFileHeader {
+public class WaveFileHeader implements AudioFileHeader {
     
     // follows WAVE format in http://ccrma.stanford.edu/courses/422/projects/WaveFormat
 

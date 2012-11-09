@@ -23,6 +23,7 @@ package de.hotware.hotsound.audio.data;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -44,19 +45,10 @@ public class WaveAudio extends BasicPlaybackAudio {
 	}
 
 	@Override
-	public void open() throws AudioException {
-		if(!this.mClosed) {
-			throw new IllegalStateException("The Audio is already opened");
-		}
-		try {
-			this.mAudioInputStream = AudioUtil
+	protected AudioInputStream getAudioInputStream() throws UnsupportedAudioFileException,
+		IOException {
+		return AudioUtil
 					.getPCMSignedAudioInputStreamFromAudioInputStream(this.mInputStream);
-			this.mFrameSize = this.mAudioInputStream.getFormat().getFrameSize();
-		} catch(UnsupportedAudioFileException | IOException e) {
-			this.mClosed = true;
-			throw new AudioException("Error while opening the audiostream", e);
-		}
-		this.mClosed = false;
 	}
 
 }

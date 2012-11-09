@@ -27,11 +27,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.sound.sampled.AudioFormat;
 
-import de.hotware.hotsound.audio.data.IAudio;
-import de.hotware.hotsound.audio.data.IAudio.AudioException;
-import de.hotware.hotsound.audio.data.IAudioDevice;
-import de.hotware.hotsound.audio.data.IAudioDevice.AudioDeviceException;
-import de.hotware.hotsound.audio.data.ISeekableAudio;
+import de.hotware.hotsound.audio.data.Audio;
+import de.hotware.hotsound.audio.data.Audio.AudioException;
+import de.hotware.hotsound.audio.data.AudioDevice;
+import de.hotware.hotsound.audio.data.AudioDevice.AudioDeviceException;
+import de.hotware.hotsound.audio.data.SeekableAudio;
 
 /**
  * To be used with Executors. Is not thread-safe! Do not execute twice!
@@ -52,7 +52,7 @@ import de.hotware.hotsound.audio.data.ISeekableAudio;
  */
 final class StreamPlayerRunnable implements Runnable {
 
-	protected IMusicPlayer mMusicPlayer;
+	protected MusicPlayer mMusicPlayer;
 	protected boolean mAlreadyStarted;
 	protected boolean mPrematureStop;
 	protected boolean mMultithreaded;
@@ -61,9 +61,9 @@ final class StreamPlayerRunnable implements Runnable {
 	protected Condition mJoinCondition;
 	protected boolean mPaused;
 	protected boolean mStopped;
-	protected IPlayerRunnableListener mPlayerRunnableListener;
-	protected IAudio mAudio;
-	protected IAudioDevice mAudioDevice;
+	protected PlayerRunnableListener mPlayerRunnableListener;
+	protected Audio mAudio;
+	protected AudioDevice mAudioDevice;
 	protected boolean mDone;
 
 	/**
@@ -72,11 +72,11 @@ final class StreamPlayerRunnable implements Runnable {
 	 * 
 	 * @throws AudioDeviceException
 	 */
-	public StreamPlayerRunnable(IAudio pAudio,
-			IAudioDevice pAudioDevice,
+	public StreamPlayerRunnable(Audio pAudio,
+			AudioDevice pAudioDevice,
 			boolean pMultiThreaded,
-			IMusicPlayer pMusicPlayer,
-			IPlayerRunnableListener pPlayerRunnableListener) {
+			MusicPlayer pMusicPlayer,
+			PlayerRunnableListener pPlayerRunnableListener) {
 		if(pAudioDevice == null || pAudio == null) {
 			throw new NullPointerException("the audiodevice and the audio may not be null");
 		}
@@ -103,16 +103,16 @@ final class StreamPlayerRunnable implements Runnable {
 	public void run() {
 		this.mJoinLock.lock();
 		try {
-			if(this.mAlreadyStarted) {
-				throw new IllegalStateException("has alredy been started once!");
-			}
-			this.mAlreadyStarted = true;
-			int bytesRead = 0;
 			MusicPlayerException exception = null;
 			boolean failure = false;
 			try {
-				IAudio audio = this.mAudio;
-				IAudioDevice dev = this.mAudioDevice;
+				if(this.mAlreadyStarted) {
+					throw new IllegalStateException("has alredy been started once!");
+				}
+				this.mAlreadyStarted = true;
+				int bytesRead = 0;
+				Audio audio = this.mAudio;
+				AudioDevice dev = this.mAudioDevice;
 				AudioFormat format = audio.getAudioFormat();
 				if(format != null) {
 					int bufferSize = (int) format.getSampleRate() *
@@ -172,19 +172,19 @@ final class StreamPlayerRunnable implements Runnable {
 	}
 
 	public void seek(long pFrame) {
-		if(!(this.mAudio instanceof ISeekableAudio)) {
+		if(!(this.mAudio instanceof SeekableAudio)) {
 			throw new UnsupportedOperationException("seeking is not possible on the current AudioFile");
 		}
 	}
 
 	public void skip(long pFrames) throws AudioDeviceException {
-		if(!(this.mAudio instanceof ISeekableAudio)) {
+		if(!(this.mAudio instanceof SeekableAudio)) {
 			throw new UnsupportedOperationException("skipping is not possible on the current AudioFile");
 		}
 		boolean pause = this.mPaused;
 		try {
 			this.pause(true);
-			((ISeekableAudio) this.mAudio).skip(pFrames);
+			((SeekableAudio) this.mAudio).skip(pFrames);
 		} catch(AudioException e) {
 			throw new AudioDeviceException("couldn't skip with the current audio");
 		} finally {
@@ -193,7 +193,7 @@ final class StreamPlayerRunnable implements Runnable {
 	}
 
 	public boolean isSkippingPossible() {
-		return this.mAudio instanceof ISeekableAudio;
+		return this.mAudio instanceof SeekableAudio;
 	}
 
 	public void pause(boolean pPause) {
@@ -211,8 +211,11 @@ final class StreamPlayerRunnable implements Runnable {
 	}
 
 	public boolean isStopped() {
-		//a runnable that has not yet been started counts as stopped as well
-		return this.mStopped || !this.mAlreadyStarted;
+		return this.mStopped;
+	}
+	
+	public boolean isAlreadyStarted() {
+		return this.mAlreadyStarted;
 	}
 
 	public void stop() throws MusicPlayerException {
@@ -236,7 +239,7 @@ final class StreamPlayerRunnable implements Runnable {
 		return this.mAudio.getAudioFormat();
 	}
 
-	public IAudioDevice getAudioDevice() {
+	public AudioDevice getAudioDevice() {
 		return this.mAudioDevice;
 	}
 

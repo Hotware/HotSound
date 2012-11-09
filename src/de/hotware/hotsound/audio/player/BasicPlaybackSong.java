@@ -34,7 +34,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import de.hotware.hotsound.audio.data.BasicPlaybackAudio;
-import de.hotware.hotsound.audio.data.IAudio;
+import de.hotware.hotsound.audio.data.Audio;
 
 /**
  * Base implementation of a song. instantiable because it already knows enough
@@ -42,7 +42,7 @@ import de.hotware.hotsound.audio.data.IAudio;
  * 
  * @author Martin Braun
  */
-public class BasicPlaybackSong implements ISong {
+public class BasicPlaybackSong implements Song {
 
 	protected URL mURL;
 	protected long mFrameLength;
@@ -64,7 +64,7 @@ public class BasicPlaybackSong implements ISong {
 	}
 
 	@Override
-	public IAudio getAudio() throws MusicPlayerException {
+	public Audio getAudio() throws MusicPlayerException {
 		try {
 			AudioFileFormat audioFileFormat;
 			if(this.mURL.getProtocol().toLowerCase().equals("file")) {
@@ -99,7 +99,10 @@ public class BasicPlaybackSong implements ISong {
 	
 	@Override
 	public String toString() {
-		return this.mURL.toString();
+		StringBuilder builder = new StringBuilder();
+		return builder.append("[BasicPlaybackSong: ")
+				.append(this.mURL)
+				.append("]").toString();
 	}
 	
 }

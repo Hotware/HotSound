@@ -29,8 +29,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.sound.sampled.AudioFormat;
 
 import de.hotware.hotsound.audio.data.BasicPlaybackAudioDevice;
-import de.hotware.hotsound.audio.data.IAudio;
-import de.hotware.hotsound.audio.data.IAudioDevice;
+import de.hotware.hotsound.audio.data.Audio;
+import de.hotware.hotsound.audio.data.AudioDevice;
+import de.hotware.hotsound.audio.data.AudioDevice.AudioDeviceException;
 
 /**
  * always runs the playback in its own thread but you can pass an
@@ -38,23 +39,23 @@ import de.hotware.hotsound.audio.data.IAudioDevice;
  * 
  * @author Martin Braun
  */
-public class StreamMusicPlayer implements IMusicPlayer {
+public final class StreamMusicPlayer implements MusicPlayer {
 
 	protected Executor mExecutor;
 	protected boolean mCreateOwnThread;
 	protected boolean mCreatedOwnAudioDevice;
 	protected StreamPlayerRunnable mStreamPlayerRunnable;
-	protected IMusicListener mMusicListener;
-	protected IPlayerRunnableListener mPlayerRunnableListener;
+	protected MusicListener mMusicListener;
+	protected PlayerRunnableListener mPlayerRunnableListener;
 	/**
 	 * the current song after insertion
 	 */
-	protected ISong mCurrentSong;
-	protected IAudio mCurrentAudio;
+	protected Song mCurrentSong;
+	protected Audio mCurrentAudio;
 	/**
 	 * the current mixer after insertion
 	 */
-	protected IAudioDevice mCurrentAudioDevice;
+	protected AudioDevice mCurrentAudioDevice;
 	private Lock mLock;
 
 	/**
@@ -64,13 +65,13 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 * times
 	 */
 	public StreamMusicPlayer() {
-		this(new IMusicListener() {
+		this(new MusicListener() {
 
 			@Override
 			public void onEnd(MusicEndEvent pEvent) {
 				try {
 					pEvent.getSource().close();
-				} catch(MusicPlayerException e) {
+				} catch (MusicPlayerException e) {
 					e.printStackTrace();
 				}
 			}
@@ -88,7 +89,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 * musiclistener is passed here, make sure to shutdown the StreamMusicPlayer
 	 * correctly or otherwise bugs might occur
 	 */
-	public StreamMusicPlayer(IMusicListener pMusicListener) {
+	public StreamMusicPlayer(MusicListener pMusicListener) {
 		this(pMusicListener, null);
 		this.mCreateOwnThread = true;
 	}
@@ -103,11 +104,11 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 * passed here, make sure to shutdown the StreamMusicPlayer correctly or
 	 * otherwise bugs might occur
 	 */
-	public StreamMusicPlayer(IMusicListener pMusicListener,
-			ExecutorService pExecutor) {
+	public StreamMusicPlayer(MusicListener pMusicListener,
+			Executor pExecutor) {
 		this.mLock = new ReentrantLock();
 		this.mMusicListener = pMusicListener;
-		this.mPlayerRunnableListener = new IPlayerRunnableListener() {
+		this.mPlayerRunnableListener = new PlayerRunnableListener() {
 
 			@Override
 			public void onEnd(MusicEndEvent pEvent) {
@@ -134,7 +135,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 *             StreamMusicPlayer correctly or otherwise bugs might occur
 	 */
 	@Override
-	public void setMusicListener(IMusicListener pMusicListener) {
+	public void setMusicListener(MusicListener pMusicListener) {
 		this.mMusicListener = pMusicListener;
 	}
 
@@ -144,10 +145,10 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 *             not already one in usage (not closed)
 	 */
 	@Override
-	public void insert(ISong pSong) throws MusicPlayerException {
+	public void insert(Song pSong) throws MusicPlayerException {
 		this.mLock.lock();
 		try {
-			IAudioDevice dev = this.mCurrentAudioDevice;
+			AudioDevice dev = this.mCurrentAudioDevice;
 			if(dev == null || dev.isClosed()) {
 				this.mCreatedOwnAudioDevice = true;
 				dev = new BasicPlaybackAudioDevice();
@@ -174,7 +175,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	 *             methods
 	 */
 	@Override
-	public void insert(ISong pSong, IAudioDevice pAudioDevice) throws MusicPlayerException {
+	public void insert(Song pSong, AudioDevice pAudioDevice) throws MusicPlayerException {
 		this.mLock.lock();
 		try {
 			this.insertInternal(pSong, pAudioDevice);
@@ -191,9 +192,10 @@ public class StreamMusicPlayer implements IMusicPlayer {
 				throw new IllegalStateException(this +
 						" has not been initialized yet!");
 			}
-			if(!this.mStreamPlayerRunnable.isStopped()) {
+			if(!this.mStreamPlayerRunnable.isStopped() && this.mStreamPlayerRunnable.isAlreadyStarted()) {
 				throw new IllegalStateException("Player is already playing");
 			}
+			this.mStreamPlayerRunnable.mStopped = false;
 			this.mExecutor.execute(this.mStreamPlayerRunnable);
 		} finally {
 			this.mLock.unlock();
@@ -217,10 +219,6 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		}
 	}
 
-	/**
-	 * @inheritDoc blocks until start has been called if in multithreaded mode
-	 *             (ExecutorService != null)
-	 */
 	@Override
 	public void stop() throws MusicPlayerException {
 		this.mLock.lock();
@@ -238,7 +236,8 @@ public class StreamMusicPlayer implements IMusicPlayer {
 		this.mLock.lock();
 		try {
 			return this.mStreamPlayerRunnable == null ||
-					this.mStreamPlayerRunnable.isStopped();
+					this.mStreamPlayerRunnable.isStopped() ||
+					!this.mStreamPlayerRunnable.isAlreadyStarted();
 		} finally {
 			this.mLock.unlock();
 		}
@@ -259,14 +258,17 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	public void close() throws MusicPlayerException {
 		this.mLock.lock();
 		//auto close the current audio
-		try(IAudio audio = this.mCurrentAudio) {
+		try(Audio audio = this.mCurrentAudio) {
 			if(this.mStreamPlayerRunnable != null) {
 				this.mStreamPlayerRunnable.stop();
 			}
 			if(this.mCreateOwnThread && this.mExecutor != null) {
 				((ExecutorService) this.mExecutor).shutdown();
 			}
-			if(this.mCreatedOwnAudioDevice) {
+			if(this.mCreatedOwnAudioDevice && this.mCurrentAudioDevice != null) {
+				//the current audio device may be null
+				//if the player already has been closed
+				//in a listener or whatever
 				this.mCurrentAudioDevice.flush();
 				this.mCurrentAudioDevice.close();
 			}
@@ -297,7 +299,7 @@ public class StreamMusicPlayer implements IMusicPlayer {
 	}
 
 	@Override
-	public IAudioDevice getAudioDevice() {
+	public AudioDevice getAudioDevice() {
 		this.mLock.lock();
 		try {
 			if(this.mStreamPlayerRunnable == null) {
@@ -337,8 +339,25 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			this.mLock.unlock();
 		}
 	}
+	
+	@Override
+	public String toString() {
+		this.mLock.lock();
+		try {
+			StringBuilder builder = new StringBuilder();
+			return builder.append("[StreamMusicPlayer: Current Song: ")
+					.append(this.mCurrentSong)
+					.append(" ")
+					.append("Current AudioDevice: ")
+					.append(this.mCurrentAudioDevice)
+					.append("]")
+					.toString();
+		} finally {
+			this.mLock.unlock();
+		}
+	}
 
-	private void insertInternal(ISong pSong, IAudioDevice pAudioDevice) throws MusicPlayerException {
+	private void insertInternal(Song pSong, AudioDevice pAudioDevice) throws MusicPlayerException {
 		if(this.mStreamPlayerRunnable != null) {
 			if(!this.mStreamPlayerRunnable.isStopped()) {
 				throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
@@ -366,12 +385,17 @@ public class StreamMusicPlayer implements IMusicPlayer {
 			this.mCurrentSong = null;
 			throw e;
 		}
-		if(this.mCreatedOwnAudioDevice && this.mCurrentAudioDevice != null &&
-				!this.mCurrentAudioDevice.isClosed() &&
-				this.mCurrentAudioDevice != pAudioDevice) {
-			this.mCurrentAudioDevice.close();
+		try {
+			if(this.mCreatedOwnAudioDevice && this.mCurrentAudioDevice != null &&
+					this.mCurrentAudioDevice != pAudioDevice) {
+				this.mCreatedOwnAudioDevice = false;
+				this.mCurrentAudioDevice.close();
+			}
+			this.mCurrentAudioDevice = pAudioDevice;
+		} catch(AudioDeviceException e) {
+			this.mCurrentAudioDevice = null;
+			throw e;
 		}
-		this.mCurrentAudioDevice = pAudioDevice;
 		if(this.mCurrentAudioDevice.isClosed()) {
 			this.mCurrentAudioDevice.open(this.mCurrentAudio.getAudioFormat());
 		}

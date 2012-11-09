@@ -30,7 +30,7 @@ import javax.sound.sampled.SourceDataLine;
 /**
  * Default audio device for playing audio
  */
-public class BasicPlaybackAudioDevice extends BaseAudioDevice implements IJavaSoundPlaybackAudioDevice {
+public class BasicPlaybackAudioDevice extends BaseAudioDevice implements JavaSoundPlaybackAudioDevice {
 
 	protected Mixer mMixer;
 	protected SourceDataLine mSourceDataLine;
@@ -58,6 +58,7 @@ public class BasicPlaybackAudioDevice extends BaseAudioDevice implements IJavaSo
 		super();
 		this.mMixer = pMixer;
 		this.mBufferSize = pBufferSize;
+		this.mSourceDataLine = null;
 		this.mSourceDataLineClass = pSourceDataLineClass;
 	}
 
@@ -94,8 +95,10 @@ public class BasicPlaybackAudioDevice extends BaseAudioDevice implements IJavaSo
 	}
 	
 	@Override
-	public void flush() throws AudioDeviceException {
-		this.mSourceDataLine.flush();
+	public void flush() {
+		if(this.mSourceDataLine != null) {
+			this.mSourceDataLine.flush();
+		}
 	}
 
 	@Override
@@ -131,6 +134,13 @@ public class BasicPlaybackAudioDevice extends BaseAudioDevice implements IJavaSo
 	@Override
 	public DataLine getDataLine() {
 		return this.mSourceDataLine;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		return builder.append("[BasicPlaybackAudioDevice: ")
+				.append(this.mAudioFormat).append("]").toString();
 	}
 
 }
