@@ -18,7 +18,7 @@ A tutorial on what you need to get them to work will follow.
 ## Examples:
 Give HotSound a try and learn how to use it here:
 
-https://github.com/s4ke/HotSoundExamples
+https://github.com/Hotware/HotSoundExamples
 
 ##Contributors:
 * Martin Braun <martinbraun123@aol.com> (Lead Developer)
