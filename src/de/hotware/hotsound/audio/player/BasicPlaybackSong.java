@@ -80,7 +80,7 @@ public class BasicPlaybackSong implements Song {
 			URLConnection uc = this.mURL.openConnection();
 			return new BasicPlaybackAudio(uc.getInputStream(), audioFileFormat.getFrameLength());
 		} catch(IOException | UnsupportedAudioFileException e) {
-			throw new MusicPlayerException("Exception occured while getting the IAudio from this ISong", e);
+			throw new MusicPlayerException("Exception occured while getting the Audio from this Song", e);
 		}
 	}
 	

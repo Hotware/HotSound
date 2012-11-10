@@ -60,13 +60,14 @@ public enum StockParser implements PlaylistParser {
 								//file path was relative
 								File parentFile = new File(pURL.getFile())
 										.getParentFile();
-								if(!parentFile.isDirectory()) {
-									throw new AssertionError("parent file of url is no directory!");
-								}
-								file = new File(parentFile, line);
-								if(file.exists()) {
-									//file path was relative and file exists
-									ret.add(new BasicPlaybackSong(file));
+								if(parentFile.isDirectory()) {
+									file = new File(parentFile, line);
+									if(file.exists()) {
+										//file path was relative and file exists
+										ret.add(new BasicPlaybackSong(file));
+									}
+								} else {
+									//TODO: maybe Exception?
 								}
 							}
 						} else {

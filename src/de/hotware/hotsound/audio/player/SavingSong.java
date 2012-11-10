@@ -67,7 +67,7 @@ public class SavingSong extends BasicPlaybackSong {
 			URLConnection uc = this.mURL.openConnection();
 			return new WaveAudio(uc.getInputStream(), audioFileFormat.getFrameLength());
 		} catch(IOException | UnsupportedAudioFileException e) {
-			throw new MusicPlayerException("Exception occured while getting the IAudio from this ISong", e);
+			throw new MusicPlayerException("Exception occured while getting the Audio from this Song", e);
 		}
 	}
 
