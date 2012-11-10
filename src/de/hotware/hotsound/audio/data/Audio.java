@@ -26,7 +26,6 @@ import de.hotware.hotsound.audio.player.MusicPlayerException;
 
 /**
  * All Audio data is being read from subclasses of this interface.
- *
  * @author Martin Braun
  */
 public interface Audio extends AutoCloseable {
