@@ -1,5 +1,5 @@
 /**
- * File IMusicPlayer.java
+ * File MusicPlayer.java
  * ---------------------------------------------------------
  *
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
