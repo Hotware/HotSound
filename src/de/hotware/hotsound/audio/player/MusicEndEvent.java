@@ -22,7 +22,7 @@ package de.hotware.hotsound.audio.player;
 
 import de.hotware.util.BaseEvent;
 
-public class MusicEndEvent extends
+public final class MusicEndEvent extends
 		BaseEvent<MusicPlayer> {
 
 	private MusicEndEvent.Type mType;

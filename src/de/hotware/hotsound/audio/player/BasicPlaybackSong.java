@@ -22,6 +22,7 @@ package de.hotware.hotsound.audio.player;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -64,7 +65,7 @@ public class BasicPlaybackSong implements Song {
 	}
 
 	@Override
-	public Audio getAudio() throws MusicPlayerException {
+	public final Audio getAudio() throws MusicPlayerException {
 		try {
 			AudioFileFormat audioFileFormat;
 			if(this.mURL.getProtocol().toLowerCase().equals("file")) {
@@ -78,7 +79,7 @@ public class BasicPlaybackSong implements Song {
 			}
 			this.mAudioFormat = audioFileFormat.getFormat();
 			URLConnection uc = this.mURL.openConnection();
-			return new BasicPlaybackAudio(uc.getInputStream(), audioFileFormat.getFrameLength());
+			return this.getAudio(uc.getInputStream(), audioFileFormat.getFrameLength());
 		} catch(IOException | UnsupportedAudioFileException e) {
 			throw new MusicPlayerException("Exception occured while getting the IAudio from this ISong", e);
 		}
@@ -88,14 +89,6 @@ public class BasicPlaybackSong implements Song {
 	public long getFrameLength() {
 		return this.mFrameLength;
 	}
-
-	/**
-	 * @return the audioformat of the song. this must not necessarily be the
-	 *         audioformat of the audio returned by getAudio()
-	 */
-	public AudioFormat getAudioFormat() {
-		return this.mAudioFormat;
-	}
 	
 	@Override
 	public String toString() {
@@ -103,6 +96,18 @@ public class BasicPlaybackSong implements Song {
 		return builder.append("[BasicPlaybackSong: ")
 				.append(this.mURL)
 				.append("]").toString();
+	}
+	
+	protected Audio getAudio(InputStream pInputStream, int pFrameLength) {
+		return new BasicPlaybackAudio(pInputStream, pFrameLength);
+	}
+	
+	/**
+	 * @return the audioformat of the song. this must not necessarily be the
+	 *         audioformat of the audio returned by getAudio()
+	 */
+	public AudioFormat getAudioFormat() {
+		return this.mAudioFormat;
 	}
 	
 }

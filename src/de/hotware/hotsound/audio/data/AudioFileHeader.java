@@ -25,6 +25,6 @@ import java.io.OutputStream;
 
 public interface AudioFileHeader {
 
-	public int write(OutputStream out) throws IOException;
+	public int write(OutputStream pOut) throws IOException;
 
 }
