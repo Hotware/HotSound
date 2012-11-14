@@ -125,7 +125,7 @@ public class BasicPlaybackSong implements Song {
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		return builder.append("[BasicPlaybackSong: ").append(this.mURL)
+		return builder.append("[").append(this.getClass().getSimpleName()).append(": ").append(this.mURL)
 				.append("]").toString();
 	}
 
