@@ -38,6 +38,7 @@ public class RecordAudio extends BaseAudio {
 	protected AudioFormat mAudioFormat;
 	protected Class<? extends TargetDataLine> mTargetDataLineClass;
 	protected int mBufferSize;
+	protected boolean mOpenedMixer;
 
 	public RecordAudio(Mixer pMixer) {
 		this(pMixer, null);
@@ -54,6 +55,7 @@ public class RecordAudio extends BaseAudio {
 	 */
 	public RecordAudio(Mixer pMixer, AudioFormat pAudioFormat, int pBufferSize) {
 		this(pMixer, pAudioFormat, pBufferSize, TargetDataLine.class);
+		this.mOpenedMixer = false;
 	}
 	
 	
@@ -71,14 +73,13 @@ public class RecordAudio extends BaseAudio {
 
 	@Override
 	public void open() throws AudioException {
-		if(!this.mClosed) {
-			throw new IllegalStateException("The Audio is already opened");
-		}
+		super.open();
 		DataLine.Info info = new DataLine.Info(this.mTargetDataLineClass,
 				this.mAudioFormat);
 		try {
 			if(!this.mMixer.isOpen()) {
 				this.mMixer.open();
+				this.mOpenedMixer = true;
 			}
 			this.mTargetDataLine = (TargetDataLine) this.mMixer.getLine(info);
 			if(this.mAudioFormat == null) {
@@ -87,10 +88,9 @@ public class RecordAudio extends BaseAudio {
 			this.mTargetDataLine.open(this.mAudioFormat, this.mBufferSize);
 			this.mTargetDataLine.start();
 		} catch(LineUnavailableException e) {
-			this.mClosed = true;
+			this.close();
 			throw new AudioException("Error during opening the TargetDataLine");
 		}
-		this.mClosed = false;
 	}
 
 	@Override
@@ -105,15 +105,19 @@ public class RecordAudio extends BaseAudio {
 	public void close() throws AudioException {
 		super.close();
 		this.mTargetDataLine.close();
-	}
-
-	public static List<Mixer> getRecordMixers() {
-		return AudioUtil.getCompatibleMixers(TargetDataLine.class);
+		if(this.mOpenedMixer) {
+			this.mMixer.close();
+		}
+		this.mOpenedMixer = false;
 	}
 
 	@Override
 	public AudioFormat getAudioFormat() {
 		return this.mAudioFormat;
+	}
+	
+	public static List<Mixer> getRecordMixers() {
+		return AudioUtil.getCompatibleMixers(TargetDataLine.class);
 	}
 
 }
