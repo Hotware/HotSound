@@ -71,7 +71,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 			public void onEnd(MusicEndEvent pEvent) {
 				try {
 					pEvent.getSource().close();
-				} catch (MusicPlayerException e) {
+				} catch(MusicPlayerException e) {
 					e.printStackTrace();
 				}
 			}
@@ -104,8 +104,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	 * passed here, make sure to shutdown the StreamMusicPlayer correctly or
 	 * otherwise bugs might occur
 	 */
-	public StreamMusicPlayer(MusicListener pMusicListener,
-			Executor pExecutor) {
+	public StreamMusicPlayer(MusicListener pMusicListener, Executor pExecutor) {
 		this.mLock = new ReentrantLock();
 		this.mMusicListener = pMusicListener;
 		this.mPlayerRunnableListener = new PlayerRunnableListener() {
@@ -192,7 +191,8 @@ public final class StreamMusicPlayer implements MusicPlayer {
 				throw new IllegalStateException(this +
 						" has not been initialized yet!");
 			}
-			if(!this.mStreamPlayerRunnable.isStopped() && this.mStreamPlayerRunnable.isAlreadyStarted()) {
+			if(!this.mStreamPlayerRunnable.isStopped() &&
+					this.mStreamPlayerRunnable.isAlreadyStarted()) {
 				throw new IllegalStateException("Player is already playing");
 			}
 			this.mStreamPlayerRunnable.mStopped = false;
@@ -339,19 +339,16 @@ public final class StreamMusicPlayer implements MusicPlayer {
 			this.mLock.unlock();
 		}
 	}
-	
+
 	@Override
 	public String toString() {
 		this.mLock.lock();
 		try {
 			StringBuilder builder = new StringBuilder();
-			return builder.append("[StreamMusicPlayer: Current Song: ")
-					.append(this.mCurrentSong)
-					.append(" ")
-					.append("Current AudioDevice: ")
-					.append(this.mCurrentAudioDevice)
-					.append("]")
-					.toString();
+			return builder.append("[").append(this.getClass().getSimpleName())
+					.append(": Current Song: ").append(this.mCurrentSong)
+					.append(" ").append("Current AudioDevice: ")
+					.append(this.mCurrentAudioDevice).append("]").toString();
 		} finally {
 			this.mLock.unlock();
 		}
@@ -365,7 +362,8 @@ public final class StreamMusicPlayer implements MusicPlayer {
 				try {
 					this.mStreamPlayerRunnable.join();
 				} catch(InterruptedException e) {
-					throw new MusicPlayerException("couldn't wait until the end of the current audio", e);
+					throw new MusicPlayerException("couldn't wait until the end of the current audio",
+							e);
 				}
 			}
 		}
@@ -386,7 +384,8 @@ public final class StreamMusicPlayer implements MusicPlayer {
 			throw e;
 		}
 		try {
-			if(this.mCreatedOwnAudioDevice && this.mCurrentAudioDevice != null &&
+			if(this.mCreatedOwnAudioDevice &&
+					this.mCurrentAudioDevice != null &&
 					this.mCurrentAudioDevice != pAudioDevice) {
 				this.mCreatedOwnAudioDevice = false;
 				this.mCurrentAudioDevice.close();
