@@ -63,18 +63,15 @@ public class BasicPlaybackAudio extends BaseAudio implements SeekableAudio {
 	 */
 	@Override
 	public final void open() throws AudioException {
-		if(!this.mClosed) {
-			throw new IllegalStateException("The Audio is already opened");
-		}
+		super.open();
 		try {
 			this.mAudioInputStream = this.getAudioInputStream();
 			AudioFormat format = this.mAudioInputStream.getFormat();
 			this.mFrameSize = format.getFrameSize();
 		} catch(UnsupportedAudioFileException | IOException e) {
-			this.mClosed = true;
+			this.close();
 			throw new AudioException("Error while opening the audiostream", e);
 		}
-		this.mClosed = false;
 	}
 
 	@Override

@@ -68,11 +68,13 @@ public class BasicPlaybackSong implements Song {
 	public final Audio getAudio() throws MusicPlayerException {
 		try {
 			AudioFileFormat audioFileFormat;
-			if(this.mURL.getProtocol().toLowerCase().equals("file")) {
+			if(this.getPlaybackURL().getProtocol().toLowerCase().equals("file")) {
 				try {
-					audioFileFormat = AudioSystem.getAudioFileFormat(new File(this.mURL.toURI()));
+					audioFileFormat = AudioSystem
+							.getAudioFileFormat(new File(this.mURL.toURI()));
 				} catch(URISyntaxException e) {
-					audioFileFormat = AudioSystem.getAudioFileFormat(new File(this.mURL.getPath()));
+					audioFileFormat = AudioSystem
+							.getAudioFileFormat(new File(this.mURL.getPath()));
 				}
 			} else {
 				audioFileFormat = AudioSystem.getAudioFileFormat(this.mURL);
@@ -81,33 +83,49 @@ public class BasicPlaybackSong implements Song {
 			URLConnection uc = this.mURL.openConnection();
 			return this.getAudio(uc.getInputStream(), audioFileFormat.getFrameLength());
 		} catch(IOException | UnsupportedAudioFileException e) {
-			throw new MusicPlayerException("Exception occured while getting the IAudio from this ISong", e);
+			throw new MusicPlayerException("Exception occured while getting the Audio from this Song",
+					e);
 		}
 	}
-	
+
+	/**
+	 * change this if the url passed to this song (i.e. it isn't the actual url
+	 * that should be played back)
+	 * 
+	 * @return the playback url for this song
+	 * @throws IOException 
+	 */
+	protected URL getPlaybackURL() throws IOException {
+		return this.mURL;
+	}
+
+	/**
+	 * override this method if you want a different audio behaviour
+	 * 
+	 * @return an audio instance according to this implementation
+	 */
+	protected Audio getAudio(InputStream pInputstream, int pFrameLength) {
+		return new BasicPlaybackAudio(pInputstream, pFrameLength);
+	}
+
 	@Override
 	public long getFrameLength() {
 		return this.mFrameLength;
 	}
-	
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		return builder.append("[BasicPlaybackSong: ")
-				.append(this.mURL)
-				.append("]").toString();
-	}
-	
-	protected Audio getAudio(InputStream pInputStream, int pFrameLength) {
-		return new BasicPlaybackAudio(pInputStream, pFrameLength);
-	}
-	
+
 	/**
 	 * @return the audioformat of the song. this must not necessarily be the
 	 *         audioformat of the audio returned by getAudio()
 	 */
 	public AudioFormat getAudioFormat() {
 		return this.mAudioFormat;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		return builder.append("[").append(this.getClass().getSimpleName()).append(": ").append(this.mURL)
+				.append("]").toString();
 	}
 	
 }

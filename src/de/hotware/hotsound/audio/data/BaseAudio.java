@@ -37,5 +37,13 @@ public abstract class BaseAudio implements Audio {
 	public void close() throws AudioException {
 		this.mClosed = true;
 	}
+	
+	@Override
+	public void open() throws AudioException {
+		if(!this.mClosed) {
+			throw new IllegalStateException("The Audio is already opened");
+		}
+		this.mClosed = false;
+	}
 
 }
