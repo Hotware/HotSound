@@ -107,7 +107,18 @@ public class BasicPlaybackAudio extends BaseAudio implements SeekableAudio {
 		if(this.mClosed) {
 			throw new IllegalStateException("The Audio is not opened");
 		}
-		throw new UnsupportedOperationException("not implemented yet");
+		long pFramesToSkip = pFrame - this.mFramePosition;
+		if(pFramesToSkip < 0) {
+			//reset and skip to pFrame
+			try {
+				this.mAudioInputStream.reset();
+			} catch(IOException e) {
+				throw new AudioException("couldn't reset the AudioInputStream", e);
+			}
+			this.skip(pFrame);
+		} else {
+			this.skip(pFramesToSkip);
+		}
 	}
 
 	@Override
