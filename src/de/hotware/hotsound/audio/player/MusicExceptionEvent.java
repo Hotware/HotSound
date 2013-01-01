@@ -22,7 +22,7 @@ package de.hotware.hotsound.audio.player;
 
 import de.hotware.util.BaseEvent;
 
-public class MusicExceptionEvent extends BaseEvent<MusicPlayer> {
+public final class MusicExceptionEvent extends BaseEvent<MusicPlayer> {
 	
 	private MusicPlayerException mException;
 

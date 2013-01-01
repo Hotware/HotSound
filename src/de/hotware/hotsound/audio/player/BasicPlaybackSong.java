@@ -81,8 +81,7 @@ public class BasicPlaybackSong implements Song {
 			}
 			this.mAudioFormat = audioFileFormat.getFormat();
 			URLConnection uc = this.mURL.openConnection();
-			return this.getAudio(uc.getInputStream(),
-					audioFileFormat.getFrameLength());
+			return this.getAudio(uc.getInputStream(), audioFileFormat.getFrameLength());
 		} catch(IOException | UnsupportedAudioFileException e) {
 			throw new MusicPlayerException("Exception occured while getting the Audio from this Song",
 					e);
@@ -128,5 +127,5 @@ public class BasicPlaybackSong implements Song {
 		return builder.append("[").append(this.getClass().getSimpleName()).append(": ").append(this.mURL)
 				.append("]").toString();
 	}
-
+	
 }

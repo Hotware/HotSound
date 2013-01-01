@@ -29,7 +29,7 @@ import de.hotware.hotsound.audio.data.Audio;
 import de.hotware.hotsound.audio.data.WaveAudio;
 
 
-public class SavingSong extends BasicPlaybackSong {
+public final class SavingSong extends BasicPlaybackSong {
 	
 	public SavingSong(URL pURL) {
 		super(pURL);
@@ -44,7 +44,7 @@ public class SavingSong extends BasicPlaybackSong {
 	}
 	
 	@Override
-	public Audio getAudio(InputStream pInputStream, int pFrameLength) {
+	protected Audio getAudio(InputStream pInputStream, int pFrameLength) {
 		return new WaveAudio(pInputStream, pFrameLength);
 	}
 
