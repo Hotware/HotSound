@@ -20,7 +20,13 @@
  */
 package de.hotware.hotsound.audio.data;
 
+import java.util.List;
+
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.Mixer;
+import javax.sound.sampled.SourceDataLine;
+
+import de.hotware.hotsound.audio.util.AudioUtil;
 
 public abstract class BaseAudioDevice implements AudioDevice {
 	
@@ -69,6 +75,10 @@ public abstract class BaseAudioDevice implements AudioDevice {
 	@Override
 	public boolean isClosed() {
 		return this.mClosed;
+	}
+	
+	public static List<Mixer> getPlaybackMixers() {
+		return AudioUtil.getCompatibleMixers(SourceDataLine.class);
 	}
 
 }
