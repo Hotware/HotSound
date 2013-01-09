@@ -76,9 +76,5 @@ public abstract class BaseAudioDevice implements AudioDevice {
 	public boolean isClosed() {
 		return this.mClosed;
 	}
-	
-	public static List<Mixer> getPlaybackMixers() {
-		return AudioUtil.getCompatibleMixers(SourceDataLine.class);
-	}
 
 }
