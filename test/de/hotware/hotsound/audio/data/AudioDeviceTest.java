@@ -18,7 +18,7 @@
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
  *   if it breaks something.
  */
-package de.hotware.hotsound.test.audio.data;
+package de.hotware.hotsound.audio.data;
 
 import static org.junit.Assert.*;
 
@@ -36,7 +36,7 @@ public class AudioDeviceTest {
 	@Test
 	public void testAudioDevices() {
 		this.testAudioDevice(new BasicPlaybackAudioDevice());
-		this.testAudioDevice(new RecordingAudioDevice(new File("tröt")));
+		this.testAudioDevice(new RecordingAudioDevice(new File("test")));
 	}
 	
 	public void testAudioDevice(AudioDevice pAudioDevice) {
