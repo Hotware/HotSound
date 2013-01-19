@@ -94,7 +94,6 @@ public class AudioTest {
 			} catch(AudioException e) {
 				fail(e.toString());
 			}
-			//TODO: has it to be so accurate?
 			if(((SeekableAudio) audio).getFramePosition() != 10) {
 				fail("framePosition isn't equal to the position seeked to.\n"+
 						"It's at: " + ((SeekableAudio) audio).getFramePosition());
