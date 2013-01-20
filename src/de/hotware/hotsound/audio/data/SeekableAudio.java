@@ -37,19 +37,11 @@ public interface SeekableAudio extends Audio {
 	 *            the amount of frames to skip
 	 */
 	public void skip(long pFrames) throws AudioException;
-
+	
 	public long getFramePosition();
 	
 	public long getFrameLength();
 
-	public static interface ISeekingStrategy {
-
-		public SeekData seek(SeekData pSeekData);
-		
-		public static interface SeekData {
-			
-		}
-		
-	}
+	public boolean canSeek();
 
 }

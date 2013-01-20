@@ -32,6 +32,7 @@ import de.hotware.hotsound.audio.data.BasicPlaybackAudioDevice;
 import de.hotware.hotsound.audio.data.Audio;
 import de.hotware.hotsound.audio.data.AudioDevice;
 import de.hotware.hotsound.audio.data.AudioDevice.AudioDeviceException;
+import de.hotware.hotsound.audio.data.SeekableAudio;
 
 /**
  * always runs the playback in its own thread but you can pass an
@@ -203,7 +204,10 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	}
 
 	@Override
-	public void restart() {
+	public void restart() throws MusicPlayerException {
+		if(this.canSeek()) {
+			this.seek(0);
+		}
 		throw new UnsupportedOperationException("not implemented yet");
 	}
 
@@ -327,7 +331,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	}
 
 	@Override
-	public void seek(long pFrame) {
+	public void seek(long pFrame) throws MusicPlayerException {
 		this.mLock.lock();
 		try {
 			if(this.mStreamPlayerRunnable == null) {
@@ -338,6 +342,11 @@ public final class StreamMusicPlayer implements MusicPlayer {
 		} finally {
 			this.mLock.unlock();
 		}
+	}
+	
+	@Override
+	public boolean canSeek() {
+		return this.mCurrentAudio instanceof SeekableAudio && ((SeekableAudio) this.mCurrentAudio).canSeek();
 	}
 
 	@Override
@@ -373,7 +382,6 @@ public final class StreamMusicPlayer implements MusicPlayer {
 		if(this.mCurrentAudio != null && !this.mCurrentAudio.isClosed()) {
 			this.mCurrentAudio.close();
 		}
-		//TODO: Seekable implementation
 		try {
 			this.mCurrentSong = pSong;
 			this.mCurrentAudio = pSong.getAudio();

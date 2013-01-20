@@ -170,9 +170,18 @@ final class StreamPlayerRunnable implements Runnable {
 		}
 	}
 
-	public void seek(long pFrame) {
+	public void seek(long pFrame) throws AudioDeviceException {
 		if(!(this.mAudio instanceof SeekableAudio)) {
 			throw new UnsupportedOperationException("seeking is not possible on the current AudioFile");
+		}
+		boolean pause = this.mPaused;
+		try {
+			this.pause(true);
+			((SeekableAudio) this.mAudio).seek(pFrame);
+		} catch(AudioException e) {
+			throw new AudioDeviceException("couldn't skip with the current audio");
+		} finally {
+			this.pause(pause);
 		}
 	}
 

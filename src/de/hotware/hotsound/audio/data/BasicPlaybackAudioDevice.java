@@ -20,12 +20,16 @@
  */
 package de.hotware.hotsound.audio.data;
 
+import java.util.List;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
+
+import de.hotware.hotsound.audio.util.AudioUtil;
 
 /**
  * Default audio device for playing audio
@@ -141,6 +145,10 @@ public class BasicPlaybackAudioDevice extends BaseAudioDevice implements JavaSou
 		StringBuilder builder = new StringBuilder();
 		return builder.append("[").append(this.getClass().getSimpleName()).append(": ")
 				.append(this.mAudioFormat).append("]").toString();
+	}
+	
+	public static List<Mixer> getPlaybackMixers() {
+		return AudioUtil.getCompatibleMixers(SourceDataLine.class);
 	}
 
 }

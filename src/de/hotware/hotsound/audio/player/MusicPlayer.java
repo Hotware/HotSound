@@ -120,8 +120,10 @@ public interface MusicPlayer extends AutoCloseable {
 	public void seek(long pFrame) throws MusicPlayerException;
 	
 	public void skip(long pFrames) throws MusicPlayerException;
+	
+	public boolean canSeek();
 
-	public void restart();
+	public void restart() throws MusicPlayerException;
 
 	public void setMusicListener(MusicListener pMusicListener);
 

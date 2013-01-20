@@ -18,7 +18,7 @@
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
  *   if it breaks something.
  */
-package de.hotware.hotsound.test.audio.data;
+package de.hotware.hotsound.audio.data;
 
 import static org.junit.Assert.*;
 
@@ -79,12 +79,31 @@ public class AudioTest {
 		} catch(AudioException e) {
 			fail("couldn't read from BasicPlaybackAudio");
 		}
+		if(audio instanceof SeekableAudio) {
+			long framePosition = ((SeekableAudio) audio).getFramePosition();
+			try {
+				((SeekableAudio) audio).skip(10);
+			} catch(AudioException e) {
+				fail(e.toString());
+			}
+			if(((SeekableAudio) audio).getFramePosition() - framePosition != 10) {
+				fail("framePosition isn't equal to the position skipped to");
+			}
+			try {
+				((SeekableAudio) audio).seek(10);
+			} catch(AudioException e) {
+				fail(e.toString());
+			}
+			if(((SeekableAudio) audio).getFramePosition() != 10) {
+				fail("framePosition isn't equal to the position seeked to.\n"+
+						"It's at: " + ((SeekableAudio) audio).getFramePosition());
+			}
+		}
 		try {
 			audio.close();
 		} catch(AudioException e) {
 			fail("coudln't close BasicPlaybackAudio");
 		}
-		
 	}
 	
 

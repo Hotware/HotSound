@@ -31,6 +31,13 @@ import javax.sound.sampled.AudioFormat;
 
 class Recorder implements AutoCloseable {
 
+	/**
+	 * the size of the internally used buffer
+	 * while writing the file in the end 
+	 * of the writing process (in close())
+	 */
+	private static final int BUFFER_SIZE = 128000;
+	
 	private BufferedOutputStream mBufferedOutputStream;
 	private File mFile;
 	private File mTempFile;
@@ -88,9 +95,9 @@ class Recorder implements AutoCloseable {
 				delete = true;
 				this.mBufferedOutputStream = new BufferedOutputStream(new FileOutputStream(this.mFile));
 				int bytesRead = 0;
-				byte[] data = new byte[128000];	// Magic is in the air. The number emits it.
+				byte[] data = new byte[BUFFER_SIZE];
 				this.mHeader.write(this.mBufferedOutputStream);
-				while((bytesRead = input.read(data, 0, 128000)) != -1) {	// The wild magic number appers once again!
+				while((bytesRead = input.read(data, 0, BUFFER_SIZE)) != -1) {
 					this.write(data, 0, bytesRead);
 				}
 			} catch(IOException e) {

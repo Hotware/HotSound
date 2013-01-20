@@ -56,9 +56,8 @@ public class BasicPlaybackAudio extends BaseAudio implements SeekableAudio {
 	}
 
 	/**
-	 * notice for overriding classes: if you want
-	 * this audio to have a different AudioFormat in 
-	 * it's AudioInputStream, override
+	 * notice for overriding classes: if you want this audio to have a different
+	 * AudioFormat in it's AudioInputStream, override
 	 * {@link #getAudioInputStream()}
 	 */
 	@Override
@@ -68,6 +67,9 @@ public class BasicPlaybackAudio extends BaseAudio implements SeekableAudio {
 			this.mAudioInputStream = this.getAudioInputStream();
 			AudioFormat format = this.mAudioInputStream.getFormat();
 			this.mFrameSize = format.getFrameSize();
+			if(this.mAudioInputStream.markSupported()) {
+				this.mAudioInputStream.mark(Integer.MAX_VALUE);
+			}
 		} catch(UnsupportedAudioFileException | IOException e) {
 			this.close();
 			throw new AudioException("Error while opening the audiostream", e);
@@ -103,11 +105,34 @@ public class BasicPlaybackAudio extends BaseAudio implements SeekableAudio {
 	}
 
 	@Override
+	public boolean canSeek() {
+		return this.mAudioInputStream.markSupported() &&
+				this.mFrameSize != AudioSystem.NOT_SPECIFIED &&
+				this.mFrameLength != AudioSystem.NOT_SPECIFIED && !this.mClosed;
+	}
+
+	@Override
 	public void seek(long pFrame) throws AudioException {
 		if(this.mClosed) {
 			throw new IllegalStateException("The Audio is not opened");
 		}
-		throw new UnsupportedOperationException("not implemented yet");
+		if(!this.canSeek()) {
+			throw new AudioException("can't seek on this audio");
+		}
+		long pFramesToSkip = pFrame - this.mFramePosition;
+		if(pFramesToSkip < 0) {
+			//reset and skip to pFrame
+			try {
+				this.mFramePosition = 0;
+				this.mAudioInputStream.reset();
+			} catch(IOException e) {
+				throw new AudioException("couldn't reset the AudioInputStream",
+						e);
+			}
+			this.skip(pFrame);
+		} else {
+			this.skip(pFramesToSkip);
+		}
 	}
 
 	@Override
@@ -115,9 +140,8 @@ public class BasicPlaybackAudio extends BaseAudio implements SeekableAudio {
 		if(this.mClosed) {
 			throw new IllegalStateException("The Audio is not opened");
 		}
-		if(this.mFrameSize <= 0 || this.mFrameLength <= 0) {
-			throw new AudioException("couldn't skip the audio because" +
-					" framesize or framelength are not known");
+		if(!this.canSeek()) {
+			throw new AudioException("can't seek on this audio");
 		}
 		//FIXME: skipping in wav files
 		double rate = ((double) pFrames) / this.mFrameLength;
@@ -153,14 +177,14 @@ public class BasicPlaybackAudio extends BaseAudio implements SeekableAudio {
 	public AudioFormat getAudioFormat() {
 		return this.mAudioInputStream.getFormat();
 	}
-	
+
 	/**
 	 * Override this, if you want a different audio format
 	 */
 	protected AudioInputStream getAudioInputStream() throws UnsupportedAudioFileException,
-	IOException {
-	return AudioUtil
-			.getSupportedAudioInputStreamFromInputStream(this.mInputStream);
+			IOException {
+		return AudioUtil
+				.getSupportedAudioInputStreamFromInputStream(this.mInputStream);
 	}
 
 }
