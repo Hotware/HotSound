@@ -54,16 +54,16 @@ import de.hotware.util.Pause;
 final class StreamPlayerRunnable implements Runnable {
 
 	protected MusicPlayer mMusicPlayer;
-	protected boolean mAlreadyStarted;
-	protected boolean mPrematureStop;
-	protected boolean mMultithreaded;
 	protected Pause mPause;
 	protected Lock mJoinLock;
 	protected Condition mJoinCondition;
-	protected boolean mStopped;
 	protected StreamPlayerRunnableListener mPlayerRunnableListener;
 	protected Audio mAudio;
 	protected AudioDevice mAudioDevice;
+
+	protected boolean mAlreadyStarted;
+	protected boolean mPrematureStop;
+	protected boolean mStopped;
 	protected boolean mDone;
 
 	/**
@@ -74,7 +74,6 @@ final class StreamPlayerRunnable implements Runnable {
 	 */
 	public StreamPlayerRunnable(Audio pAudio,
 			AudioDevice pAudioDevice,
-			boolean pMultiThreaded,
 			MusicPlayer pMusicPlayer,
 			StreamPlayerRunnableListener pPlayerRunnableListener) {
 		if(pAudioDevice == null || pAudio == null) {
@@ -83,15 +82,15 @@ final class StreamPlayerRunnable implements Runnable {
 		this.mMusicPlayer = pMusicPlayer;
 		this.mAudio = pAudio;
 		this.mAudioDevice = pAudioDevice;
-		this.mStopped = false;
-		this.mPause = new Pause();
 		this.mJoinLock = new ReentrantLock(true);
 		this.mJoinCondition = this.mJoinLock.newCondition();
 		this.mPlayerRunnableListener = pPlayerRunnableListener;
 		this.mPrematureStop = false;
 		this.mAlreadyStarted = false;
+		this.mStopped = false;
 		this.mDone = false;
-		this.mMultithreaded = pMultiThreaded;
+		
+		this.mPause = new Pause();
 	}
 
 	/**
@@ -235,6 +234,21 @@ final class StreamPlayerRunnable implements Runnable {
 		} finally {
 			this.mJoinLock.unlock();
 		}
+	}
+	
+	/**
+	 * in order to use this together with
+	 * stop, you have to call join first to
+	 * make sure the playback is completely done.
+	 */
+	public void reset() {
+		if(!this.mDone) {
+			throw new IllegalStateException("can only reset if done completely with playing");
+		}
+		this.mPrematureStop = false;
+		this.mAlreadyStarted = false;
+		this.mStopped = false;
+		this.mDone = false;
 	}
 
 	public AudioFormat getAudioFormat() {

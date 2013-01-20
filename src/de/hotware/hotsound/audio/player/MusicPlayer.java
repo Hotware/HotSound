@@ -33,22 +33,8 @@ import de.hotware.hotsound.audio.data.AudioDevice;
 public interface MusicPlayer extends AutoCloseable {
 
 	/**
-	 * Inserts a Song to the the Player. Possible difference between
-	 * implementations: some could allow multiple songs to be added, but some
-	 * could only hold one song at a time
-	 * 
-	 * uses a default AudioDevice if there is not already one in usage (not
-	 * closed)
-	 * 
-	 * @throws MusicPlayerException
-	 *             if the insertion fails
-	 */
-	public void insert(Song pSong) throws MusicPlayerException;
-
-	/**
-	 * inserts a Song to the the Player possible difference between
-	 * implementations: some could allow multiple songs to be added, but some
-	 * could only hold one song at a time
+	 * inserts a Song to the the Player and uses
+	 * the given audiodevice to play the audio
 	 */
 	public void insert(Song pSong, AudioDevice pAudioDevice) throws MusicPlayerException;
 
