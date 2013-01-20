@@ -162,12 +162,15 @@ final class StreamPlayerRunnable implements Runnable {
 		if(!(this.mAudio instanceof SeekableAudio)) {
 			throw new UnsupportedOperationException("seeking is not possible on the current AudioFile");
 		}
+		if(this.mDone || this.mStopped) {
+			throw new IllegalStateException("can't seek if stopped or already done with playing.");
+		}
 		boolean pause = this.mPause.isPaused();
 		try {
 			this.pause(true);
 			((SeekableAudio) this.mAudio).seek(pFrame);
 		} catch(AudioException e) {
-			throw new AudioDeviceException("couldn't skip with the current audio");
+			throw new AudioDeviceException("couldn't seek with the current audio");
 		} finally {
 			this.pause(pause);
 		}
@@ -176,6 +179,9 @@ final class StreamPlayerRunnable implements Runnable {
 	public void skip(long pFrames) throws AudioDeviceException {
 		if(!(this.mAudio instanceof SeekableAudio)) {
 			throw new UnsupportedOperationException("skipping is not possible on the current AudioFile");
+		}
+		if(this.mDone || this.mStopped) {
+			throw new IllegalStateException("can't skip if stopped or already done with playing.");
 		}
 		boolean pause = this.mPause.isPaused();
 		try {
@@ -204,6 +210,10 @@ final class StreamPlayerRunnable implements Runnable {
 
 	public boolean isStopped() {
 		return this.mStopped;
+	}
+	
+	public boolean isDone() {
+		return this.mDone;
 	}
 
 	public boolean isAlreadyStarted() {

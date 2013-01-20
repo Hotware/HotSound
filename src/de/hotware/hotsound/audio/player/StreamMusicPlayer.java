@@ -38,6 +38,9 @@ import de.hotware.hotsound.audio.player.StreamPlayerRunnable.StreamPlayerRunnabl
  * always runs the playback in its own thread but you can pass an
  * ExecutorService instead if you want to
  * 
+ * FIXME: the whole seeking stuff won't work if the StreamPlayerRunnable
+ * has stopped.
+ * 
  * @author Martin Braun
  */
 public final class StreamMusicPlayer implements MusicPlayer {
@@ -222,9 +225,11 @@ public final class StreamMusicPlayer implements MusicPlayer {
 
 	@Override
 	public void restart() throws MusicPlayerException {
-		if(this.canSeek()) {
-			this.seek(0);
-		}
+//		if(this.canSeek()) {
+//			this.seek(0);
+//		} else {
+//			
+//		}
 		throw new UnsupportedOperationException("not implemented yet");
 	}
 
