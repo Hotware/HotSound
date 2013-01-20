@@ -21,6 +21,7 @@
 package de.hotware.hotsound.audio.player;
 
 import java.io.IOException;
+import java.util.EventListener;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,6 +33,7 @@ import de.hotware.hotsound.audio.data.Audio.AudioException;
 import de.hotware.hotsound.audio.data.AudioDevice;
 import de.hotware.hotsound.audio.data.AudioDevice.AudioDeviceException;
 import de.hotware.hotsound.audio.data.SeekableAudio;
+import de.hotware.util.Pause;
 
 /**
  * To be used with Executors. Is not thread-safe! Do not execute twice!
@@ -42,7 +44,7 @@ import de.hotware.hotsound.audio.data.SeekableAudio;
  * intelligence without mentioning it, I hereby mention him as inspiration,
  * because his code helped me to write this class.
  * 
- * TODO: extra listener for callable that gets redirected in StreamMusicPlayer
+ * TODO: maybe make this reusable
  * 
  * TODO: review the stopping process and change if necessary. works but may be
  * bad code.
@@ -55,19 +57,18 @@ final class StreamPlayerRunnable implements Runnable {
 	protected boolean mAlreadyStarted;
 	protected boolean mPrematureStop;
 	protected boolean mMultithreaded;
-	protected Lock mPauseLock;
+	protected Pause mPause;
 	protected Lock mJoinLock;
 	protected Condition mJoinCondition;
-	protected boolean mPaused;
 	protected boolean mStopped;
-	protected PlayerRunnableListener mPlayerRunnableListener;
+	protected StreamPlayerRunnableListener mPlayerRunnableListener;
 	protected Audio mAudio;
 	protected AudioDevice mAudioDevice;
 	protected boolean mDone;
 
 	/**
-	 * initializes the StreamPlayerRunnable with the given listenerand the given
-	 * Mixer
+	 * initializes the StreamPlayerRunnable with the given listener and the
+	 * given Mixer
 	 * 
 	 * @throws AudioDeviceException
 	 */
@@ -75,16 +76,15 @@ final class StreamPlayerRunnable implements Runnable {
 			AudioDevice pAudioDevice,
 			boolean pMultiThreaded,
 			MusicPlayer pMusicPlayer,
-			PlayerRunnableListener pPlayerRunnableListener) {
+			StreamPlayerRunnableListener pPlayerRunnableListener) {
 		if(pAudioDevice == null || pAudio == null) {
 			throw new NullPointerException("the audiodevice and the audio may not be null");
 		}
 		this.mMusicPlayer = pMusicPlayer;
 		this.mAudio = pAudio;
 		this.mAudioDevice = pAudioDevice;
-		this.mPaused = false;
 		this.mStopped = false;
-		this.mPauseLock = new ReentrantLock(true);
+		this.mPause = new Pause();
 		this.mJoinLock = new ReentrantLock(true);
 		this.mJoinCondition = this.mJoinLock.newCondition();
 		this.mPlayerRunnableListener = pPlayerRunnableListener;
@@ -118,18 +118,14 @@ final class StreamPlayerRunnable implements Runnable {
 							format.getFrameSize();
 					byte[] data = new byte[bufferSize];
 					while(bytesRead != -1) {
-						this.mPauseLock.lock();
-						try {
-							if(!this.mStopped) {
-								bytesRead = audio.read(data, 0, bufferSize);
-								if(bytesRead != -1) {
-									dev.write(data, 0, bytesRead);
-								}
-							} else {
-								break;
+						this.mPause.probe();
+						if(!this.mStopped) {
+							bytesRead = audio.read(data, 0, bufferSize);
+							if(bytesRead != -1) {
+								dev.write(data, 0, bytesRead);
 							}
-						} finally {
-							this.mPauseLock.unlock();
+						} else {
+							break;
 						}
 					}
 				} else {
@@ -151,17 +147,9 @@ final class StreamPlayerRunnable implements Runnable {
 				}
 				this.mStopped = true;
 				final MusicEndEvent.Type finalType = type;
-				//TODO: look for a better way to run the event on a separate Thread
-				//this has to be done on a separate one because of the signaling behaviour
-				new Thread() {
-	
-					public void run() {
-						StreamPlayerRunnable.this.mPlayerRunnableListener
-								.onEnd(new MusicEndEvent(StreamPlayerRunnable.this.mMusicPlayer,
-										finalType));
-					}
-	
-				}.start();
+				StreamPlayerRunnable.this.mPlayerRunnableListener
+						.onEnd(new MusicEndEvent(StreamPlayerRunnable.this.mMusicPlayer,
+								finalType));
 				this.mJoinCondition.signal();
 				this.mDone = true;
 			}
@@ -174,7 +162,7 @@ final class StreamPlayerRunnable implements Runnable {
 		if(!(this.mAudio instanceof SeekableAudio)) {
 			throw new UnsupportedOperationException("seeking is not possible on the current AudioFile");
 		}
-		boolean pause = this.mPaused;
+		boolean pause = this.mPause.isPaused();
 		try {
 			this.pause(true);
 			((SeekableAudio) this.mAudio).seek(pFrame);
@@ -189,7 +177,7 @@ final class StreamPlayerRunnable implements Runnable {
 		if(!(this.mAudio instanceof SeekableAudio)) {
 			throw new UnsupportedOperationException("skipping is not possible on the current AudioFile");
 		}
-		boolean pause = this.mPaused;
+		boolean pause = this.mPause.isPaused();
 		try {
 			this.pause(true);
 			((SeekableAudio) this.mAudio).skip(pFrames);
@@ -200,28 +188,24 @@ final class StreamPlayerRunnable implements Runnable {
 		}
 	}
 
-	public boolean isSkippingPossible() {
-		return this.mAudio instanceof SeekableAudio;
+	public boolean canSeek() {
+		return this.mAudio instanceof SeekableAudio &&
+				((SeekableAudio) this.mAudio).canSeek();
 	}
 
 	public void pause(boolean pPause) {
-		if(!this.mPaused && pPause) {
-			this.mPauseLock.lock();
-		} else if(this.mPaused && !pPause) {
-			this.mPauseLock.unlock();
-		}
-		this.mPaused = pPause;
+		this.mPause.pause(pPause);
 		this.mAudioDevice.pause(pPause);
 	}
 
 	public boolean isPaused() {
-		return this.mPaused;
+		return this.mPause.isPaused();
 	}
 
 	public boolean isStopped() {
 		return this.mStopped;
 	}
-	
+
 	public boolean isAlreadyStarted() {
 		return this.mAlreadyStarted;
 	}
@@ -231,7 +215,7 @@ final class StreamPlayerRunnable implements Runnable {
 		this.mAudioDevice.flush();
 		this.pause(false);
 	}
-	
+
 	public void join() throws InterruptedException {
 		this.mJoinLock.lock();
 		try {
@@ -249,6 +233,14 @@ final class StreamPlayerRunnable implements Runnable {
 
 	public AudioDevice getAudioDevice() {
 		return this.mAudioDevice;
+	}
+
+	interface StreamPlayerRunnableListener extends EventListener {
+
+		public void onEnd(MusicEndEvent pEvent);
+
+		public void onException(MusicExceptionEvent pEvent);
+
 	}
 
 }

@@ -32,7 +32,7 @@ import de.hotware.hotsound.audio.data.BasicPlaybackAudioDevice;
 import de.hotware.hotsound.audio.data.Audio;
 import de.hotware.hotsound.audio.data.AudioDevice;
 import de.hotware.hotsound.audio.data.AudioDevice.AudioDeviceException;
-import de.hotware.hotsound.audio.data.SeekableAudio;
+import de.hotware.hotsound.audio.player.StreamPlayerRunnable.StreamPlayerRunnableListener;
 
 /**
  * always runs the playback in its own thread but you can pass an
@@ -42,12 +42,13 @@ import de.hotware.hotsound.audio.data.SeekableAudio;
  */
 public final class StreamMusicPlayer implements MusicPlayer {
 
-	protected Executor mExecutor;
+	protected Executor mPlaybackExecutor;
+	protected Executor mSignallingExecutor;
 	protected boolean mCreateOwnThread;
 	protected boolean mCreatedOwnAudioDevice;
 	protected StreamPlayerRunnable mStreamPlayerRunnable;
 	protected MusicListener mMusicListener;
-	protected PlayerRunnableListener mPlayerRunnableListener;
+	protected StreamPlayerRunnableListener mPlayerRunnableListener;
 	/**
 	 * the current song after insertion
 	 */
@@ -97,7 +98,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 
 	public StreamMusicPlayer(Executor pExecutor) {
 		this();
-		this.mExecutor = pExecutor;
+		this.mPlaybackExecutor = pExecutor;
 	}
 
 	/**
@@ -108,24 +109,40 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	public StreamMusicPlayer(MusicListener pMusicListener, Executor pExecutor) {
 		this.mLock = new ReentrantLock();
 		this.mMusicListener = pMusicListener;
-		this.mPlayerRunnableListener = new PlayerRunnableListener() {
+		//this has to be done on a separate one because of the signaling behaviour
+		this.mPlayerRunnableListener = new StreamPlayerRunnableListener() {
 
 			@Override
-			public void onEnd(MusicEndEvent pEvent) {
-				if(StreamMusicPlayer.this.mMusicListener != null) {
-					StreamMusicPlayer.this.mMusicListener.onEnd(pEvent);
-				}
+			public void onEnd(final MusicEndEvent pEvent) {
+				StreamMusicPlayer.this.mSignallingExecutor.execute(new Runnable() {
+
+					@Override
+					public void run() {
+						if(StreamMusicPlayer.this.mMusicListener != null) {
+							StreamMusicPlayer.this.mMusicListener.onEnd(pEvent);
+						}
+					}
+					
+				});
 			}
 
 			@Override
-			public void onException(MusicExceptionEvent pEvent) {
-				if(StreamMusicPlayer.this.mMusicListener != null) {
-					StreamMusicPlayer.this.mMusicListener.onException(pEvent);
-				}
+			public void onException(final MusicExceptionEvent pEvent) {
+				StreamMusicPlayer.this.mSignallingExecutor.execute(new Runnable() {
+
+					@Override
+					public void run() {
+						if(StreamMusicPlayer.this.mMusicListener != null) {
+							StreamMusicPlayer.this.mMusicListener.onException(pEvent);
+						}
+					}
+					
+				});
 			}
 
 		};
-		this.mExecutor = pExecutor;
+		this.mPlaybackExecutor = pExecutor;
+		this.mSignallingExecutor = Executors.newSingleThreadExecutor();
 		this.mCurrentSong = null;
 		this.mCurrentAudioDevice = null;
 	}
@@ -197,7 +214,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 				throw new IllegalStateException("Player is already playing");
 			}
 			this.mStreamPlayerRunnable.mStopped = false;
-			this.mExecutor.execute(this.mStreamPlayerRunnable);
+			this.mPlaybackExecutor.execute(this.mStreamPlayerRunnable);
 		} finally {
 			this.mLock.unlock();
 		}
@@ -266,8 +283,8 @@ public final class StreamMusicPlayer implements MusicPlayer {
 			if(this.mStreamPlayerRunnable != null) {
 				this.mStreamPlayerRunnable.stop();
 			}
-			if(this.mCreateOwnThread && this.mExecutor != null) {
-				((ExecutorService) this.mExecutor).shutdown();
+			if(this.mCreateOwnThread && this.mPlaybackExecutor != null) {
+				((ExecutorService) this.mPlaybackExecutor).shutdown();
 			}
 			if(this.mCreatedOwnAudioDevice && this.mCurrentAudioDevice != null) {
 				//the current audio device may be null
@@ -278,7 +295,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 			}
 		} finally {
 			if(this.mCreateOwnThread) {
-				this.mExecutor = null;
+				this.mPlaybackExecutor = null;
 			}
 			this.mStreamPlayerRunnable = null;
 			this.mCurrentAudio = null;
@@ -346,7 +363,8 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	
 	@Override
 	public boolean canSeek() {
-		return this.mCurrentAudio instanceof SeekableAudio && ((SeekableAudio) this.mCurrentAudio).canSeek();
+		return this.mStreamPlayerRunnable != null 
+				&& this.mStreamPlayerRunnable.canSeek();
 	}
 
 	@Override
@@ -376,8 +394,8 @@ public final class StreamMusicPlayer implements MusicPlayer {
 				}
 			}
 		}
-		if(this.mCreateOwnThread && this.mExecutor == null) {
-			this.mExecutor = Executors.newFixedThreadPool(1);
+		if(this.mCreateOwnThread && this.mPlaybackExecutor == null) {
+			this.mPlaybackExecutor = Executors.newFixedThreadPool(1);
 		}
 		if(this.mCurrentAudio != null && !this.mCurrentAudio.isClosed()) {
 			this.mCurrentAudio.close();
@@ -408,7 +426,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 		}
 		this.mStreamPlayerRunnable = new StreamPlayerRunnable(this.mCurrentAudio,
 				this.mCurrentAudioDevice,
-				this.mExecutor != null,
+				this.mPlaybackExecutor != null,
 				this,
 				this.mPlayerRunnableListener);
 	}
