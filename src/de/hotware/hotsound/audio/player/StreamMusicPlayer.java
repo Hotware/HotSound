@@ -36,8 +36,7 @@ import de.hotware.hotsound.audio.player.StreamPlayerRunnable.StreamPlayerRunnabl
  * always runs the playback in its own thread but you can pass an
  * ExecutorService instead if you want to
  * 
- * FIXME: the whole seeking stuff won't work if the StreamPlayerRunnable has
- * stopped.
+ * TODO: test skipping, etc.
  * 
  * @author Martin Braun
  */

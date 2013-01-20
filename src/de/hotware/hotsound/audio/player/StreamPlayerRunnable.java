@@ -44,8 +44,6 @@ import de.hotware.util.Pause;
  * intelligence without mentioning it, I hereby mention him as inspiration,
  * because his code helped me to write this class.
  * 
- * TODO: maybe make this reusable
- * 
  * TODO: review the stopping process and change if necessary. works but may be
  * bad code.
  * 
