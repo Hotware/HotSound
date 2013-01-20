@@ -44,7 +44,6 @@ import de.hotware.hotsound.audio.data.SeekableAudio;
  * 
  * TODO: extra listener for callable that gets redirected in StreamMusicPlayer
  * 
- * TODO: extra listener for callable that gets redirected in StreamMusicPlayer
  * TODO: review the stopping process and change if necessary. works but may be
  * bad code.
  * 
