@@ -116,7 +116,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 				if(!StreamMusicPlayer.this.mSignallingExecutor.isShutdown()) {
 					StreamMusicPlayer.this.mSignallingExecutor
 							.execute(new Runnable() {
-	
+
 								@Override
 								public void run() {
 									if(StreamMusicPlayer.this.mMusicListener != null) {
@@ -124,9 +124,9 @@ public final class StreamMusicPlayer implements MusicPlayer {
 												.onEnd(pEvent);
 									}
 								}
-	
+
 							});
-				
+
 				}
 			}
 
@@ -135,7 +135,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 				if(!StreamMusicPlayer.this.mSignallingExecutor.isShutdown()) {
 					StreamMusicPlayer.this.mSignallingExecutor
 							.execute(new Runnable() {
-	
+
 								@Override
 								public void run() {
 									if(StreamMusicPlayer.this.mMusicListener != null) {
@@ -143,7 +143,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 												.onException(pEvent);
 									}
 								}
-	
+
 							});
 				}
 			}
