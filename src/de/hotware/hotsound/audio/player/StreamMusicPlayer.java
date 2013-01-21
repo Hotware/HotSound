@@ -43,7 +43,7 @@ import de.hotware.hotsound.audio.player.StreamPlayerRunnable.StreamPlayerRunnabl
 public final class StreamMusicPlayer implements MusicPlayer {
 
 	protected Executor mPlaybackExecutor;
-	protected Executor mSignallingExecutor;
+	protected ExecutorService mSignallingExecutor;
 	protected boolean mCreateOwnThread;
 	protected StreamPlayerRunnable mStreamPlayerRunnable;
 	protected MusicListener mMusicListener;
@@ -113,34 +113,39 @@ public final class StreamMusicPlayer implements MusicPlayer {
 
 			@Override
 			public void onEnd(final MusicEndEvent pEvent) {
-				StreamMusicPlayer.this.mSignallingExecutor
-						.execute(new Runnable() {
-
-							@Override
-							public void run() {
-								if(StreamMusicPlayer.this.mMusicListener != null) {
-									StreamMusicPlayer.this.mMusicListener
-											.onEnd(pEvent);
+				if(!StreamMusicPlayer.this.mSignallingExecutor.isShutdown()) {
+					StreamMusicPlayer.this.mSignallingExecutor
+							.execute(new Runnable() {
+	
+								@Override
+								public void run() {
+									if(StreamMusicPlayer.this.mMusicListener != null) {
+										StreamMusicPlayer.this.mMusicListener
+												.onEnd(pEvent);
+									}
 								}
-							}
-
-						});
+	
+							});
+				
+				}
 			}
 
 			@Override
 			public void onException(final MusicExceptionEvent pEvent) {
-				StreamMusicPlayer.this.mSignallingExecutor
-						.execute(new Runnable() {
-
-							@Override
-							public void run() {
-								if(StreamMusicPlayer.this.mMusicListener != null) {
-									StreamMusicPlayer.this.mMusicListener
-											.onException(pEvent);
+				if(!StreamMusicPlayer.this.mSignallingExecutor.isShutdown()) {
+					StreamMusicPlayer.this.mSignallingExecutor
+							.execute(new Runnable() {
+	
+								@Override
+								public void run() {
+									if(StreamMusicPlayer.this.mMusicListener != null) {
+										StreamMusicPlayer.this.mMusicListener
+												.onException(pEvent);
+									}
 								}
-							}
-
-						});
+	
+							});
+				}
 			}
 
 		};
@@ -273,6 +278,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 			if(this.mCreateOwnThread && this.mPlaybackExecutor != null) {
 				((ExecutorService) this.mPlaybackExecutor).shutdown();
 			}
+			this.mSignallingExecutor.shutdown();
 		} finally {
 			if(this.mCreateOwnThread) {
 				this.mPlaybackExecutor = null;
