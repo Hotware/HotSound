@@ -20,6 +20,7 @@
  */
 package de.hotware.hotsound.audio.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.sound.sampled.AudioFormat;
@@ -32,7 +33,9 @@ public class MultiAudioDevice implements AudioDevice {
 		if(pDevices == null) {
 			throw new NullPointerException("pDevices may not be null");
 		}
-		this.mDevices = pDevices;
+		List<AudioDevice> list = new ArrayList<>();
+		list.addAll(pDevices);
+		this.mDevices = list;
 	}
 
 	@Override
