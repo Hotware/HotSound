@@ -43,8 +43,6 @@ public final class AudioUtil {
 	 * retrieves a AudioInputStream from a given Inputstream. converts the
 	 * AudioInputStream if needed
 	 *
-	 * @param pSong
-	 *            object from which the AudioInputStream should be retrieved
 	 * @return a AudioInputStream-object from which can be played
 	 * @throws UnsupportedAudioFileException
 	 *             if the given Song is not supported on the system
@@ -64,8 +62,6 @@ public final class AudioUtil {
 	 * retrieves a compatible AudioInputStream from a given AudioInputStream.
 	 * converts the AudioInputStream if needed
 	 *
-	 * @param pSong
-	 *            object from which the AudioInputStream should be retrieved
 	 * @return a AudioInputStream-object from which can be played
 	 * @throws UnsupportedAudioFileException
 	 *             if the given Song is not supported on the system
@@ -107,13 +103,13 @@ public final class AudioUtil {
 	/**
 	 * Ensures audio format support for a given stream.
 	 *
-	 * The Stream will be converted to the audio format {@link Encoding.PCM_SIGNED PCM_SIGNED}
+	 * The Stream will be converted to the audio format Encoding.PCM_SIGNED PCM_SIGNED
 	 * if one of the following conditions is true:
 	 *
 	 * <ul>
 	 *  <li>The stream's format is not supported on the system</li>
 	 *  <li>{@code pAlwaysConvert} is true <em>and</em> the stream's format is not already
-	 *  		{@link Encoding.PCM_SIGNED PCM_SIGNED}</li>
+	 *  		Encoding.PCM_SIGNED PCM_SIGNED</li>
 	 * </ul>
 	 *
 	 * @param pAudioInputStream The audio stream to get a supported version of
