@@ -273,23 +273,24 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	@Override
 	public void close() throws MusicPlayerException {
 		this.mLock.lock();
-		//auto close the current audio
-		try(Audio audio = this.mCurrentAudio) {
-			if(this.mStreamPlayerRunnable != null) {
-				this.mStreamPlayerRunnable.stop();
+		try {
+			//auto close the current audio
+			try(Audio audio = this.mCurrentAudio) {
+				this.stop();
+				if(this.mCreateOwnThread && this.mPlaybackExecutor != null) {
+					((ExecutorService) this.mPlaybackExecutor).shutdown();
+				}
+				this.mSignallingExecutor.shutdown();
+			} finally {
+				if(this.mCreateOwnThread) {
+					this.mPlaybackExecutor = null;
+				}
+				this.mStreamPlayerRunnable = null;
+				this.mCurrentAudio = null;
+				this.mCurrentAudioDevice = null;
+				this.mCurrentSong = null;
 			}
-			if(this.mCreateOwnThread && this.mPlaybackExecutor != null) {
-				((ExecutorService) this.mPlaybackExecutor).shutdown();
-			}
-			this.mSignallingExecutor.shutdown();
 		} finally {
-			if(this.mCreateOwnThread) {
-				this.mPlaybackExecutor = null;
-			}
-			this.mStreamPlayerRunnable = null;
-			this.mCurrentAudio = null;
-			this.mCurrentAudioDevice = null;
-			this.mCurrentSong = null;
 			this.mLock.unlock();
 		}
 	}
