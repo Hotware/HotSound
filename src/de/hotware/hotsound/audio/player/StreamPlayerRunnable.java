@@ -87,7 +87,6 @@ final class StreamPlayerRunnable implements Runnable {
 		this.mAlreadyStarted = false;
 		this.mStopped = false;
 		this.mDone = false;
-		
 		this.mPause = new Pause();
 	}
 

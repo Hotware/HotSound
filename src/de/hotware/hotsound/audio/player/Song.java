@@ -32,7 +32,7 @@ import de.hotware.hotsound.audio.data.Audio;
 public interface Song {
 
 	/**
-	 * @return new IAudio instance
+	 * @return new Audio instance
 	 */
 	public Audio getAudio() throws MusicPlayerException;
 

@@ -378,6 +378,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	}
 
 	private void insertInternal(Song pSong, AudioDevice pAudioDevice) throws MusicPlayerException {
+		//FIXME: move the opening and stuff into start.
 		if(this.mStreamPlayerRunnable != null) {
 			if(!this.mStreamPlayerRunnable.isStopped()) {
 				throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
