@@ -58,6 +58,24 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	 */
 	protected AudioDevice mCurrentAudioDevice;
 	private Lock mLock;
+	
+	private static final MusicListener DEFAULT_LISTENER = new MusicListener() {
+
+		@Override
+		public void onEnd(MusicEndEvent pEvent) {
+			try {
+				pEvent.getSource().close();
+			} catch(MusicPlayerException e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public void onException(MusicExceptionEvent pEvent) {
+			pEvent.getException().printStackTrace();
+		}
+
+	};
 
 	/**
 	 * Default Constructor. initializes without an external Listener. An
@@ -66,23 +84,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	 * times
 	 */
 	public StreamMusicPlayer() {
-		this(new MusicListener() {
-
-			@Override
-			public void onEnd(MusicEndEvent pEvent) {
-				try {
-					pEvent.getSource().close();
-				} catch(MusicPlayerException e) {
-					e.printStackTrace();
-				}
-			}
-
-			@Override
-			public void onException(MusicExceptionEvent pEvent) {
-				pEvent.getException().printStackTrace();
-			}
-
-		});
+		this(DEFAULT_LISTENER, null);
 	}
 
 	/**
@@ -92,14 +94,8 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	 */
 	public StreamMusicPlayer(MusicListener pMusicListener) {
 		this(pMusicListener, null);
-		this.mCreateOwnThread = true;
 	}
-
-	public StreamMusicPlayer(Executor pExecutor) {
-		this();
-		this.mPlaybackExecutor = pExecutor;
-	}
-
+	
 	/**
 	 * uses the given ExecutorService to run the tasks. if a musiclistener is
 	 * passed here, make sure to shutdown the StreamMusicPlayer correctly or
@@ -107,6 +103,9 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	 */
 	public StreamMusicPlayer(MusicListener pMusicListener, Executor pExecutor) {
 		this.mLock = new ReentrantLock();
+		if(pMusicListener == null) {
+			throw new IllegalArgumentException("musiclistener may not be null");
+		}
 		this.mMusicListener = pMusicListener;
 		//this has to be done on a separate one because of the signaling behaviour
 		this.mPlayerRunnableListener = new StreamPlayerRunnableListener() {
@@ -150,6 +149,9 @@ public final class StreamMusicPlayer implements MusicPlayer {
 
 		};
 		this.mPlaybackExecutor = pExecutor;
+		if(this.mPlaybackExecutor == null) {
+			this.mCreateOwnThread = true;
+		}
 		this.mSignallingExecutor = Executors.newSingleThreadExecutor();
 		this.mCurrentSong = null;
 		this.mCurrentAudioDevice = null;
@@ -195,6 +197,9 @@ public final class StreamMusicPlayer implements MusicPlayer {
 				throw new IllegalStateException("Player is already playing");
 			}
 			this.mStreamPlayerRunnable.mStopped = false;
+			if(this.mCreateOwnThread && this.mPlaybackExecutor == null) {
+				this.mPlaybackExecutor = Executors.newSingleThreadExecutor();
+			}
 			this.mPlaybackExecutor.execute(this.mStreamPlayerRunnable);
 		} finally {
 			this.mLock.unlock();
@@ -204,7 +209,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	@Override
 	public void restart() throws MusicPlayerException {
 		if(this.mStreamPlayerRunnable == null) {
-			throw new IllegalStateException("can't restart, not started, yet");
+			throw new IllegalStateException("can't restart. not started yet");
 		}
 		if(this.mStreamPlayerRunnable.isStopped()) {
 			try {
@@ -390,9 +395,6 @@ public final class StreamMusicPlayer implements MusicPlayer {
 							e);
 				}
 			}
-		}
-		if(this.mCreateOwnThread && this.mPlaybackExecutor == null) {
-			this.mPlaybackExecutor = Executors.newSingleThreadExecutor();
 		}
 		if(this.mCurrentAudio != null && !this.mCurrentAudio.isClosed()) {
 			this.mCurrentAudio.close();
