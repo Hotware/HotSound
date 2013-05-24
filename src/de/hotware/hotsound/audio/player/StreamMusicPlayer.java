@@ -409,11 +409,10 @@ public final class StreamMusicPlayer implements MusicPlayer {
 			throw e;
 		}
 		this.mCurrentAudioDevice = pAudioDevice;
-		if(this.mCurrentAudioDevice.isClosed()) {
-			this.mCurrentAudioDevice.open(this.mCurrentAudio.getAudioFormat());
-		} else {
-			throw new IllegalStateException("the current audiodevice isn't closed");
+		if(!this.mCurrentAudioDevice.isClosed()) {
+			this.mCurrentAudioDevice.close();
 		}
+		this.mCurrentAudioDevice.open(this.mCurrentAudio.getAudioFormat());
 		this.mStreamPlayerRunnable = new StreamPlayerRunnable(this.mCurrentAudio,
 				this.mCurrentAudioDevice,
 				this,
