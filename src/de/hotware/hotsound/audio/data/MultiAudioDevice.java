@@ -124,4 +124,19 @@ public class MultiAudioDevice implements AudioDevice {
 		return ret;
 	}
 
+	@Override
+	public void reopen(AudioFormat pAudioFormat) throws AudioDeviceException {
+		boolean failed = false;
+		for(AudioDevice dev : this.mDevices) {
+			try {
+				dev.reopen(pAudioFormat);
+			} catch(AudioDeviceException e) {
+				failed = true;
+			}
+		}
+		if(failed) {
+			throw new AudioDeviceException("couldn't open all of the underlying AudioDevices");
+		}
+	}
+
 }

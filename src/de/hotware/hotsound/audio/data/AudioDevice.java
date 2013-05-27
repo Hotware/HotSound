@@ -53,6 +53,18 @@ public interface AudioDevice extends AutoCloseable {
 	 * @throws AudioDeviceException if opening fails   
 	 */
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException;
+	
+	/**
+	 * reopens the AudioDevice with the given AudioFormat.
+	 * if the current AudioFormat is the same as the passed one
+	 * and the AudioDevice is already opened, nothing should be done.
+	 * However, if the AudioFormat is different, every resource that
+	 * cannot be reused is closed and all actions needed to act as
+	 * a newly opened AudioDevice are done.
+	 * 
+	 * @throws IllegalStateException if called and the AudioDevice is closed
+	 */
+	public void reopen(AudioFormat pAudioFormat) throws AudioDeviceException;
 
 	public boolean isPaused();
 
