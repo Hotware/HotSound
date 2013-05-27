@@ -44,7 +44,7 @@ public interface AudioDevice extends AutoCloseable {
 	public int write(byte[] pData, int pStart, int pLength) throws AudioDeviceException;
 
 	/**
-	 * opens and initializes the IAudioDevice for playback
+	 * opens and initializes the AudioDevice for playback
 	 *
 	 * @throws NullPointerException
 	 *				if null is passed as a parameter
