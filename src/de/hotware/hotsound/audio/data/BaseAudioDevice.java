@@ -52,6 +52,20 @@ public abstract class BaseAudioDevice implements AudioDevice {
 	}
 
 	@Override
+	public final void reopen(AudioFormat pAudioFormat) throws AudioDeviceException {
+		if(!this.mClosed) {
+			throw new IllegalStateException("The AudioDevice is already opened");
+		}
+		if(!this.mAudioFormat.equals(pAudioFormat)) {
+			//has to be reopened with a different AudioFormat
+			this.close();
+			this.open(pAudioFormat);
+			this.mAudioFormat = pAudioFormat;
+			this.mClosed = false;
+		}		
+	}
+
+	@Override
 	public boolean isPaused() {
 		return this.mPaused;
 	}

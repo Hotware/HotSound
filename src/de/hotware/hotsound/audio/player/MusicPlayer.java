@@ -35,9 +35,6 @@ public interface MusicPlayer extends AutoCloseable {
 	/**
 	 * inserts a Song to the the Player and uses
 	 * the given audiodevice to play the audio
-	 * 
-	 * closes the audiodevice before usage if not closed
-	 * because of audioformat issues.
 	 */
 	public void insert(Song pSong, AudioDevice pAudioDevice) throws MusicPlayerException;
 
