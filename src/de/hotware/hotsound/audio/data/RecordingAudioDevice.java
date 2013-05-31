@@ -26,6 +26,8 @@ import java.io.IOException;
 import javax.sound.sampled.AudioFormat;
 
 public class RecordingAudioDevice extends BaseAudioDevice {
+	
+	//FIXME: overwrites if reopened.
 
 	protected Recorder mRecorder;
 	protected File mFile;
