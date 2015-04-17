@@ -2,5 +2,4 @@ language: java
 jdk:
   - oraclejdk7
   - openjdk7
-before_install: cd src
 install: mvn install;cd ..
