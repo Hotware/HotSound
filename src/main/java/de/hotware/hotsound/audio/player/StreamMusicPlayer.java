@@ -1,32 +1,31 @@
 /**
  * File StreamMusicPlayer.java
  * ---------------------------------------------------------
- *
+ * <p/>
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
- *
+ * <p/>
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
+ * <p/>
  * - The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  * - The origin of the software must not be misrepresented.
- *
+ * <p/>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
+ * <p/>
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
- *   if it breaks something.
+ * if it breaks something.
  */
 package de.hotware.hotsound.audio.player;
 
+import javax.sound.sampled.AudioFormat;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
-import javax.sound.sampled.AudioFormat;
 
 import de.hotware.hotsound.audio.data.Audio;
 import de.hotware.hotsound.audio.data.AudioDevice;
@@ -35,9 +34,9 @@ import de.hotware.hotsound.audio.player.StreamPlayerRunnable.StreamPlayerRunnabl
 /**
  * always runs the playback in its own thread but you can pass an
  * ExecutorService instead if you want to
- * 
+ *
  * TODO: test skipping, etc.
- * 
+ *
  * @author Martin Braun
  */
 public final class StreamMusicPlayer implements MusicPlayer {
@@ -58,14 +57,15 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	 */
 	protected AudioDevice mCurrentAudioDevice;
 	private Lock mLock;
-	
+
 	private static final MusicListener DEFAULT_LISTENER = new MusicListener() {
 
 		@Override
 		public void onEnd(MusicEndEvent pEvent) {
 			try {
 				pEvent.getSource().close();
-			} catch(MusicPlayerException e) {
+			}
+			catch (MusicPlayerException e) {
 				e.printStackTrace();
 			}
 		}
@@ -84,7 +84,7 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	 * times
 	 */
 	public StreamMusicPlayer() {
-		this(DEFAULT_LISTENER, null);
+		this( DEFAULT_LISTENER, null );
 	}
 
 	/**
@@ -93,9 +93,9 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	 * correctly or otherwise bugs might occur
 	 */
 	public StreamMusicPlayer(MusicListener pMusicListener) {
-		this(pMusicListener, null);
+		this( pMusicListener, null );
 	}
-	
+
 	/**
 	 * uses the given ExecutorService to run the tasks. if a musiclistener is
 	 * passed here, make sure to shutdown the StreamMusicPlayer correctly or
@@ -103,8 +103,8 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	 */
 	public StreamMusicPlayer(MusicListener pMusicListener, Executor pExecutor) {
 		this.mLock = new ReentrantLock();
-		if(pMusicListener == null) {
-			throw new IllegalArgumentException("musiclistener may not be null");
+		if ( pMusicListener == null ) {
+			throw new IllegalArgumentException( "musiclistener may not be null" );
 		}
 		this.mMusicListener = pMusicListener;
 		//this has to be done on a separate one because of the signaling behaviour
@@ -112,44 +112,48 @@ public final class StreamMusicPlayer implements MusicPlayer {
 
 			@Override
 			public void onEnd(final MusicEndEvent pEvent) {
-				if(!StreamMusicPlayer.this.mSignallingExecutor.isShutdown()) {
+				if ( !StreamMusicPlayer.this.mSignallingExecutor.isShutdown() ) {
 					StreamMusicPlayer.this.mSignallingExecutor
-							.execute(new Runnable() {
+							.execute(
+									new Runnable() {
 
-								@Override
-								public void run() {
-									if(StreamMusicPlayer.this.mMusicListener != null) {
-										StreamMusicPlayer.this.mMusicListener
-												.onEnd(pEvent);
+										@Override
+										public void run() {
+											if ( StreamMusicPlayer.this.mMusicListener != null ) {
+												StreamMusicPlayer.this.mMusicListener
+														.onEnd( pEvent );
+											}
+										}
+
 									}
-								}
-
-							});
+							);
 
 				}
 			}
 
 			@Override
 			public void onException(final MusicExceptionEvent pEvent) {
-				if(!StreamMusicPlayer.this.mSignallingExecutor.isShutdown()) {
+				if ( !StreamMusicPlayer.this.mSignallingExecutor.isShutdown() ) {
 					StreamMusicPlayer.this.mSignallingExecutor
-							.execute(new Runnable() {
+							.execute(
+									new Runnable() {
 
-								@Override
-								public void run() {
-									if(StreamMusicPlayer.this.mMusicListener != null) {
-										StreamMusicPlayer.this.mMusicListener
-												.onException(pEvent);
+										@Override
+										public void run() {
+											if ( StreamMusicPlayer.this.mMusicListener != null ) {
+												StreamMusicPlayer.this.mMusicListener
+														.onException( pEvent );
+											}
+										}
+
 									}
-								}
-
-							});
+							);
 				}
 			}
 
 		};
 		this.mPlaybackExecutor = pExecutor;
-		if(this.mPlaybackExecutor == null) {
+		if ( this.mPlaybackExecutor == null ) {
 			this.mCreateOwnThread = true;
 		}
 		this.mSignallingExecutor = Executors.newSingleThreadExecutor();
@@ -178,8 +182,9 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	public void insert(Song pSong, AudioDevice pAudioDevice) throws MusicPlayerException {
 		this.mLock.lock();
 		try {
-			this.insertInternal(pSong, pAudioDevice);
-		} finally {
+			this.insertInternal( pSong, pAudioDevice );
+		}
+		finally {
 			this.mLock.unlock();
 		}
 	}
@@ -188,40 +193,45 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	public void start() throws MusicPlayerException {
 		this.mLock.lock();
 		try {
-			if(this.mStreamPlayerRunnable == null) {
-				throw new IllegalStateException(this +
-						" has not been initialized yet!");
+			if ( this.mStreamPlayerRunnable == null ) {
+				throw new IllegalStateException(
+						this +
+								" has not been initialized yet!"
+				);
 			}
-			if(!this.mStreamPlayerRunnable.isStopped() &&
-					this.mStreamPlayerRunnable.isAlreadyStarted()) {
-				throw new IllegalStateException("Player is already playing");
+			if ( !this.mStreamPlayerRunnable.isStopped() &&
+					this.mStreamPlayerRunnable.isAlreadyStarted() ) {
+				throw new IllegalStateException( "Player is already playing" );
 			}
 			this.mStreamPlayerRunnable.mStopped = false;
-			if(this.mCreateOwnThread && this.mPlaybackExecutor == null) {
+			if ( this.mCreateOwnThread && this.mPlaybackExecutor == null ) {
 				this.mPlaybackExecutor = Executors.newSingleThreadExecutor();
 			}
-			this.mPlaybackExecutor.execute(this.mStreamPlayerRunnable);
-		} finally {
+			this.mPlaybackExecutor.execute( this.mStreamPlayerRunnable );
+		}
+		finally {
 			this.mLock.unlock();
 		}
 	}
 
 	@Override
 	public void restart() throws MusicPlayerException {
-		if(this.mStreamPlayerRunnable == null) {
-			throw new IllegalStateException("can't restart. not started yet");
+		if ( this.mStreamPlayerRunnable == null ) {
+			throw new IllegalStateException( "can't restart. not started yet" );
 		}
-		if(this.mStreamPlayerRunnable.isStopped()) {
+		if ( this.mStreamPlayerRunnable.isStopped() ) {
 			try {
 				this.mStreamPlayerRunnable.join();
-			} catch(InterruptedException e) {
-				throw new MusicPlayerException(e);
+			}
+			catch (InterruptedException e) {
+				throw new MusicPlayerException( e );
 			}
 			this.mStreamPlayerRunnable.reset();
-			this.mStreamPlayerRunnable.seek(0);
-			this.mPlaybackExecutor.execute(this.mStreamPlayerRunnable);
-		} else {
-			this.mStreamPlayerRunnable.seek(0);
+			this.mStreamPlayerRunnable.seek( 0 );
+			this.mPlaybackExecutor.execute( this.mStreamPlayerRunnable );
+		}
+		else {
+			this.mStreamPlayerRunnable.seek( 0 );
 		}
 	}
 
@@ -229,10 +239,11 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	public void pause(boolean pPause) {
 		this.mLock.lock();
 		try {
-			if(this.mStreamPlayerRunnable != null) {
-				this.mStreamPlayerRunnable.pause(pPause);
+			if ( this.mStreamPlayerRunnable != null ) {
+				this.mStreamPlayerRunnable.pause( pPause );
 			}
-		} finally {
+		}
+		finally {
 			this.mLock.unlock();
 		}
 	}
@@ -241,13 +252,14 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	public void stop() throws MusicPlayerException {
 		this.mLock.lock();
 		try {
-			if(this.mStreamPlayerRunnable != null) {
+			if ( this.mStreamPlayerRunnable != null ) {
 				this.mStreamPlayerRunnable.stop();
 			}
-			if(this.mCurrentAudioDevice != null) {
+			if ( this.mCurrentAudioDevice != null ) {
 				this.mCurrentAudioDevice.close();
 			}
-		} finally {
+		}
+		finally {
 			this.mLock.unlock();
 		}
 	}
@@ -259,7 +271,8 @@ public final class StreamMusicPlayer implements MusicPlayer {
 			return this.mStreamPlayerRunnable == null ||
 					this.mStreamPlayerRunnable.isStopped() ||
 					!this.mStreamPlayerRunnable.isAlreadyStarted();
-		} finally {
+		}
+		finally {
 			this.mLock.unlock();
 		}
 	}
@@ -270,7 +283,8 @@ public final class StreamMusicPlayer implements MusicPlayer {
 		try {
 			return this.mStreamPlayerRunnable == null ||
 					this.mStreamPlayerRunnable.isPaused();
-		} finally {
+		}
+		finally {
 			this.mLock.unlock();
 		}
 	}
@@ -280,14 +294,15 @@ public final class StreamMusicPlayer implements MusicPlayer {
 		this.mLock.lock();
 		try {
 			//auto close the current audio
-			try(Audio audio = this.mCurrentAudio) {
+			try (Audio audio = this.mCurrentAudio) {
 				this.stop();
-				if(this.mCreateOwnThread && this.mPlaybackExecutor != null) {
+				if ( this.mCreateOwnThread && this.mPlaybackExecutor != null ) {
 					((ExecutorService) this.mPlaybackExecutor).shutdown();
 				}
 				this.mSignallingExecutor.shutdown();
-			} finally {
-				if(this.mCreateOwnThread) {
+			}
+			finally {
+				if ( this.mCreateOwnThread ) {
 					this.mPlaybackExecutor = null;
 				}
 				this.mStreamPlayerRunnable = null;
@@ -295,7 +310,8 @@ public final class StreamMusicPlayer implements MusicPlayer {
 				this.mCurrentAudioDevice = null;
 				this.mCurrentSong = null;
 			}
-		} finally {
+		}
+		finally {
 			this.mLock.unlock();
 		}
 	}
@@ -304,12 +320,15 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	public AudioFormat getAudioFormat() {
 		this.mLock.lock();
 		try {
-			if(this.mStreamPlayerRunnable == null) {
-				throw new IllegalStateException(this +
-						" has not been initialized yet!");
+			if ( this.mStreamPlayerRunnable == null ) {
+				throw new IllegalStateException(
+						this +
+								" has not been initialized yet!"
+				);
 			}
 			return this.mStreamPlayerRunnable.getAudioFormat();
-		} finally {
+		}
+		finally {
 			this.mLock.unlock();
 		}
 	}
@@ -318,12 +337,15 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	public AudioDevice getAudioDevice() {
 		this.mLock.lock();
 		try {
-			if(this.mStreamPlayerRunnable == null) {
-				throw new IllegalStateException(this +
-						" has not been initialized yet!");
+			if ( this.mStreamPlayerRunnable == null ) {
+				throw new IllegalStateException(
+						this +
+								" has not been initialized yet!"
+				);
 			}
 			return this.mStreamPlayerRunnable.getAudioDevice();
-		} finally {
+		}
+		finally {
 			this.mLock.unlock();
 		}
 	}
@@ -332,14 +354,15 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	public void skip(long pFrames) throws MusicPlayerException {
 		this.mLock.lock();
 		try {
-			if(this.mStreamPlayerRunnable == null) {
-				throw new IllegalStateException("can't skip");
+			if ( this.mStreamPlayerRunnable == null ) {
+				throw new IllegalStateException( "can't skip" );
 			}
-			if(!this.mStreamPlayerRunnable.isStopped() &&
-					!this.mStreamPlayerRunnable.isDone()) {
-				this.mStreamPlayerRunnable.skip(pFrames);
+			if ( !this.mStreamPlayerRunnable.isStopped() &&
+					!this.mStreamPlayerRunnable.isDone() ) {
+				this.mStreamPlayerRunnable.skip( pFrames );
 			}
-		} finally {
+		}
+		finally {
 			this.mLock.unlock();
 		}
 	}
@@ -348,16 +371,18 @@ public final class StreamMusicPlayer implements MusicPlayer {
 	public void seek(long pFrame) throws MusicPlayerException {
 		this.mLock.lock();
 		try {
-			if(!this.canSeek()) {
-				throw new IllegalStateException("can't seek");
+			if ( !this.canSeek() ) {
+				throw new IllegalStateException( "can't seek" );
 			}
-			if(!this.mStreamPlayerRunnable.isStopped() &&
-					!this.mStreamPlayerRunnable.isDone()) {
-				this.mStreamPlayerRunnable.seek(pFrame);
-			} else {
+			if ( !this.mStreamPlayerRunnable.isStopped() &&
+					!this.mStreamPlayerRunnable.isDone() ) {
+				this.mStreamPlayerRunnable.seek( pFrame );
+			}
+			else {
 				this.restart();
 			}
-		} finally {
+		}
+		finally {
 			this.mLock.unlock();
 		}
 	}
@@ -373,51 +398,60 @@ public final class StreamMusicPlayer implements MusicPlayer {
 		this.mLock.lock();
 		try {
 			StringBuilder builder = new StringBuilder();
-			return builder.append("[").append(this.getClass().getSimpleName())
-					.append(": Current Song: ").append(this.mCurrentSong)
-					.append(" ").append("Current AudioDevice: ")
-					.append(this.mCurrentAudioDevice).append("]").toString();
-		} finally {
+			return builder.append( "[" ).append( this.getClass().getSimpleName() )
+					.append( ": Current Song: " ).append( this.mCurrentSong )
+					.append( " " ).append( "Current AudioDevice: " )
+					.append( this.mCurrentAudioDevice ).append( "]" ).toString();
+		}
+		finally {
 			this.mLock.unlock();
 		}
 	}
 
 	private void insertInternal(Song pSong, AudioDevice pAudioDevice) throws MusicPlayerException {
 		//FIXME: move the opening and stuff into start.
-		if(this.mStreamPlayerRunnable != null) {
-			if(!this.mStreamPlayerRunnable.isStopped()) {
-				throw new IllegalStateException("You can only insert Songs while the Player is stopped!");
-			} else {
+		if ( this.mStreamPlayerRunnable != null ) {
+			if ( !this.mStreamPlayerRunnable.isStopped() ) {
+				throw new IllegalStateException( "You can only insert Songs while the Player is stopped!" );
+			}
+			else {
 				try {
 					this.mStreamPlayerRunnable.join();
-				} catch(InterruptedException e) {
-					throw new MusicPlayerException("couldn't wait until the end of the current audio",
-							e);
+				}
+				catch (InterruptedException e) {
+					throw new MusicPlayerException(
+							"couldn't wait until the end of the current audio",
+							e
+					);
 				}
 			}
 		}
-		if(this.mCurrentAudio != null && !this.mCurrentAudio.isClosed()) {
+		if ( this.mCurrentAudio != null && !this.mCurrentAudio.isClosed() ) {
 			this.mCurrentAudio.close();
 		}
 		try {
 			this.mCurrentSong = pSong;
 			this.mCurrentAudio = pSong.getAudio();
 			this.mCurrentAudio.open();
-		} catch(MusicPlayerException e) {
+		}
+		catch (MusicPlayerException e) {
 			this.mCurrentAudio = null;
 			this.mCurrentSong = null;
 			throw e;
 		}
 		this.mCurrentAudioDevice = pAudioDevice;
-		if(this.mCurrentAudioDevice.isClosed()) {
-			this.mCurrentAudioDevice.open(this.mCurrentAudio.getAudioFormat());
-		} else {
-			this.mCurrentAudioDevice.reopen(this.mCurrentAudio.getAudioFormat());
+		if ( this.mCurrentAudioDevice.isClosed() ) {
+			this.mCurrentAudioDevice.open( this.mCurrentAudio.getAudioFormat() );
 		}
-		this.mStreamPlayerRunnable = new StreamPlayerRunnable(this.mCurrentAudio,
+		else {
+			this.mCurrentAudioDevice.reopen( this.mCurrentAudio.getAudioFormat() );
+		}
+		this.mStreamPlayerRunnable = new StreamPlayerRunnable(
+				this.mCurrentAudio,
 				this.mCurrentAudioDevice,
 				this,
-				this.mPlayerRunnableListener);
+				this.mPlayerRunnableListener
+		);
 	}
 
 }

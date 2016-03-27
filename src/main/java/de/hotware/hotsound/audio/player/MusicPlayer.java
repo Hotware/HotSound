@@ -1,22 +1,22 @@
 /**
  * File MusicPlayer.java
  * ---------------------------------------------------------
- *
+ * <p/>
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
- *
+ * <p/>
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
+ * <p/>
  * - The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  * - The origin of the software must not be misrepresented.
- *
+ * <p/>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
+ * <p/>
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
- *   if it breaks something.
+ * if it breaks something.
  */
 package de.hotware.hotsound.audio.player;
 
@@ -27,7 +27,7 @@ import de.hotware.hotsound.audio.data.AudioDevice;
 /**
  * Music Player interface. provides basic player methods and getters for a
  * player.
- * 
+ *
  * @author Martin Braun
  */
 public interface MusicPlayer extends AutoCloseable {
@@ -40,7 +40,7 @@ public interface MusicPlayer extends AutoCloseable {
 
 	/**
 	 * starts the playback
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if the player hasn't been initialized yet (insert not called)
 	 * @throws MusicPlayerException
@@ -50,7 +50,7 @@ public interface MusicPlayer extends AutoCloseable {
 
 	/**
 	 * pauses/unpauses the playback
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if the player hasn't been initialized yet (insert not called)
 	 */
@@ -59,13 +59,13 @@ public interface MusicPlayer extends AutoCloseable {
 	/**
 	 * stops the playback but doesn't reset the Player. you can restart it via
 	 * restartPlayback afterwards
-	 * 
+	 *
 	 * may lock the call if in multithreaded mode and the player is currently
 	 * starting
-	 * 
+	 *
 	 * @throws MusicPlayerException
 	 *             if stopping fails
-	 * 
+	 *
 	 * @throws IllegalStateException
 	 *             if the player hasn't been initialized yet (insert not called)
 	 */
@@ -104,9 +104,9 @@ public interface MusicPlayer extends AutoCloseable {
 	 * seeks to the given position
 	 */
 	public void seek(long pFrame) throws MusicPlayerException;
-	
+
 	public void skip(long pFrames) throws MusicPlayerException;
-	
+
 	public boolean canSeek();
 
 	public void restart() throws MusicPlayerException;

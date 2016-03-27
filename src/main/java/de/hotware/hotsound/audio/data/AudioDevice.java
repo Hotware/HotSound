@@ -1,22 +1,22 @@
 /**
  * File IAudioDevice.java
  * ---------------------------------------------------------
- *
+ * <p/>
  * Copyright (C) 2012 Martin Braun (martinbraun123@aol.com)
- *
+ * <p/>
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
  * and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
+ * <p/>
  * - The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  * - The origin of the software must not be misrepresented.
- *
+ * <p/>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- *
+ * <p/>
  * TL;DR: As long as you clearly give me credit for this Software, you are free to use as you like, even in commercial software, but don't blame me
- *   if it breaks something.
+ * if it breaks something.
  */
 package de.hotware.hotsound.audio.data;
 
@@ -53,7 +53,7 @@ public interface AudioDevice extends AutoCloseable {
 	 * @throws AudioDeviceException if opening fails   
 	 */
 	public void open(AudioFormat pAudioFormat) throws AudioDeviceException;
-	
+
 	/**
 	 * reopens the AudioDevice with the given AudioFormat.
 	 * if the current AudioFormat is the same as the passed one
@@ -61,7 +61,7 @@ public interface AudioDevice extends AutoCloseable {
 	 * However, if the AudioFormat is different, every resource that
 	 * cannot be reused is closed and all actions needed to act as
 	 * a newly opened AudioDevice are done.
-	 * 
+	 *
 	 * @throws IllegalStateException if called and the AudioDevice is closed
 	 */
 	public void reopen(AudioFormat pAudioFormat) throws AudioDeviceException;
@@ -80,7 +80,7 @@ public interface AudioDevice extends AutoCloseable {
 	 */
 	@Override
 	public void close() throws AudioDeviceException;
-	
+
 	/**
 	 * discards all audio that is currently in the buffer
 	 */
@@ -97,11 +97,11 @@ public interface AudioDevice extends AutoCloseable {
 		}
 
 		public AudioDeviceException(String pMessage) {
-			super(pMessage);
+			super( pMessage );
 		}
 
 		public AudioDeviceException(String pMessage, Throwable pCause) {
-			super(pMessage, pCause);
+			super( pMessage, pCause );
 		}
 
 	}
