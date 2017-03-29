@@ -37,80 +37,70 @@ import static org.junit.Assert.fail;
 
 public class AudioTest {
 
-	@Test
-	public void testSongs() {
-		try {
-			this.testSong( new BasicPlaybackSong( this.getClass().getResource( "/test.wav" ) ) );
-			List<Mixer> mixers = RecordAudio.getRecordMixers();
-			Mixer mixer = mixers.get( 0 );
-			try {
-				mixer.open();
-			}
-			catch (LineUnavailableException e) {
-				fail( "test failed, couln't open mixer for testing" );
-			}
-			this.testSong( new RecordSong( mixer ) );
-			//FIXME: whatever
-			//this.testSong(new SavingSong(new File("test_resources/test.wav")));
-		}
-		catch (Exception e) {
-			fail( this + " is borked " + e.getMessage() );
-		}
-	}
+    @Test
+    public void testSongs() throws Exception {
+        this.testSong(new BasicPlaybackSong(this.getClass().getResource("/test.wav")));
+        List<Mixer> mixers = RecordAudio.getRecordMixers();
+        if(mixers.size() > 0) {
+            Mixer mixer = mixers.get(0);
+            try {
+                mixer.open();
+            } catch (LineUnavailableException e) {
+                fail("test failed, couln't open mixer for testing");
+            }
+            this.testSong(new RecordSong(mixer));
+            //FIXME: whatever
+            //this.testSong(new SavingSong(new File("test_resources/test.wav")));
+        }
+    }
 
-	public void testSong(Song pSong) {
-		Audio audio = null;
-		try {
-			audio = pSong.getAudio();
-		}
-		catch (MusicPlayerException e) {
-			fail( "couldn't initialize BasicPlaybackAudio" );
-		}
-		try {
-			audio.open();
-			assertTrue( audio.getAudioFormat() != null );
-		}
-		catch (AudioException e) {
-			fail( "couldn't open BasicPlaybackAudio" );
-		}
-		try {
-			byte[] test = new byte[128];
-			audio.read( test, 0, 128 );
-		}
-		catch (AudioException e) {
-			fail( "couldn't read from BasicPlaybackAudio" );
-		}
-		if ( audio instanceof SeekableAudio ) {
-			long framePosition = ((SeekableAudio) audio).getFramePosition();
-			try {
-				((SeekableAudio) audio).skip( 10 );
-			}
-			catch (AudioException e) {
-				fail( e.toString() );
-			}
-			if ( ((SeekableAudio) audio).getFramePosition() - framePosition != 10 ) {
-				fail( "framePosition isn't equal to the position skipped to" );
-			}
-			try {
-				((SeekableAudio) audio).seek( 10 );
-			}
-			catch (AudioException e) {
-				fail( e.toString() );
-			}
-			if ( ((SeekableAudio) audio).getFramePosition() != 10 ) {
-				fail(
-						"framePosition isn't equal to the position seeked to.\n" +
-								"It's at: " + ((SeekableAudio) audio).getFramePosition()
-				);
-			}
-		}
-		try {
-			audio.close();
-		}
-		catch (AudioException e) {
-			fail( "coudln't close BasicPlaybackAudio" );
-		}
-	}
+    public void testSong(Song pSong) {
+        Audio audio = null;
+        try {
+            audio = pSong.getAudio();
+        } catch (MusicPlayerException e) {
+            fail("couldn't initialize BasicPlaybackAudio");
+        }
+        try {
+            audio.open();
+            assertTrue(audio.getAudioFormat() != null);
+        } catch (AudioException e) {
+            fail("couldn't open BasicPlaybackAudio");
+        }
+        try {
+            byte[] test = new byte[128];
+            audio.read(test, 0, 128);
+        } catch (AudioException e) {
+            fail("couldn't read from BasicPlaybackAudio");
+        }
+        if (audio instanceof SeekableAudio) {
+            long framePosition = ((SeekableAudio) audio).getFramePosition();
+            try {
+                ((SeekableAudio) audio).skip(10);
+            } catch (AudioException e) {
+                fail(e.toString());
+            }
+            if (((SeekableAudio) audio).getFramePosition() - framePosition != 10) {
+                fail("framePosition isn't equal to the position skipped to");
+            }
+            try {
+                ((SeekableAudio) audio).seek(10);
+            } catch (AudioException e) {
+                fail(e.toString());
+            }
+            if (((SeekableAudio) audio).getFramePosition() != 10) {
+                fail(
+                        "framePosition isn't equal to the position seeked to.\n" +
+                                "It's at: " + ((SeekableAudio) audio).getFramePosition()
+                );
+            }
+        }
+        try {
+            audio.close();
+        } catch (AudioException e) {
+            fail("coudln't close BasicPlaybackAudio");
+        }
+    }
 
 
 }
