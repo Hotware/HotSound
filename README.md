@@ -2,7 +2,7 @@
 Playing music with HotSound is much easier than playing with JavaSound while you still have all the control over most of the stuff. It doesn't rely on the Clip functionality to be easy to use and runs in a separate Thread if needed.
 
 ## Why HotSound?
-Because playing Sound with Java isn't easy. It costs time to write that complex code and consumes precious coffee break time :P. No, just kidding. No need to write your own sound engine.
+Because playing Sound with Java isn't easy. It costs time to write that complex code and consumes precious coffee break time. No need to write your own sound engine.
 
 ## Does HotSound support encoded Audiotypes?
 Yes! If there is a JavaSound SPI any sound format can be played with HotSound. That's being done via .jar files that you have to add to your path.
